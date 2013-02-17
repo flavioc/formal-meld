@@ -1,0 +1,846 @@
+\documentclass[11pt]{article}
+% \documentclass[11pt,twoside]{article}
+
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{comment}
+\usepackage{proof-dashed}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{turnstile}
+
+\input{fp-macros}
+
+\title{Meld 2.0 Semantics}
+\author{Flavio Cruz}
+
+\begin{document}
+
+\newcommand{\trnstile}{\sststile{}{}}
+\newcommand{\typ}[1]{\m{#1} \; \m{typ}}
+\newcommand{\btyp}[1]{\m{#1} \; \m{btyp}}
+\newcommand{\eexpr}[2]{\m{#1}:\m{#2}}
+\newcommand{\aexp}[4]{#1;#2 \sststile{}{} \eexpr{#3}{#4}}
+\newcommand{\expr}[3]{\aexp{\Psi}{#1}{#2}{#3}}
+\newcommand{\tab}[0]{\;\;\;\;}
+\newcommand{\elet}[3]{\m{let} \; #1 \; = \; #2 \; \m{in} \; #3 \; \m{end}}
+\newcommand{\const}[2]{\m{const}(\mathit{#1}, #2)}
+\newcommand{\getconst}[1]{\m{getconst}(\mathit{#1})}
+\newcommand{\external}[2]{\m{external}(\mathit{#1}, #2)}
+\newcommand{\callexternal}[2]{\m{callexternal}(\mathit{#1}, #2)}
+\newcommand{\fun}[3]{\m{fun}(\mathit{#1}, #2, #3)}
+\newcommand{\callfun}[2]{\m{callfun}(\mathit{#1}, #2)}
+\newcommand{\decl}[2]{\m{decl} \; #1 \; [#2]}
+\newcommand{\val}[2]{\m{val} \; #1 : \m{#2}}
+\newcommand{\declconst}[3]{\const{#1}{#2} \; \m{of} \; #3}
+\newcommand{\declfun}[4]{\fun{#1}{#2}{#3} \; \m{of} \; #4}
+\newcommand{\eval}[2]{\Psi \; ; \; #1 \rightarrow #2}
+\newcommand{\constraint}[1]{\m{constraint} \; #1}
+\newcommand{\fact}[2]{\m{fact} \; #1(#2)}
+\newcommand{\mif}[3]{\m{if} \; #1 \; \m{then} \; #2 \; \m{else} \; #3 \; \m{end}}
+\newcommand{\mrule}[3]{\Psi ; #1 ; #2 \trnstile #3 \; \m{rule}}
+\newcommand{\mrulebody}[4]{\Psi ; #1 ; #2 ; #3 \trnstile #4 \; \m{body}}
+\newcommand{\mrulehead}[3]{\Psi ; #1 ; #2 \trnstile #3 \; \m{head}}
+\newcommand{\mrulestart}[1]{\m{rule} \; \Psi \; / \; #1}
+\newcommand{\comp}[0]{\m{comp} \; }
+\newcommand{\aggregate}[4]{[\m{#1} ; #2 ; #3 \Rightarrow #4]}
+\newcommand{\aggregatetype}[3]{[\m{#1}] \; / \; #2 \rightsquigarrow #3}
+\newcommand{\changes}[6]{#1 ; #2 ; #3 ; #4 \Rightarrow #5 ; #6}
+\newcommand{\changesb}[7]{#1 ; #2 ; #3 ; #4 \Rightarrow #5 ; #6 ; #7}
+\newcommand{\apply}[5]{\m{apply} \; #1 ; #2 ; #3 \rightarrow #4 ; #5}
+\newcommand{\applyb}[6]{\m{apply} \; #1 ; #2 ; #3 \rightarrow #4 ; #5 ; #6}
+\newcommand{\derive}[8]{\m{derive} \; #1 ; #2 ; #3 ; #4 ; #5 ; #6 \rightarrow #7 ; #8}
+\newcommand{\deriveb}[9]{\m{derive} \; #1 ; #2 ; #3 ; #4 ; #5 ; #6 \rightarrow #7 ; #8 ; #9}
+\newcommand{\match}[4]{\m{match} \; #1 ; #2 ; #3 \rightarrow #4}
+\newcommand{\equal}[2]{#1 = #2}
+\newcommand{\at}[2]{#1 \; @ \; #2}
+
+\maketitle
+
+\section{Static Semantics}
+
+\subsection{Types}
+
+\[
+\infer[\m{addr}]
+{\btyp{addr}}{}
+\tab
+\infer[\m{int}]
+{\btyp{int}}
+{}
+\tab
+\infer[\m{float}]
+{\btyp{float}}
+{}
+\tab
+\infer[\m{bool}]
+{\btyp{bool}}{}
+\tab
+\infer[\m{string}]
+{\btyp{string}}{}
+\]
+
+\[
+\infer[\m{btyp}]
+{\typ{\tau}}{\btyp{\tau}}
+\tab
+\infer[\m{list}]
+{\typ{list \; \tau}}{\btyp{\tau}}
+\]
+
+\subsection{Expressions}
+
+\[
+\infer[\m{addr \; literal}]
+{\expr{\Gamma}{\m{addr}(N)}{\m{addr}}}
+{}
+\]
+
+\[
+\infer[\m{int \; literal}]
+{\expr{\Gamma}{\m{int}(N)}{int}}{\m{N \; is \; a \; literal}}
+\tab
+\infer[\m{float \; literal}]
+{\expr{\Gamma}{\m{float}(F)}{float}}{\m{F \; is \; a \; float \; literal}}
+\]
+
+\[
+\infer[\m{string \; literal}]
+{\expr{\Gamma}{\m{string}(S)}{string}}{\m{S \; is \; a \; string \; literal}}
+\tab
+\infer[\m{var}]
+{\expr{\Gamma, \eexpr{X}{\tau}}{X}{\tau}}{}
+\]
+
+\[
+\infer[\m{nil}]
+{\expr{\Gamma}{[]}{\m{list \; \tau}}}{\m{\tau}}
+\tab
+\infer[\m{cons}]
+{\expr{\Gamma}{[e_1 \; | \; e_2]}{\m{list \; \tau}}}
+{\expr{\Gamma}{e_1}{\m{\tau}} &
+   \expr{\Gamma}{e_2}{\m{list \; \tau}}}
+\]
+
+\[
+\infer[\m{math \; int}]
+{\expr{\Gamma}{e_1 \; \m{op} \; e_2}{\m{int}}}
+{\expr{\Gamma}{e_1}{\m{int}} & \expr{\Gamma}{e_2}{\m{int}}}
+\tab
+\infer[\m{math \; float}]
+{\expr{\Gamma}{e_1 \; \m{op} \; e_2}{\m{float}}}
+{\expr{\Gamma}{e_1}{\m{float}} & \expr{\Gamma}{e_2}{\m{float}}}
+\]
+
+\[
+\infer[\m{math \; cast1}]
+{\expr{\Gamma}{e_1 \; \m{op} \; e_2}{\m{float}}}
+{\expr{\Gamma}{e_1}{\m{int}} & \expr{\Gamma}{e_2}{\m{float}}}
+\tab
+\infer[\m{math \; cast2}]
+{\expr{\Gamma}{e_1 \; \m{op} \; e_2}{\m{float}}}
+{\expr{\Gamma}{e_1}{\m{float}} & \expr{\Gamma}{e_2}{\m{int}}}
+\]
+
+\[
+\infer[\m{if}]
+{\expr{\Gamma}{\mif{c}{e_1}{e_2}}{\tau}}
+{\expr{\Gamma}{c}{\m{bool}} &
+   \expr{\Gamma}{e_1}{\m{\tau}} &
+      \expr{\Gamma}{e_2}{\m{\tau}}}
+\]
+
+\[
+\infer[\m{cmp} \; \m{int}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{int}} &
+   \expr{\Gamma}{e_2}{\m{int}}}
+\tab
+\infer[\m{cmp} \; \m{float}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{float}} &
+   \expr{\Gamma}{e_2}{\m{float}}}
+\]
+
+\[
+\infer[\m{cmp} \; \m{bool}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{bool}} &
+   \expr{\Gamma}{e_2}{\m{bool}}}
+\tab
+\infer[\m{cmp} \; \m{string}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{string}} &
+   \expr{\Gamma}{e_2}{\m{string}}}
+\]
+
+\[
+\infer[\m{cmp} \; \m{addr}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{addr}} &
+   \expr{\Gamma}{e_2}{\m{addr}}}
+\]
+
+\[
+\infer[\m{or}]
+{\expr{\Gamma}{e_1 \; \m{or} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{bool}} & \expr{\Gamma}{e_2}{\m{bool}}}
+\]
+
+\[
+\infer[\m{let}]
+{\expr{\Gamma}{\elet{X}{e_1}{e_2}}{\tau}}
+{\expr{\Gamma}{e_1}{\tau_1} &
+   \expr{\Gamma, \eexpr{X}{\tau_1}}{e_2}{\tau}}
+\]
+
+\[
+\infer[\m{const}]
+{\aexp{\Psi, \eexpr{\const{name}{v}}{\tau}}{\Gamma}{\getconst{name}}{\tau}}
+{}
+\]
+
+\[
+\infer[\m{external}]
+{\expr{\Gamma}{\callexternal{name}{[e_1, ..., e_n]}}{\tau}}
+{\expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
+   \eexpr{\external{name}{[arg_1, ..., arg_n]}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi
+}
+\]
+
+\[
+\infer[\m{fun}]
+{\expr{\Gamma}{\callfun{name}{[e_1, ..., e_n]}}{\tau}}
+{\expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
+   \eexpr{\fun{name}{[arg_1, ..., arg_n]}{e}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi
+}
+\]
+
+\[
+\infer[\m{world}]
+{\expr{\Gamma}{\m{world}}{\m{int}}}
+{}
+\tab
+\infer[\m{arg}]
+{\expr{\Gamma}{\m{arg}(N)}{\m{string}}}
+{}
+\]
+
+\subsection{Declarations}
+
+\[
+\infer[\m{decl}]
+{\decl{name}{\m{addr}, \tau_1, ..., \tau_n}}
+{\typ{addr} & \typ{\tau_1} & ... & \typ{\tau_n}}
+\tab
+\infer[\m{\bang decl}]
+{\bang\decl{name}{\m{addr}, \tau_1, ..., \tau_n}}
+{\typ{addr} & \typ{\tau_1} & ... & \typ{\tau_n}}
+\]
+
+\[
+\infer[\m{const}]
+{\declconst{name}{v}{\tau}}
+{\Psi / \expr{\Gamma}{e}{\tau} & \eval{e}{v} & \val{v}{\tau}}
+\]
+
+\[
+\infer[\m{fun}]
+{\declfun{name}{arg_1 : \tau_1, ..., arg_n : \tau_n}{e}{\tau}}
+{\Psi / \expr{arg_1 : \tau_1, ..., arg_n : \tau_n}{e}{\tau}}
+\]
+
+\subsection{Rules}
+
+\[
+\infer[\m{rule \; start}]
+{\mrulestart{\forall H : \m{addr}. A}}
+{\mrule{H : \m{addr}}{H}{A}}
+\]
+
+\[
+\infer[\m{rule \; add \; var}]
+{\mrule{\Gamma}{H}{\forall X : \tau. A}}
+{\mrule{\Gamma, X : \tau}{H}{A}}
+\]
+
+\[
+\infer[\m{rule \; body \; head}]
+{\mrule{\Gamma}{H}{A \lolli B}}
+{\mrulebody{\Gamma}{H}{\Gamma}{A} & \mrulehead{\Gamma}{H}{B}}
+\]
+
+\[
+\infer[\m{rule \; body \; tensor}]
+{\mrulebody{\Gamma}{H}{\Gamma', \Gamma''}{A \otimes B}}
+{\mrulebody{\Gamma}{H}{\Gamma''}{B} &
+   \mrulebody{\Gamma}{H}{\Gamma'}{A} & }
+\]
+
+\[
+\infer[\m{rule \; body \; fact}]
+{\mrulebody{\Gamma}{H}{X_1 : \tau_1, ..., X_n : \tau_n}{\fact{name}{H, X_1, ..., X_n}}}
+{\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
+\]
+
+
+\[
+\infer[\m{rule \; body \; \bang fact}]
+{\mrulebody{\Gamma}{H}{X_1 : \tau_1, ..., X_n : \tau_n}{\bang\fact{name}{H, X_1, ..., X_n}}}
+{\bang\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
+\]
+
+\[
+\infer[\m{rule}]
+{\mrulebody{\Gamma}{H}{\cdot}{\bang (\constraint{e})}}
+{\expr{\Gamma}{e}{\m{bool}}}
+\]
+
+\[
+\infer[\m{rule \; head \; tensor}]
+{\mrulehead{\Gamma}{H}{A \otimes B}}
+{\mrulehead{\Gamma}{H}{A} & \mrulehead{\Gamma}{H}{B}}
+\]
+
+\[
+\infer[\m{rule \; head \; 1}]
+{\mrulehead{\Gamma}{H}{\m{1}}}
+{}
+\]
+
+\[
+\infer[\m{rule \; head \; fact}]
+{\mrulehead{\Gamma}{H}{\fact{name}{e, e_1, ..., e_n}}}
+{\expr{\Gamma}{e}{\m{addr}} & \expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
+   \decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
+\]
+
+\[
+\infer[\m{rule \; head \; \bang fact}]
+{\mrulehead{\Gamma}{H}{\bang\fact{name}{e, e_1, ..., e_n}}}
+{\expr{\Gamma}{e}{\m{addr}} & \expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
+   \bang\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
+\]
+
+\[
+\infer[\m{rule \; head \; exists}]
+{\mrulehead{\Gamma}{H}{\exists X : \m{addr}. A}}
+{\mrulehead{\Gamma, X : \m{addr}}{H}{A}}
+\]
+
+\[
+\infer[\m{rule \; head \; comprehension}]
+{\mrulehead{\Gamma}{H}{\comp A}}
+{\mrule{\Gamma}{H}{A}}
+\]
+
+\[
+\infer[\m{rule \; head \; aggregate}]
+{\mrulehead{\Gamma}{H}{\aggregate{Op}{X}{A}{B}}}
+{\aggregatetype{Op}{\tau_1}{\tau_2} & \mrule{\Gamma, X : \tau_1}{H}{A} & \mrulehead{\Gamma, X : \tau_2}{H}{B}}
+\]
+
+\subsection{Aggregate Types}
+
+\[
+\infer[\m{agg \; count}]
+{\aggregatetype{count}{\m{int}}{\m{int}}}
+{}
+\tab
+\infer[\m{agg \; collect \; int}]
+{\aggregatetype{collect \; int}{\m{int}}{\m{list \; int}}}
+{}
+\]
+
+\[
+\infer[\m{agg \; int \; sum}]
+{\aggregatetype{sum \; int}{\m{int}}{\m{int}}}
+{}
+\]
+
+\section{Dynamic Semantics}
+
+\subsection{Expression Values}
+
+\[
+\infer[\m{int}]
+{\val{\m{int}(N)}{int}}
+{}
+\tab
+\infer[\m{bool}]
+{\val{\m{bool}(B)}{bool}}
+{}
+\tab
+\infer[\m{float}]
+{\val{\m{float}(F)}{float}}
+{}
+\]
+
+\[
+\infer[\m{string}]
+{\val{\m{string}(S)}{string}}
+{}
+\tab
+\infer[\m{addr}]
+{\val{\m{addr}(A)}{addr}}
+{}
+\]
+
+\[
+\infer[\m{nil}]
+{\val{[]}{list \; \tau}}
+{}
+\tab
+\infer[\m{cons}]
+{\val{x :: ls}{list \; \tau}}
+{\val{x}{\tau} & \val{ls}{list \; \tau}}
+\]
+
+\subsection{Expression Evaluation}
+
+\[
+\infer[\m{int}]
+{\eval{\m{int}(N)}{\m{int}(N)}}
+{}
+\tab
+\infer[\m{float}]
+{\eval{\m{float}(F)}{\m{float}(F)}}
+{}
+\tab
+\infer[\m{addr}]
+{\eval{\m{addr}(A)}{\m{addr}(A)}}
+{}
+\]
+
+\[
+\infer[\m{bool}]
+{\eval{\m{bool}(B)}{\m{bool}(B)}}
+{}
+\]
+
+\[
+\infer[\m{string}]
+{\eval{\m{string}(S)}{\m{string}(S)}}
+{}
+\tab
+\infer[\m{listnil}]
+{\eval{[]}{[]}}
+{}
+\tab
+\infer[\m{list}]
+{\eval{L}{L}}
+{}
+\]
+
+\[
+\infer[\m{cons}]
+{\eval{[e_1 | e_2]}{v_1 :: v_2}}
+{\eval{e_1}{v_1} & \eval{e_2}{v_2}}
+\]
+
+\[
+\infer[\m{math \; int}]
+{\eval{e_1 \; \m{op} \; e_2}{\m{int}(V)}}
+{\expr{\cdot}{e_1}{\m{int}} & \expr{\cdot}{e_2}{\m{int}} & \eval{e_1}{\m{int}(A)} & \eval{e_2}{\m{int}(B)} &
+   V = A \; \m{op} \; B}
+\]
+
+\[
+\infer[\m{math \; float}]
+{\eval{e_1 \; \m{op} \; e_2}{\m{float}(V)}}
+{\expr{\cdot}{e_1}{\m{float}} & \expr{\cdot}{e_2}{\m{float}} &
+   \eval{e_1}{\m{float}(A)} & \eval{e_2}{\m{float}(B)} &
+   V = A \; \m{op} \; B}
+\]
+
+\[
+\infer[\m{math \; cast1}]
+{\eval{e_1 \; \m{op} \; e_2}{\m{float}(V)}}
+{\expr{\cdot}{e_1}{\m{int}} & \expr{\cdot}{e_2}{\m{float}} &
+   \eval{e_1}{\m{int}(A)} & \eval{e_2}{\m{float}(B)} &
+   V = A \; \m{op} \; B}
+\]
+
+\[
+\infer[\m{math \; cast2}]
+{\eval{e_1 \; \m{op} \; e_2}{\m{float}(V)}}
+{\expr{\cdot}{e_1}{\m{float}} & \expr{\cdot}{e_2}{\m{int}} &
+   \eval{e_1}{\m{float}(A)} & \eval{e_2}{\m{int}(B)} &
+   V = A \; \m{op} \; B}
+\]
+
+\[
+\infer[\m{if \; true}]
+{\eval{\mif{c}{e_1}{e_2}}{v_1}}
+{\eval{c}{\m{bool}(true)} &
+   \eval{e_1}{v_1}}
+\tab
+\infer[\m{if \; false}]
+{\eval{\mif{c}{e_1}{e_2}}{v_2}}
+{\eval{c}{\m{bool}(false)} &
+   \eval{e_2}{v_2}}
+\]
+
+\[
+\infer[\m{cmp \; int}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{int}(A)} &
+   \eval{e_2}{\m{int}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{cmp \; float}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{float}(A)} &
+   \eval{e_2}{\m{float}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{cmp \; bool}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{bool}(A)} &
+   \eval{e_2}{\m{bool}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{cmp \; string}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{string}(A)} &
+   \eval{e_2}{\m{string}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{cmp \; addr}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{addr}(A)} &
+   \eval{e_2}{\m{addr}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{or}]
+{\eval{e_1 \; \m{or} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{bool}(A)} &
+   \eval{e_2}{\m{bool}(B)} &
+   V = A \; \m{or} \; B
+}
+\]
+
+\[
+\infer[\m{let}]
+{\eval{\elet{X}{e_1}{e_2}}{v}}
+{\eval{e_1}{v_1} &
+   \eval{[v_1/x]e_2}{v}}
+\]
+
+\[
+\infer[\m{const}]
+{\eval{\getconst{name}}{v}}
+{\const{name}{v} : \tau \in \Psi}
+\]
+
+\[
+\infer[\m{external}]
+{\eval{\callexternal{name}{[e_1, ..., e_n]}}{v}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\eexpr{\external{name}{[arg_1, ..., arg_n]}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi} \\
+   \multicolumn{3}{c}{v = \callexternal{name}{[v_1, ..., v_n]}} \\
+ \end{array}
+}
+\]
+
+\[
+\infer[\m{fun}]
+{\eval{\callfun{name}{[e_1, ..., e_n]}}{v}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\eexpr{\fun{name}{[arg_1, ..., arg_n]}{e}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi} \\
+   \multicolumn{3}{c}{\eval{[v_1/\m{arg}_1]...[v_n/\m{arg}_n]e}{v}} \\
+   \multicolumn{3}{c}{v = \callfun{name}{v_1, ..., v_n}} \\
+ \end{array}
+}
+\]
+
+\[
+\infer[\m{world}]
+{\eval{\m{world}}{\m{int}(N)}}
+{}
+\tab
+\infer[\m{arg}]
+{\eval{\m{arg}(N)}{\m{string}(S)}}
+{}
+\]
+
+\subsection{Global Semantics}
+
+\[
+\infer[\m{rule \; app}]
+{\changes{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Delta'}{\Gamma'}}
+{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Delta'}{\Gamma'}}
+\]
+
+\[
+\infer[\m{\lolli L}]
+{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Delta'}{\Gamma'}}
+{\match{\Psi}{\Gamma}{\Delta_1}{[A]} &
+   \derive{\Psi}{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Delta'}{\Gamma'}}
+\]
+
+\[
+\infer[\m{\forall L}]
+{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Delta'}{\Gamma'}}
+{\val{M}{\tau} & \apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Delta'}{\Gamma'}}
+\]
+
+\subsubsection{Match}
+
+\[
+\infer[\m{match \; blur}]
+{\match{\Psi}{\Gamma}{\Delta}{[A]}}
+{\match{\Psi}{\Gamma}{\Delta}{A}}
+\]
+
+\[
+\infer[\m{match \; split}]
+{\match{\Psi}{\Gamma}{\Delta, \Delta'}{A \otimes B}}
+{\match{\Psi}{\Gamma}{\Delta}{A} &
+   \match{\Psi}{\Gamma}{\Delta'}{B}}
+\]
+
+\[
+\infer[\m{match \; end \; constraint}]
+{\match{\Psi}{\Gamma}{\cdot}{\bang\constraint{e}}}
+{\eval{e}{\m{bool}(\m{true})}}
+\]
+
+\[
+\infer[\m{match \; end \; linear}]
+{\match{\Psi}{\Gamma}{\fact{name}{[v_1, ..., v_n]}}{\fact{name}{[v_1, ..., v_n]}}}
+{\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'}}
+\]
+%% do I need a val here?
+
+\[
+\infer[\m{match \; end \; persistent}]
+{\match{\Psi}{\Gamma, \bang\fact{name}{[v_1, ..., v_n]}}{\cdot}{\bang\fact{name}{[v_1', ..., v_n']}}}
+{\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'}}
+\]
+
+\[
+\infer[\m{equal \; int}]
+{\equal{\m{int}(N)}{\m{int}(N)}}
+{}
+\tab
+\infer[\m{equal \; float}]
+{\equal{\m{float}(F)}{\m{float}(F)}}
+{}
+\tab
+\infer[\m{equal \; addr}]
+{\equal{\m{addr}(A)}{\m{addr}(A)}}
+{}
+\]
+
+\[
+\infer[\m{equal \; string}]
+{\equal{\m{string}(S)}{\m{string}(S)}}
+{}
+\tab
+\infer[\m{equal \; bool}]
+{\equal{\m{bool}(B)}{\m{bool}(B)}}
+{}
+\]
+
+\[
+\infer[\m{equal \; nil}]
+{\equal{[]}{[]}}
+{}
+\tab
+\infer[\m{equal \; cons}]
+{\equal{x :: ls}{x' :: ls'}}
+{\equal{x}{x'} & \equal{ls}{ls'}}
+\]
+
+\subsection{Derive}
+
+\[
+\infer[\m{derive \; blur}]
+{\derive{\Psi}{\Gamma}{\Delta}{[A]}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\derive{\Psi}{\Gamma}{\Delta}{A}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+\]
+
+\[
+\infer[\m{derive \; \otimes}]
+{\derive{\Psi}{\Gamma}{\Delta}{A \otimes B, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\derive{\Psi}{\Gamma}{\Delta}{A, B, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+\]
+
+\[
+\infer[\m{derive \; exists}]
+{\derive{\Psi}{\Gamma}{\Delta}{\exists X : \m{addr}. A, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\derive{\Psi}{\Gamma}{\Delta}{[x/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'} &
+   x = \m{new} \; \m{addr}(A)}
+\]
+
+\[
+\infer[\m{derive \; fact}]
+{\derive{\Psi}{\Gamma}{\Delta}{\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1, \fact{name}{[v_1, ..., v_n]}}{\Gamma_1}{\Delta'}{\Gamma'}} \\
+   \end{array}
+}
+\]
+
+\[
+\infer[\m{derive \; \bang fact}]
+{\derive{\Psi}{\Gamma}{\Delta}{\bang\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1, \bang\fact{name}{[v_1, ..., v_n]}}{\Delta'}{\Gamma'}} \\
+   \end{array}
+}
+\]
+
+\[
+\infer[\m{derive \; 1}]
+{\derive{\Psi}{\Gamma}{\Delta}{1, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+\]
+
+\[
+\infer[\m{derive \; end}]
+{\derive{\Psi}{\Gamma}{\Delta}{\cdot}{\Delta_1}{\Gamma_1}{\Delta, \Delta_1}{\Gamma, \Gamma_1}}
+{}
+\]
+
+\subsection{Local Semantics}
+
+\[
+\infer[\m{rule \; app}]
+{\at{\changesb{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\at{\applyb{\Psi}{\Gamma}{\Delta, [R]}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+\]
+
+\[
+\infer[\m{\lolli L}]
+{\at{\applyb{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\match{\Psi}{\Gamma}{\Delta_1}{[A]} &
+   \at{\deriveb{\Psi}{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+\]
+
+\[
+\infer[\m{\forall L}]
+{\at{\applyb{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\val{M}{\tau} & \at{\applyb{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+\]
+
+\subsection{Derive}
+
+\[
+\infer[\m{derive \; blur}]
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{[A]}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{A}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+\]
+
+\[
+\infer[\m{derive \; \otimes}]
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{A \otimes B, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{A, B, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+\]
+
+\[
+\infer[\m{derive \; exists}]
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\exists X : \m{addr}. A, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{[x/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi} &
+   x = \m{new} \; \m{addr}(A)}
+\]
+
+\[
+\infer[\m{derive \; fact \; same}]
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1, \fact{name}{[v_1, ..., v_n]}}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}} \\
+   \multicolumn{3}{c}{v_1 = \m{addr}(\pi)} \\
+   \end{array}
+}
+\]
+
+\[
+\infer[\m{derive \; fact \; remote}]
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\fact{name}{[v_1, ..., v_n]}, \Pi}}{\pi}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}} \\
+   \multicolumn{3}{c}{v_1 = \m{addr}(\pi')} \\
+   \multicolumn{3}{c}{\pi' \neq \pi} \\
+   \end{array}
+}
+\]
+
+\[
+\infer[\m{derive \; \bang fact \; same}]
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\bang\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1, \bang\fact{name}{[v_1, ..., v_n]}}{\Delta'}{\Gamma'}{\Pi}}{\pi}} \\
+   \multicolumn{3}{c}{v_1 = \m{addr}(\pi)} \\
+   \end{array}
+}
+\]
+
+\[
+\infer[\m{derive \; \bang fact \; remote}]
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\bang\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\bang\fact{name}{[v_1, ..., v_n]}, \Pi}}{\pi}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}} \\
+   \multicolumn{3}{c}{v_1 = \m{addr}(\pi')} \\
+   \multicolumn{3}{c}{\pi' \neq \pi} \\
+   \end{array}
+}
+\]
+
+
+\[
+\infer[\m{derive \; 1}]
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{1, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+\]
+
+\[
+\infer[\m{derive \; end}]
+{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\cdot}{\Delta_1}{\Gamma_1}{\Delta, \Delta_1}{\Gamma, \Gamma_1}{\cdot}}{\pi}}
+{}
+\]
+
+\subsection{Communication}
+
+XXX
+
+\[
+\infer[\m{comm}]
+{\at{\changesb{\Psi}{\Theta}{\Gamma_1}{\Delta_1}{\Delta_1'}{\Gamma_1'}{\Pi_1}}{\pi_1}}
+{
+   \at{\changesb{\Psi}{\Theta}{\Gamma_2}{\Delta_2}{\Delta_2'}{\Gamma_2'}{\Pi_2', \Pi_2}}{\pi_2}
+   &
+   \at{\changesb{\Psi}{\Theta}{\Gamma_1}{\Delta_1, \Pi_2'}{\Delta_1'}{\Gamma_1'}{\Pi_1}}{\pi_1}
+}
+\]
+
+\section{Comprehensions}
+
+\section{Aggregates}
+
+\end{document}
+

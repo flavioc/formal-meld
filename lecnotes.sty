@@ -1,0 +1,57 @@
+% begin palatino.sty
+% copied from palatino.sty, except left ttdefault as CMTT
+\renewcommand{\rmdefault}{ppl}
+\renewcommand{\sfdefault}{phv}
+% \renewcommand{\ttdefault}{pcr}
+% end palatino.sty
+
+\usepackage{proof-dashed}
+\setlength{\inferLineSkip}{4pt}
+
+\usepackage{verbatim}
+
+\usepackage[breaklinks=true,
+  colorlinks=true,
+  citecolor=blue,
+  linkcolor=blue,
+  urlcolor=blue]{hyperref}
+\renewcommand{\sectionautorefname}{Section}
+
+\title{Lecture Notes on \\ \lectitle}
+\author{15-816: Linear Logic \\ \lecturer}
+\date{Lecture \lecnum \\ \lecdate}
+
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\setlength{\headheight}{14pt}
+\addtolength{\oddsidemargin}{30pt}
+\addtolength{\evensidemargin}{-22pt}
+
+\lhead[\fancyplain{}{\bfseries L\lecnum.\thepage}]%
+      {\fancyplain{}{\bfseries\lectitle}}
+\chead[]{}
+\rhead[\fancyplain{}{\bfseries\lectitle}]%
+      {\fancyplain{}{\bfseries L\lecnum.\thepage}}
+\lfoot[{\small\scshape Lecture Notes}]{{\small\scshape Lecture Notes}}
+\cfoot[]{}
+\rfoot[{\small\scshape\lecdate}]{{\small\scshape\lecdate}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Environments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newtheorem{exercise}{Exercise}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\newenvironment{proof}{\trivlist \item[\hskip \labelsep{\bf
+Proof:}]}{\hfill$\Box$ \endtrivlist}
+\newenvironment{attempt}{\trivlist \item[\hskip \labelsep{\bf
+Proof attempt:}]}{\hfill$\Diamond$ \endtrivlist}
+
+\newcommand{\ednote}[1]{\footnote{\it #1}\message{ednote!}}
+\newenvironment{note}{\begin{quote}\message{note!}\it}{\end{quote}}
+\newcommand{\highlight}[1]{\par\vspace{\abovedisplayskip}%
+\framebox{\addtolength{\linewidth}{-1em}\begin{minipage}{\linewidth}#1\end{minipage}}%
+\par\vspace{\belowdisplayskip}}

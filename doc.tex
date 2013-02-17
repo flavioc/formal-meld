@@ -33,10 +33,10 @@
 \newcommand{\decl}[2]{\m{decl} \; #1 \; [#2]}
 \newcommand{\val}[2]{\m{val} \; #1 : \m{#2}}
 \newcommand{\declconst}[3]{\const{#1}{#2} \; \m{of} \; #3}
-\newcommand{\declfun}[4]{\fun{#1}{#2}{#3} \; \m{of} \; #4}
+\newcommand{\declfun}[4]{\fun{#1}{(#2)}{#3} \; \m{of} \; #4}
 \newcommand{\eval}[2]{\Psi \; ; \; #1 \rightarrow #2}
 \newcommand{\constraint}[1]{\m{constraint} \; #1}
-\newcommand{\fact}[2]{\m{fact} \; #1(#2)}
+\newcommand{\fact}[3]{#1[@#2](#3)}
 \newcommand{\mif}[3]{\m{if} \; #1 \; \m{then} \; #2 \; \m{else} \; #3 \; \m{end}}
 \newcommand{\mrule}[3]{\Psi ; #1 ; #2 \trnstile #3 \; \m{rule}}
 \newcommand{\mrulebody}[4]{\Psi ; #1 ; #2 ; #3 \trnstile #4 \; \m{body}}
@@ -241,13 +241,13 @@
 \[
 \infer[\m{const}]
 {\declconst{name}{v}{\tau}}
-{\Psi / \expr{\Gamma}{e}{\tau} & \eval{e}{v} & \val{v}{\tau}}
+{\expr{\Gamma}{e}{\tau} & \eval{e}{v} & \val{v}{\tau}}
 \]
 
 \[
 \infer[\m{fun}]
 {\declfun{name}{arg_1 : \tau_1, ..., arg_n : \tau_n}{e}{\tau}}
-{\Psi / \expr{arg_1 : \tau_1, ..., arg_n : \tau_n}{e}{\tau}}
+{\expr{arg_1 : \tau_1, ..., arg_n : \tau_n}{e}{\tau}}
 \]
 
 \subsection{Rules}
@@ -255,7 +255,7 @@
 \[
 \infer[\m{rule \; start}]
 {\mrulestart{\forall H : \m{addr}. A}}
-{\mrule{H : \m{addr}}{H}{A}}
+{\mrule{\cdot}{H}{A}}
 \]
 
 \[
@@ -267,7 +267,7 @@
 \[
 \infer[\m{rule \; body \; head}]
 {\mrule{\Gamma}{H}{A \lolli B}}
-{\mrulebody{\Gamma}{H}{\Gamma}{A} & \mrulehead{\Gamma}{H}{B}}
+{\mrulebody{\Gamma, H : \m{addr}}{H}{\Gamma}{A} & \mrulehead{\Gamma, H:\m{addr}}{H}{B}}
 \]
 
 \[
@@ -278,15 +278,27 @@
 \]
 
 \[
+\infer[\m{rule \; body \; 1}]
+{\mrulebody{\Gamma}{H}{\cdot}{1}}
+{}
+\]
+
+\[
+\infer[\m{rule \; body \; exists}]
+{\mrulebody{\Gamma}{H}{\Gamma'}{\exists X : \tau. A}}
+{\mrulebody{\Gamma, X : \tau}{H}{\Gamma', X : \tau}{A}}
+\]
+
+\[
 \infer[\m{rule \; body \; fact}]
-{\mrulebody{\Gamma}{H}{X_1 : \tau_1, ..., X_n : \tau_n}{\fact{name}{H, X_1, ..., X_n}}}
+{\mrulebody{\Gamma, H_{fact} : \m{addr}}{H}{X_1 : \tau_1, ..., X_n : \tau_n}{\fact{name}{H_{fact}}{X_1, ..., X_n}}}
 {\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
 \]
 
 
 \[
 \infer[\m{rule \; body \; \bang fact}]
-{\mrulebody{\Gamma}{H}{X_1 : \tau_1, ..., X_n : \tau_n}{\bang\fact{name}{H, X_1, ..., X_n}}}
+{\mrulebody{\Gamma, H_{fact} : \m{addr}}{H}{X_1 : \tau_1, ..., X_n : \tau_n}{\bang\fact{name}{H_{fact}}{X_1, ..., X_n}}}
 {\bang\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
 \]
 
@@ -310,14 +322,14 @@
 
 \[
 \infer[\m{rule \; head \; fact}]
-{\mrulehead{\Gamma}{H}{\fact{name}{e, e_1, ..., e_n}}}
+{\mrulehead{\Gamma}{H}{\fact{name}{e}{e_1, ..., e_n}}}
 {\expr{\Gamma}{e}{\m{addr}} & \expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
    \decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
 \]
 
 \[
 \infer[\m{rule \; head \; \bang fact}]
-{\mrulehead{\Gamma}{H}{\bang\fact{name}{e, e_1, ..., e_n}}}
+{\mrulehead{\Gamma}{H}{\bang\fact{name}{e}{e_1, ..., e_n}}}
 {\expr{\Gamma}{e}{\m{addr}} & \expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
    \bang\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
 \]
@@ -585,54 +597,60 @@
 
 \[
 \infer[\m{rule \; app}]
-{\changes{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Delta'}{\Gamma'}}
-{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Delta'}{\Gamma'}}
+{\changes{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Gamma'}{\Delta'}}
+{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Gamma'}{\Delta'}}
 \]
 
 \[
 \infer[\m{\lolli L}]
-{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Delta'}{\Gamma'}}
+{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Gamma'}{\Delta'}}
 {\match{\Psi}{\Gamma}{\Delta_1}{[A]} &
-   \derive{\Psi}{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Delta'}{\Gamma'}}
+   \derive{\Psi}{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Gamma'}{\Delta'}}
 \]
 
 \[
 \infer[\m{\forall L}]
-{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Delta'}{\Gamma'}}
-{\val{M}{\tau} & \apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Delta'}{\Gamma'}}
+{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Gamma'}{\Delta'}}
+{\val{M}{\tau} & \apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Gamma'}{\Delta'}}
 \]
 
 \subsubsection{Match}
 
 \[
-\infer[\m{match \; blur}]
-{\match{\Psi}{\Gamma}{\Delta}{[A]}}
-{\match{\Psi}{\Gamma}{\Delta}{A}}
+\infer[\m{match \; exists}]
+{\match{\Psi}{\Gamma}{\Delta}{[\exists X. A]}}
+{\match{\Psi}{\Gamma}{\Delta}{[[M/X]A]}}
+\]
+
+\[
+\infer[\m{match \; one}]
+{\match{\Psi}{\Gamma}{\cdot}{[1]}}
+{}
 \]
 
 \[
 \infer[\m{match \; split}]
-{\match{\Psi}{\Gamma}{\Delta, \Delta'}{A \otimes B}}
-{\match{\Psi}{\Gamma}{\Delta}{A} &
-   \match{\Psi}{\Gamma}{\Delta'}{B}}
+{\match{\Psi}{\Gamma}{\Delta, \Delta'}{[A \otimes B]}}
+{\match{\Psi}{\Gamma}{\Delta}{[A]} &
+   \match{\Psi}{\Gamma}{\Delta'}{[B]}}
 \]
 
 \[
 \infer[\m{match \; end \; constraint}]
-{\match{\Psi}{\Gamma}{\cdot}{\bang\constraint{e}}}
+{\match{\Psi}{\Gamma}{\cdot}{[\bang\constraint{e}]}}
 {\eval{e}{\m{bool}(\m{true})}}
 \]
 
 \[
 \infer[\m{match \; end \; linear}]
-{\match{\Psi}{\Gamma}{\fact{name}{[v_1, ..., v_n]}}{\fact{name}{[v_1, ..., v_n]}}}
+{\match{\Psi}{\Gamma}{\fact{name}{v_1}{v_2, ..., v_n}}{[\fact{name}{v_1}{v_2, ..., v_n}]}}
 {\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'}}
 \]
 %% do I need a val here?
 
 \[
 \infer[\m{match \; end \; persistent}]
-{\match{\Psi}{\Gamma, \bang\fact{name}{[v_1, ..., v_n]}}{\cdot}{\bang\fact{name}{[v_1', ..., v_n']}}}
+{\match{\Psi}{\Gamma, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\cdot}{[\bang\fact{name}{v_1'}{v_2', ..., v_n'}]}}
 {\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'}}
 \]
 
@@ -674,52 +692,52 @@
 
 \[
 \infer[\m{derive \; blur}]
-{\derive{\Psi}{\Gamma}{\Delta}{[A]}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
-{\derive{\Psi}{\Gamma}{\Delta}{A}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\derive{\Psi}{\Gamma}{\Delta}{[A]}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
+{\derive{\Psi}{\Gamma}{\Delta}{A}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
 \]
 
 \[
 \infer[\m{derive \; \otimes}]
-{\derive{\Psi}{\Gamma}{\Delta}{A \otimes B, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
-{\derive{\Psi}{\Gamma}{\Delta}{A, B, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\derive{\Psi}{\Gamma}{\Delta}{A \otimes B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
+{\derive{\Psi}{\Gamma}{\Delta}{A, B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
 \]
 
 \[
 \infer[\m{derive \; exists}]
-{\derive{\Psi}{\Gamma}{\Delta}{\exists X : \m{addr}. A, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
-{\derive{\Psi}{\Gamma}{\Delta}{[x/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'} &
+{\derive{\Psi}{\Gamma}{\Delta}{\exists X : \m{addr}. A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
+{\derive{\Psi}{\Gamma}{\Delta}{[x/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'} &
    x = \m{new} \; \m{addr}(A)}
 \]
 
 \[
 \infer[\m{derive \; fact}]
-{\derive{\Psi}{\Gamma}{\Delta}{\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\derive{\Psi}{\Gamma}{\Delta}{\fact{name}{e_1}{e_2, ..., e_n}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
 {\begin{array}{ccc}
    \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1, \fact{name}{[v_1, ..., v_n]}}{\Gamma_1}{\Delta'}{\Gamma'}} \\
+   \multicolumn{3}{c}{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1, \fact{name}{v_1}{v_2, ..., v_n}}{\Gamma_1}{\Gamma'}{\Delta'}} \\
    \end{array}
 }
 \]
 
 \[
 \infer[\m{derive \; \bang fact}]
-{\derive{\Psi}{\Gamma}{\Delta}{\bang\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\derive{\Psi}{\Gamma}{\Delta}{\bang\fact{name}{e_1}{e_2, ..., e_n}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
 {\begin{array}{ccc}
    \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1, \bang\fact{name}{[v_1, ..., v_n]}}{\Delta'}{\Gamma'}} \\
+   \multicolumn{3}{c}{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\Gamma'}{\Delta'}} \\
    \end{array}
 }
 \]
 
 \[
 \infer[\m{derive \; 1}]
-{\derive{\Psi}{\Gamma}{\Delta}{1, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
-{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}}
+{\derive{\Psi}{\Gamma}{\Delta}{1, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
+{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
 \]
 
 \[
 \infer[\m{derive \; end}]
-{\derive{\Psi}{\Gamma}{\Delta}{\cdot}{\Delta_1}{\Gamma_1}{\Delta, \Delta_1}{\Gamma, \Gamma_1}}
+{\derive{\Psi}{\Gamma}{\Delta}{\cdot}{\Delta_1}{\Gamma_1}{\Gamma, \Gamma_1}{\Delta, \Delta_1}}
 {}
 \]
 
@@ -727,115 +745,61 @@
 
 \[
 \infer[\m{rule \; app}]
-{\at{\changesb{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-{\at{\applyb{\Psi}{\Gamma}{\Delta, [R]}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\at{\changes{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Gamma'}{\Delta'}}{\pi}}
+{\at{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Gamma'}{\Delta'}}{\pi}}
 \]
 
 \[
 \infer[\m{\lolli L}]
-{\at{\applyb{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-{\match{\Psi}{\Gamma}{\Delta_1}{[A]} &
-   \at{\deriveb{\Psi}{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\at{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Gamma'}{\Delta'}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta_1}{[A]}}{\pi} &
+   \derive{\Psi}{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Gamma'}{\Delta'}}
 \]
 
 \[
 \infer[\m{\forall L}]
-{\at{\applyb{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-{\val{M}{\tau} & \at{\applyb{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+{\at{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Gamma'}{\Delta'}}{\pi}}
+{\val{M}{\tau} & \at{\apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Gamma'}{\Delta'}}{\pi}}
 \]
 
-\subsection{Derive}
+\subsubsection{Match}
 
 \[
-\infer[\m{derive \; blur}]
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{[A]}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{A}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-\]
-
-\[
-\infer[\m{derive \; \otimes}]
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{A \otimes B, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{A, B, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
+\infer[\m{match \; exists}]
+{\at{\match{\Psi}{\Gamma}{\Delta}{[\exists X. A]}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta}{[[M/X]A]}}{\pi}}
 \]
 
 \[
-\infer[\m{derive \; exists}]
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\exists X : \m{addr}. A, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{[x/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi} &
-   x = \m{new} \; \m{addr}(A)}
-\]
-
-\[
-\infer[\m{derive \; fact \; same}]
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-{\begin{array}{ccc}
-   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1, \fact{name}{[v_1, ..., v_n]}}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}} \\
-   \multicolumn{3}{c}{v_1 = \m{addr}(\pi)} \\
-   \end{array}
-}
-\]
-
-\[
-\infer[\m{derive \; fact \; remote}]
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\fact{name}{[v_1, ..., v_n]}, \Pi}}{\pi}}
-{\begin{array}{ccc}
-   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}} \\
-   \multicolumn{3}{c}{v_1 = \m{addr}(\pi')} \\
-   \multicolumn{3}{c}{\pi' \neq \pi} \\
-   \end{array}
-}
-\]
-
-\[
-\infer[\m{derive \; \bang fact \; same}]
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\bang\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-{\begin{array}{ccc}
-   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1, \bang\fact{name}{[v_1, ..., v_n]}}{\Delta'}{\Gamma'}{\Pi}}{\pi}} \\
-   \multicolumn{3}{c}{v_1 = \m{addr}(\pi)} \\
-   \end{array}
-}
-\]
-
-\[
-\infer[\m{derive \; \bang fact \; remote}]
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\bang\fact{name}{[e_1, ..., e_n]}, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\bang\fact{name}{[v_1, ..., v_n]}, \Pi}}{\pi}}
-{\begin{array}{ccc}
-   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}} \\
-   \multicolumn{3}{c}{v_1 = \m{addr}(\pi')} \\
-   \multicolumn{3}{c}{\pi' \neq \pi} \\
-   \end{array}
-}
-\]
-
-
-\[
-\infer[\m{derive \; 1}]
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{1, \Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Delta'}{\Gamma'}{\Pi}}{\pi}}
-\]
-
-\[
-\infer[\m{derive \; end}]
-{\at{\deriveb{\Psi}{\Gamma}{\Delta}{\cdot}{\Delta_1}{\Gamma_1}{\Delta, \Delta_1}{\Gamma, \Gamma_1}{\cdot}}{\pi}}
+\infer[\m{match \; one}]
+{\at{\match{\Psi}{\Gamma}{\cdot}{[1]}}{\pi}}
 {}
 \]
 
-\subsection{Communication}
-
-XXX
+\[
+\infer[\m{match \; split}]
+{\at{\match{\Psi}{\Gamma}{\Delta, \Delta'}{[A \otimes B]}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta}{[A]}}{\pi} &
+   \at{\match{\Psi}{\Gamma}{\Delta'}{[B]}}{\pi}}
+\]
 
 \[
-\infer[\m{comm}]
-{\at{\changesb{\Psi}{\Theta}{\Gamma_1}{\Delta_1}{\Delta_1'}{\Gamma_1'}{\Pi_1}}{\pi_1}}
-{
-   \at{\changesb{\Psi}{\Theta}{\Gamma_2}{\Delta_2}{\Delta_2'}{\Gamma_2'}{\Pi_2', \Pi_2}}{\pi_2}
-   &
-   \at{\changesb{\Psi}{\Theta}{\Gamma_1}{\Delta_1, \Pi_2'}{\Delta_1'}{\Gamma_1'}{\Pi_1}}{\pi_1}
-}
+\infer[\m{match \; end \; constraint}]
+{\at{\match{\Psi}{\Gamma}{\cdot}{[\bang\constraint{e}]}}{\pi}}
+{\eval{e}{\m{bool}(\m{true})}}
+\]
+
+\[
+\infer[\m{match \; end \; linear}]
+{\at{\match{\Psi}{\Gamma}{\fact{name}{v_1}{v_2, ..., v_n}}{[\fact{name}{v_1}{v_2, ..., v_n}]}}{\pi}}
+{\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'} & v_1 = \m{addr}(\pi)}
+\]
+%% do I need a val here?
+
+\[
+\infer[\m{match \; end \; persistent}]
+{\at{\match{\Psi}{\Gamma, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\cdot}{[\bang\fact{name}{v_1'}{v_2', ..., v_n'}]}}{\pi}}
+{\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'} & v_1 = \m{addr}(\pi)}
 \]
 
 \section{Comprehensions}

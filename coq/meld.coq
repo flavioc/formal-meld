@@ -25,19 +25,29 @@ Inductive head_tm : Type :=
 Inductive rule_tm : Type :=
    | rtm_lolli : body_tm -> head_tm -> rule_tm.
 
+(* cont [rules] ctx xi *)
+Inductive cont : Type :=
+   | continuation : list rule_tm -> list nat -> cont.
+
+Definition empty_continuation := continuation nil nil.
+
 Inductive match0 : list nat -> body_tm -> list nat -> Prop :=
    | Match_One : match0 nil btm_one nil
    | Match_Tensor : forall ctx1 ctx2 a b end1 end2, match0 ctx1 a end1 -> match0 ctx2 b end2 -> match0 (app ctx1 ctx2) (btm_tensor a b) (app end1 end2)
    | Match_Fact : forall p, match0 (p :: nil) (btm_fact p) (p :: nil)
    | Match_Constraint: forall c, eval_bool c true -> match0 nil (btm_constraint c) nil.
 
-(** match1 remain past_consumed body total_consumed **)
-Inductive match1 : list nat -> list nat -> (list body_tm) -> list nat -> Prop :=
-   | Match1_One : forall delta xi xi' ls, match1 delta xi ls xi' -> match1 delta xi (btm_one :: ls) xi'
-   | Match1_Tensor : forall delta xi a b ls xi', match1 delta xi (a :: b :: ls) xi' -> match1 delta xi (btm_tensor a b :: ls) xi'
-   | Match1_Fact : forall delta' xi p xi' ls, match1 delta' (p :: xi) ls xi' -> match1 (p :: delta') xi (btm_fact p :: ls) xi'
-   | Match1_Constraint : forall delta bexp xi ls xi', eval_bool bexp true -> match1 delta xi ls xi' -> match1 delta xi (btm_constraint bexp :: ls) xi'
-   | Match1_End : forall delta xi, match1 delta xi nil xi.
+(** match1 remain past_consumed body continuation total_consumed **)
+Inductive match1 : list nat -> list nat -> (list body_tm) -> cont -> list nat -> Prop :=
+   | Match1_One : forall delta xi xi' ls c, match1 delta xi ls c xi' -> match1 delta xi (btm_one :: ls) c xi'
+   | Match1_Tensor : forall delta xi a b ls xi' c, match1 delta xi (a :: b :: ls) c xi' -> match1 delta xi (btm_tensor a b :: ls) c xi'
+   | Match1_Fact : forall delta delta' xi p xi' ls c, In p delta -> delta = p :: delta' -> match1 delta' (p :: xi) ls c xi' -> match1 delta xi (btm_fact p :: ls) c xi'
+   | Match1_Constraint : forall delta bexp xi ls xi' c, eval_bool bexp true -> match1 delta xi ls c xi' -> match1 delta xi (btm_constraint bexp :: ls) c xi'
+   | Match1_End : forall delta xi c, match1 delta xi nil c xi.
+
+(** apply1 delta rule cont xi *)
+Inductive apply1 : list nat -> rule_tm -> cont -> list nat -> Prop :=
+   | Apply1_Rule : forall delta body head c xi, match1 delta nil (body :: nil) c xi -> apply1 delta (rtm_lolli body head) c xi.
 
 Inductive derive0 : list head_tm -> list nat -> list nat -> Prop :=
    | Derive_One : forall ctx ls final, derive0 ls ctx final -> derive0 (head_one :: ls) ctx final
@@ -120,7 +130,7 @@ Example apply0_example1:
    Qed.
 
 Theorem match1_subset:
-   forall xi a xi' delta, match1 delta xi a xi' -> exists xi2, xi2 ++ xi = xi'.
+   forall xi a xi' delta c, match1 delta xi a c xi' -> exists xi2, xi2 ++ xi = xi'.
 Proof.
    intros.
    induction H.
@@ -134,11 +144,13 @@ Proof.
 
    inversion IHmatch1.
    simpl in H0.
-   exists (p :: xi).
-   simpl.
-   auto.
-   rewrite <- H0.
-   admit.
+    exists (p :: x).
+     simpl.
+      auto.
+       auto.
+        rewrite <- H2.
+         auto.
+          admit.
 
    inversion IHmatch1.
    exists x.
@@ -150,9 +162,9 @@ Proof.
 Qed.
 
 Theorem match1_add:
-   forall delta1 xi1 ls xi', match1 delta1 xi1 ls xi' -> forall delta2 xi2, match1 (delta1 ++ delta2) (xi1 ++ xi2) ls (xi' ++ xi2).
+   forall delta1 xi1 ls xi' c, match1 delta1 xi1 ls c xi' -> forall delta2 xi2, match1 (delta1 ++ delta2) (xi1 ++ xi2) ls c (xi' ++ xi2).
 Proof.
-   intros delta1 xi1 ls xi'.
+   intros delta1 xi1 ls xi' c.
    intros H.
    induction H.
    simpl.
@@ -166,9 +178,18 @@ Proof.
 
    intros.
    simpl.
-   apply Match1_Fact.
-   auto.
-   apply IHmatch1.
+    apply Match1_Fact with (delta' := delta' ++ delta2).
+      rewrite H0.
+        auto.
+          simpl.
+            auto.
+
+              simpl.
+                auto.
+                  rewrite H0.
+                    auto.
+
+                      apply IHmatch1.
 
    intros.
    apply Match1_Constraint.
@@ -181,9 +202,9 @@ Proof.
 Qed.
 
 Theorem match1_merge:
-   forall delta1 xi1 a xi1', match1 delta1 xi1 a xi1' -> forall delta2 b xi2 xi2', match1 delta2 xi2 b xi2' -> match1 (delta2 ++ delta1) (xi1 ++ xi2) (a ++ b) (xi1' ++ xi2').
+   forall delta1 xi1 a xi1' c, match1 delta1 xi1 a c xi1' -> forall delta2 b xi2 xi2', match1 delta2 xi2 b c xi2' -> match1 (delta2 ++ delta1) (xi1 ++ xi2) (a ++ b) c (xi1' ++ xi2').
 Proof.
-   intros delta1 xi1 a xi1'.
+   intros delta1 xi1 a xi1' c.
    intros H.
    induction H.
    simpl.
@@ -205,14 +226,28 @@ Proof.
    assert (delta2 ++ p :: delta' = p :: delta' ++ delta2).
    admit.
 
-   rewrite H1.
-   apply Match1_Fact.
-   assert (delta2 ++ delta' = delta' ++ delta2).
-   admit.
+    rewrite H0.
+     simpl.
+      apply Match1_Fact with (delta' := delta' ++ delta2).
+        simpl.
+          auto.
+            simpl.
+              rewrite H3.
+                auto.
+                  simpl.
+                    auto.
 
-   rewrite <- H2.
-   apply IHmatch1.
-   auto.
+                      rewrite H3.
+                        auto.
+
+                          auto.
+                            simpl in IHmatch1.
+                              assert (delta' ++ delta2 = delta2 ++ delta').
+                                 admit.
+
+                                    rewrite H4.
+      apply IHmatch1.
+         auto.
 
    intros.
    simpl.
@@ -236,7 +271,7 @@ Proof.
 Qed.
 
 Theorem match_completeness:
-   forall delta a, match0 delta a delta -> match1 delta nil (a :: nil) delta.
+   forall delta a, match0 delta a delta -> match1 delta nil (a :: nil) empty_continuation delta.
 Proof.
    intros.
    induction H.
@@ -275,7 +310,11 @@ Proof.
    simpl.
    auto.
 
-   apply Match1_Fact.
+    apply Match1_Fact with (delta' := nil).
+    simpl.
+    auto.
+    auto.
+
    apply Match1_End.
 
    apply Match1_Constraint.

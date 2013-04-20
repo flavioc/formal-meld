@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[9pt]{article}
 % \documentclass[11pt,twoside]{article}
 
 \usepackage{graphicx}
@@ -8,6 +8,7 @@
 \usepackage{url}
 \usepackage{amsmath}
 \usepackage{turnstile}
+\usepackage[in]{fullpage}
 
 \input{fp-macros}
 
@@ -16,6 +17,7 @@
 
 \begin{document}
 
+\newcommand{\defeq}{\buildrel\triangle\over =}
 \newcommand{\trnstile}{\sststile{}{}}
 \newcommand{\typ}[1]{\m{#1} \; \m{typ}}
 \newcommand{\btyp}[1]{\m{#1} \; \m{btyp}}
@@ -38,22 +40,27 @@
 \newcommand{\constraint}[1]{\m{constraint} \; #1}
 \newcommand{\fact}[3]{#1[@#2](#3)}
 \newcommand{\mif}[3]{\m{if} \; #1 \; \m{then} \; #2 \; \m{else} \; #3 \; \m{end}}
-\newcommand{\mrule}[3]{\Psi ; #1 ; #2 \trnstile #3 \; \m{rule}}
-\newcommand{\mrulebody}[4]{\Psi ; #1 ; #2 ; #3 \trnstile #4 \; \m{body}}
-\newcommand{\mrulehead}[3]{\Psi ; #1 ; #2 \trnstile #3 \; \m{head}}
+\newcommand{\mrule}[4]{\Psi ; #1 ; #2 \vdash_{#4} #3 \; \m{rule}}
+\newcommand{\mrulebody}[4]{\Psi ; #1 ; #2 ; #3 \vdash #4 \; \m{body}}
+\newcommand{\mrulehead}[4]{\Psi ; #1 ; #2 \vdash_{#4} #3 \; \m{head}}
 \newcommand{\mrulestart}[1]{\m{rule} \; \Psi \; / \; #1}
 \newcommand{\comp}[0]{\m{comp} \; }
 \newcommand{\aggregate}[4]{[\m{#1} ; #2 ; #3 \Rightarrow #4]}
 \newcommand{\aggregatetype}[3]{[\m{#1}] \; / \; #2 \rightsquigarrow #3}
-\newcommand{\changes}[6]{#1 ; #2 ; #3 ; #4 \Rightarrow #5 ; #6}
+\newcommand{\aggregatestart}[2]{[\m{#1}] \hookrightarrow #2}
+\newcommand{\aggregateop}[4]{[\m{#1}] \; #2 / #3 \Rightarrow #4}
+\newcommand{\changes}[7]{#1 ; #2 ; #3 ; #4 \Rightarrow #5 ; #6 ; #7}
 \newcommand{\changesb}[7]{#1 ; #2 ; #3 ; #4 \Rightarrow #5 ; #6 ; #7}
-\newcommand{\apply}[5]{\m{apply} \; #1 ; #2 ; #3 \rightarrow #4 ; #5}
+\newcommand{\apply}[6]{\m{apply} \; #1 ; #2 ; #3 \rightarrow #4 ; #5 ; #6}
 \newcommand{\applyb}[6]{\m{apply} \; #1 ; #2 ; #3 \rightarrow #4 ; #5 ; #6}
-\newcommand{\derive}[8]{\m{derive} \; #1 ; #2 ; #3 ; #4 ; #5 ; #6 \rightarrow #7 ; #8}
+\newcommand{\derive}[8]{\m{derive} \; \Psi ; #1 ; #2 ; #3 ; #4 ; #5 \rightarrow #6 ; #7 ; #8}
 \newcommand{\deriveb}[9]{\m{derive} \; #1 ; #2 ; #3 ; #4 ; #5 ; #6 \rightarrow #7 ; #8 ; #9}
-\newcommand{\match}[4]{\m{match} \; #1 ; #2 ; #3 \rightarrow #4}
+\newcommand{\match}[5]{\m{match} \; #1 ; #2 ; #3 \rightarrow #4 ; #5}
 \newcommand{\equal}[2]{#1 = #2}
 \newcommand{\at}[2]{#1 \; @ \; #2}
+\newcommand{\compr}[1]{\m{def} \; #1}
+\newcommand{\comprehension}[1]{\comp #1}
+\newcommand{\comprrec}[1]{\m{comp2} \; #1}
 
 \maketitle
 
@@ -255,19 +262,19 @@
 \[
 \infer[\m{rule \; start}]
 {\mrulestart{\forall H : \m{addr}. A}}
-{\mrule{\cdot}{H}{A}}
+{\mrule{\cdot}{H}{A}{1}}
 \]
 
 \[
 \infer[\m{rule \; add \; var}]
-{\mrule{\Gamma}{H}{\forall X : \tau. A}}
-{\mrule{\Gamma, X : \tau}{H}{A}}
+{\mrule{\Gamma}{H}{\forall X : \tau. A}{N}}
+{\mrule{\Gamma, X : \tau}{H}{A}{N}}
 \]
 
 \[
 \infer[\m{rule \; body \; head}]
-{\mrule{\Gamma}{H}{A \lolli B}}
-{\mrulebody{\Gamma, H : \m{addr}}{H}{\Gamma}{A} & \mrulehead{\Gamma, H:\m{addr}}{H}{B}}
+{\mrule{\Gamma}{H}{A \lolli B}{N}}
+{\mrulebody{\Gamma, H : \m{addr}}{H}{\Gamma}{A} & \mrulehead{\Gamma, H:\m{addr}}{H}{B}{N}}
 \]
 
 \[
@@ -310,46 +317,46 @@
 
 \[
 \infer[\m{rule \; head \; tensor}]
-{\mrulehead{\Gamma}{H}{A \otimes B}}
-{\mrulehead{\Gamma}{H}{A} & \mrulehead{\Gamma}{H}{B}}
+{\mrulehead{\Gamma}{H}{A \otimes B}{N}}
+{\mrulehead{\Gamma}{H}{A}{N} & \mrulehead{\Gamma}{H}{B}{N}}
 \]
 
 \[
 \infer[\m{rule \; head \; 1}]
-{\mrulehead{\Gamma}{H}{\m{1}}}
+{\mrulehead{\Gamma}{H}{\m{1}}{N}}
 {}
 \]
 
 \[
 \infer[\m{rule \; head \; fact}]
-{\mrulehead{\Gamma}{H}{\fact{name}{e}{e_1, ..., e_n}}}
+{\mrulehead{\Gamma}{H}{\fact{name}{e}{e_1, ..., e_n}}{N}}
 {\expr{\Gamma}{e}{\m{addr}} & \expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
    \decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
 \]
 
 \[
 \infer[\m{rule \; head \; \bang fact}]
-{\mrulehead{\Gamma}{H}{\bang\fact{name}{e}{e_1, ..., e_n}}}
+{\mrulehead{\Gamma}{H}{\bang\fact{name}{e}{e_1, ..., e_n}}{N}}
 {\expr{\Gamma}{e}{\m{addr}} & \expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
    \bang\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
 \]
 
 \[
 \infer[\m{rule \; head \; exists}]
-{\mrulehead{\Gamma}{H}{\exists X : \m{addr}. A}}
-{\mrulehead{\Gamma, X : \m{addr}}{H}{A}}
+{\mrulehead{\Gamma}{H}{\exists X : \m{addr}. A}{N}}
+{\mrulehead{\Gamma, X : \m{addr}}{H}{A}{N}}
 \]
 
 \[
 \infer[\m{rule \; head \; comprehension}]
-{\mrulehead{\Gamma}{H}{\comp A}}
-{\mrule{\Gamma}{H}{A}}
+{\mrulehead{\Gamma}{H}{\comprehension{A}}{1}}
+{\mrule{\Gamma}{H}{A}{2}}
 \]
 
 \[
 \infer[\m{rule \; head \; aggregate}]
-{\mrulehead{\Gamma}{H}{\aggregate{Op}{X}{A}{B}}}
-{\aggregatetype{Op}{\tau_1}{\tau_2} & \mrule{\Gamma, X : \tau_1}{H}{A} & \mrulehead{\Gamma, X : \tau_2}{H}{B}}
+{\mrulehead{\Gamma}{H}{\aggregate{Op}{X}{A}{B}}{1}}
+{\aggregatetype{Op}{\tau_1}{\tau_2} & \mrule{\Gamma, X : \tau_1}{H}{A \lolli 1}{2} & \mrulehead{\Gamma, X : \tau_2}{H}{B}{2}}
 \]
 
 \subsection{Aggregate Types}
@@ -367,6 +374,16 @@
 \[
 \infer[\m{agg \; int \; sum}]
 {\aggregatetype{sum \; int}{\m{int}}{\m{int}}}
+{}
+\]
+
+\[
+\infer[\m{agg \; int \; max}]
+{\aggregatetype{max \; int}{\m{int}}{\m{int}}}
+{}
+\tab
+\infer[\m{agg \; int \; min}]
+{\aggregatetype{min \; int}{\m{int}}{\m{int}}}
 {}
 \]
 
@@ -593,64 +610,135 @@
 {}
 \]
 
+\subsection{Aggregates}
+
+\[
+\infer[\m{init \; count}]
+{\aggregatestart{count}{\m{int}(0)}}
+{}
+\]
+
+\[
+\infer[\m{init \; collect \; int}]
+{\aggregatestart{collect \; int}{[]}}
+{}
+\]
+
+\[
+\infer[\m{init \; sum}]
+{\aggregatestart{sum}{\m{int}(0)}}
+{}
+\tab
+\infer[\m{init \; max}]
+{\aggregatestart{max}{\m{int}(-\infty)}}
+{}
+\tab
+\infer[\m{init \; min}]
+{\aggregatestart{min}{\m{int}(+\infty)}}
+{}
+\]
+
+\[
+\infer[\m{op \; sum}]
+{\aggregateop{sum}{A}{B}{A + B}}
+{}
+\]
+
+\[
+\infer[\m{op \; count}]
+{\aggregateop{count}{A}{B}{A + 1}}
+{}
+\]
+
+\[
+\infer[\m{op \; collect \; int}]
+{\aggregateop{collect \; int}{A}{B}{[B | A]}}
+{}
+\]
+
+\[
+\infer[\m{op \; min}]
+{\aggregateop{min}{A}{B}{\mif{A \leq B}{A}{B}}}
+{}
+\]
+
+\[
+\infer[\m{op \; max}]
+{\aggregateop{max}{A}{B}{\mif{A \leq B}{B}{A}}}
+{}
+\]
+
+
 \subsection{Global Semantics}
+
+Meaning of variables:
+
+\begin{description}
+\item[$\Psi$]: Program state: constants, functions, external functions and declarations.
+\item[$\Theta$]: Rules with priority.
+\item[$\Phi$]: Rules without priority.
+\item[$\Gamma$]: Persistent fact context.
+\item[$\Delta$]: Linear fact context.
+\end{description}
 
 \[
 \infer[\m{rule \; app}]
-{\changes{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Gamma'}{\Delta'}}
-{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Gamma'}{\Delta'}}
+{\changes{\Psi}{\Theta, \Phi, R}{\Gamma}{\Delta}{\Gamma'}{\Delta'}{\Xi}}
+{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Gamma'}{\Delta'}{\Xi}}
 \]
 
 \[
 \infer[\m{\lolli L}]
-{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Gamma'}{\Delta'}}
-{\match{\Psi}{\Gamma}{\Delta_1}{[A]} &
-   \derive{\Psi}{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Gamma'}{\Delta'}}
+{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Gamma'}{\Delta'}{\Delta_1, \Xi}}
+{\match{\Psi}{\Gamma}{\Delta_1}{[A]}{\Delta_1} &
+   \derive{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Gamma'}{\Delta'}{\Xi}
+}
 \]
 
 \[
 \infer[\m{\forall L}]
-{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Gamma'}{\Delta'}}
-{\val{M}{\tau} & \apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Gamma'}{\Delta'}}
+{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Gamma'}{\Delta'}{\Xi}}
+{\val{M}{\tau} & \apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Gamma'}{\Delta'}{\Xi}}
 \]
 
 \subsubsection{Match}
 
 \[
 \infer[\m{match \; exists}]
-{\match{\Psi}{\Gamma}{\Delta}{[\exists X. A]}}
-{\match{\Psi}{\Gamma}{\Delta}{[[M/X]A]}}
+{\match{\Psi}{\Gamma}{\Delta}{[\exists X. A]}{\Xi}}
+{\match{\Psi}{\Gamma}{\Delta}{[[M/X]A]}{\Xi}}
 \]
 
 \[
 \infer[\m{match \; one}]
-{\match{\Psi}{\Gamma}{\cdot}{[1]}}
+{\match{\Psi}{\Gamma}{\cdot}{[1]}{\cdot}}
 {}
 \]
 
 \[
 \infer[\m{match \; split}]
-{\match{\Psi}{\Gamma}{\Delta, \Delta'}{[A \otimes B]}}
-{\match{\Psi}{\Gamma}{\Delta}{[A]} &
-   \match{\Psi}{\Gamma}{\Delta'}{[B]}}
+{\match{\Psi}{\Gamma}{\Delta, \Delta'}{[A \otimes B]}{\Xi_1, \Xi_2}}
+{\match{\Psi}{\Gamma}{\Delta}{[A]}{\Xi_1} &
+   \match{\Psi}{\Gamma}{\Delta'}{[B]}{\Xi_2}
+}
 \]
 
 \[
 \infer[\m{match \; end \; constraint}]
-{\match{\Psi}{\Gamma}{\cdot}{[\bang\constraint{e}]}}
+{\match{\Psi}{\Gamma}{\cdot}{[\bang\constraint{e}]}{\cdot}}
 {\eval{e}{\m{bool}(\m{true})}}
 \]
 
 \[
 \infer[\m{match \; end \; linear}]
-{\match{\Psi}{\Gamma}{\fact{name}{v_1}{v_2, ..., v_n}}{[\fact{name}{v_1}{v_2, ..., v_n}]}}
+{\match{\Psi}{\Gamma}{\fact{name}{v_1}{v_2, ..., v_n}}{[\fact{name}{v_1}{v_2, ..., v_n}]}{\fact{name}{v_1}{v_2, ..., v_n}}}
 {\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'}}
 \]
 %% do I need a val here?
 
 \[
 \infer[\m{match \; end \; persistent}]
-{\match{\Psi}{\Gamma, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\cdot}{[\bang\fact{name}{v_1'}{v_2', ..., v_n'}]}}
+{\match{\Psi}{\Gamma, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\cdot}{[\bang\fact{name}{v_1'}{v_2', ..., v_n'}]}{\cdot}}
 {\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'}}
 \]
 
@@ -692,52 +780,100 @@
 
 \[
 \infer[\m{derive \; blur}]
-{\derive{\Psi}{\Gamma}{\Delta}{[A]}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
-{\derive{\Psi}{\Gamma}{\Delta}{A}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
+{\derive{\Gamma}{\Delta}{[A]}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{A}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
 \]
 
 \[
 \infer[\m{derive \; \otimes}]
-{\derive{\Psi}{\Gamma}{\Delta}{A \otimes B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
-{\derive{\Psi}{\Gamma}{\Delta}{A, B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
+{\derive{\Gamma}{\Delta}{A \otimes B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{A, B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
 \]
 
 \[
 \infer[\m{derive \; exists}]
-{\derive{\Psi}{\Gamma}{\Delta}{\exists X : \m{addr}. A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
-{\derive{\Psi}{\Gamma}{\Delta}{[x/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'} &
+{\derive{\Gamma}{\Delta}{\exists X : \m{addr}. A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{[x/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi} &
    x = \m{new} \; \m{addr}(A)}
 \]
 
 \[
 \infer[\m{derive \; fact}]
-{\derive{\Psi}{\Gamma}{\Delta}{\fact{name}{e_1}{e_2, ..., e_n}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
+{\derive{\Gamma}{\Delta}{\fact{name}{e_1}{e_2, ..., e_n}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
 {\begin{array}{ccc}
    \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1, \fact{name}{v_1}{v_2, ..., v_n}}{\Gamma_1}{\Gamma'}{\Delta'}} \\
+   \multicolumn{3}{c}{\derive{\Gamma}{\Delta}{\Omega}{\Delta_1, \fact{name}{v_1}{v_2, ..., v_n}}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}} \\
    \end{array}
 }
 \]
 
 \[
 \infer[\m{derive \; \bang fact}]
-{\derive{\Psi}{\Gamma}{\Delta}{\bang\fact{name}{e_1}{e_2, ..., e_n}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
+{\derive{\Gamma}{\Delta}{\bang\fact{name}{e_1}{e_2, ..., e_n}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
 {\begin{array}{ccc}
    \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\Gamma'}{\Delta'}} \\
+   \multicolumn{3}{c}{\derive{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\Gamma'}{\Delta'}{\Xi}} \\
    \end{array}
 }
 \]
 
 \[
 \infer[\m{derive \; 1}]
-{\derive{\Psi}{\Gamma}{\Delta}{1, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
-{\derive{\Psi}{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}}
+{\derive{\Gamma}{\Delta}{1, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{derive \; comprehension}]
+{\derive{\Gamma}{\Delta}{\comprehension{A}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{1 \with (A \otimes \comprehension{A}), \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+
+\[
+\infer[\m{derive \; \with \; left}]
+{\derive{\Gamma}{\Delta}{A \with B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{derive \; \with \; right}]
+{\derive{\Gamma}{\Delta}{A \with B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\newcommand{\aggdef}[4]{\m{agg} \; \m{#1} \; #2 \; #3 \; #4}
+
+\[
+\infer[\m{derive \; aggregate}]
+{\derive{\Gamma}{\Delta}{\aggregate{Op}{X}{A}{B}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\aggregatestart{Op}{V} & \derive{\Gamma}{\Delta}{\aggdef{Op}{V}{(x. A(x))}{(y. B(y))}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{derive \; aggregate \; unfold}]
+{\derive{\Gamma}{\Delta}{\aggdef{Op}{V'}{(x. A(x))}{(y. B(y))}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{B(V) \with (\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}), \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi} & \aggregateop{Op}{V'}{X'}{E}
+}
+\]
+
+\[
+\infer[\m{derive \; forall}]
+{\derive{\Gamma}{\Delta}{\forall X : \tau. A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{[M/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi} & \val{M}{\tau}}
+\]
+
+\[
+\infer[\m{derive \; lolli}]
+{\derive{\Gamma}{\Delta}{A \lolli B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi, \Xi'}}
+{\match{\Psi}{\Gamma}{\Delta}{A}{\Xi'} &
+   \derive{\Gamma}{\Delta - \Xi'}{B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}
+}
 \]
 
 \[
 \infer[\m{derive \; end}]
-{\derive{\Psi}{\Gamma}{\Delta}{\cdot}{\Delta_1}{\Gamma_1}{\Gamma, \Gamma_1}{\Delta, \Delta_1}}
+{\derive{\Gamma}{\Delta}{\cdot}{\Delta_1}{\Gamma_1}{\Gamma_1}{\Delta_1}{\cdot}}
 {}
 \]
 
@@ -745,66 +881,927 @@
 
 \[
 \infer[\m{rule \; app}]
-{\at{\changes{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Gamma'}{\Delta'}}{\pi}}
-{\at{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Gamma'}{\Delta'}}{\pi}}
+{\at{\changes{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Gamma, \Gamma'}{\Delta', N}}{\pi}}
+{\at{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Gamma'}{\Delta'}{\Xi}}{\pi} & N = \Delta - \Xi}
 \]
 
 \[
 \infer[\m{\lolli L}]
-{\at{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Gamma'}{\Delta'}}{\pi}}
-{\at{\match{\Psi}{\Gamma}{\Delta_1}{[A]}}{\pi} &
-   \derive{\Psi}{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Gamma'}{\Delta'}}
+{\at{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Gamma'}{\Delta'}{\Xi}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta_1}{[A]}{\Xi}}{\pi} &
+   \derive{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Gamma'}{\Delta'}{\Xi}}
 \]
 
 \[
 \infer[\m{\forall L}]
-{\at{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Gamma'}{\Delta'}}{\pi}}
-{\val{M}{\tau} & \at{\apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Gamma'}{\Delta'}}{\pi}}
+{\at{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Gamma'}{\Delta'}{\Xi}}{\pi}}
+{\val{M}{\tau} & \at{\apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Gamma'}{\Delta'}{\Xi}}{\pi}}
 \]
 
 \subsubsection{Match}
 
 \[
 \infer[\m{match \; exists}]
-{\at{\match{\Psi}{\Gamma}{\Delta}{[\exists X. A]}}{\pi}}
-{\at{\match{\Psi}{\Gamma}{\Delta}{[[M/X]A]}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta}{[\exists X. A]}{\Xi}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta}{[[M/X]A]}{\Xi}}{\pi}}
 \]
 
 \[
 \infer[\m{match \; one}]
-{\at{\match{\Psi}{\Gamma}{\cdot}{[1]}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\cdot}{[1]}{\cdot}}{\pi}}
 {}
 \]
 
 \[
 \infer[\m{match \; split}]
-{\at{\match{\Psi}{\Gamma}{\Delta, \Delta'}{[A \otimes B]}}{\pi}}
-{\at{\match{\Psi}{\Gamma}{\Delta}{[A]}}{\pi} &
-   \at{\match{\Psi}{\Gamma}{\Delta'}{[B]}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta, \Delta'}{[A \otimes B]}{\Xi_1, \Xi_2}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta}{[A]}{\Xi_1}}{\pi} &
+   \at{\match{\Psi}{\Gamma}{\Delta'}{[B]}{\Xi_2}}{\pi}}
 \]
 
 \[
 \infer[\m{match \; end \; constraint}]
-{\at{\match{\Psi}{\Gamma}{\cdot}{[\bang\constraint{e}]}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\cdot}{[\bang\constraint{e}]}{\cdot}}{\pi}}
 {\eval{e}{\m{bool}(\m{true})}}
 \]
 
 \[
 \infer[\m{match \; end \; linear}]
-{\at{\match{\Psi}{\Gamma}{\fact{name}{v_1}{v_2, ..., v_n}}{[\fact{name}{v_1}{v_2, ..., v_n}]}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\fact{name}{v_1}{v_2, ..., v_n}}{[\fact{name}{v_1}{v_2, ..., v_n}]}{\fact{name}{v_1}{v_2, ..., v_n}}}{\pi}}
 {\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'} & v_1 = \m{addr}(\pi)}
 \]
 %% do I need a val here?
 
 \[
 \infer[\m{match \; end \; persistent}]
-{\at{\match{\Psi}{\Gamma, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\cdot}{[\bang\fact{name}{v_1'}{v_2', ..., v_n'}]}}{\pi}}
+{\at{\match{\Psi}{\Gamma, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\cdot}{[\bang\fact{name}{v_1'}{v_2', ..., v_n'}]}{\cdot}}{\pi}}
 {\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'} & v_1 = \m{addr}(\pi)}
 \]
 
+\begin{comment}
 \section{Comprehensions}
 
+Comprehensions have the following syntax:
+
+\begin{verbatim}
+body -o {Var-List | CompBody | CompHead}.
+\end{verbatim}
+
+We can distinguish between two types of comprehensions:
+
+\subsection{Persistent Only Comprehensions}
+
+These comprehensions only use persistent facts in the body. The head may have linear facts.
+Since we only use persistent facts, we are unable to check if we are done with the comprehension just by being unable to do further matchings.
+Thus, the only way to check for a stop condition is to verify repeated variables in \texttt{CompBody}.
+
+\begin{verbatim}
+body(A) -o {X1, X2, X3 | !a(A, X1), !b(A, X2), !c(A, X3) | CompHead}
+
+// is transformed into
+body(A) -o do_comp(A, CommVar1, ..., CommVarN, []).
+
+do_comp(A, CommVar1, ..., CommVarN, L),
+!a(A, X1),
+!b(A, X2),
+!c(A, X3),
+(X1, X2, X3) not in L
+   -o do_comp(A, CommVar1, ..., CommVarN, [(X1, X2, X3) | L]),
+      CompHead.
+      
+do_comp(A, CommVar1, ..., CommVarN, L) -o 1.
+\end{verbatim}
+
+This suffers from a few flaws though. In one hand, we may have several \texttt{!a(A, X1)}, where \texttt{X1} has the same value. With this scheme,
+only one \texttt{CompHead} will be derived. On another hand, if \texttt{CompHead} also derives anything that is used in the body of the comprehension, the comprehension may never terminate, so we must constraint \texttt{CompHead} to not include predicates used in the body.
+
+\subsection{Comprehensions with linear facts}
+
+When the comprehension body also contains linear facts we may use another strategy, where we consume all the linear facts to derive all the possible comprehension heads.
+
+\begin{verbatim}
+body(A) -o {X1, X2, X3 | !a(A, X1), !b(A, X2), c(A, X3) | CompHead}.
+
+// is transformed into
+body(A) -o do_comp(A, CommVar1, ..., CommVarN).
+
+do_comp(A, CommVar1, ..., CommVarN),
+!a(A, X1),
+!b(A, X2),
+c(A, X3)
+   -o do_comp(A, CommVar1, ..., CommVarN),
+      CompHead.
+      
+do_comp(A, CommVar1, ..., CommVarN) -o 1.
+\end{verbatim}
+
+Of course, we can also use the other approach.
+
+As I said before, problems will arise if \texttt{CompHead} uses predicates from \texttt{CompBody}, because the comprehension may not terminate.
+\end{comment}
+
+\subsection{Extending Linear Logic with Comprehensions}
+
+\[
+\m{comp} \; A \; B \defeq 1 \; \& \; ((\forall X. A \lolli B) \otimes \m{comp} \; A \; B)
+\]
+
+\[
+\m{agg} \; V \; A \; C \defeq C \; \& \; (\forall X. A \lolli \m{agg} \; (X + V) \; A \; C)
+\]
+
+An example from Meld:
+
+\begin{verbatim}
+a(H) -o [sum => S | B | !edge(H, B), !weight(H, B, S) | total(H, S)].
+
+a(H) -o agg1(H, 0).
+
+agg1(H, V) := total(H, V) &
+             (forall B, S. !edge(H, B), !weight(H, B, S) -o agg1(H, S + V)).
+\end{verbatim}
+
+
+These would be the left and right rules for definitions:
+
+\[
+\infer[\m{def} \; L]
+{\Delta, \compr{A'} \trnstile C}
+{
+   \Delta, B\theta \trnstile C & A \defeq B & A' \doteq A\theta
+}
+\]
+
+\[
+\infer[\m{def} \; R]
+{\Delta \trnstile \compr{A'}}
+{\Delta \trnstile B \theta & A \defeq B & A' \doteq A\theta}
+\]
+
+Identity expansion:
+
+\[
+\infer[\m{def} \; R]
+{\compr{A'} \trnstile \compr{A'}}
+{
+   \infer[\m{def} \; L]
+   {
+      \compr{A'} \trnstile B\theta
+   }
+   {
+      \infer[\m{id}]
+      {B \theta \trnstile B \theta}
+      {
+      }
+      & A \defeq B & A' \doteq A\theta
+   }
+   & A \defeq B & A' \doteq A \theta
+}
+\]
+
+Cut reduction:
+
+\[
+\infer[\m{cut}]
+{\Delta \trnstile C}
+{
+   \infer[\m{def} \; R]
+   {
+      \Delta \trnstile \compr{A'}
+   }
+   {
+      \Delta \trnstile B\theta & A \defeq B & A' \doteq A'\theta
+   }
+   &
+   \infer[\m{def} \; L]
+   {
+      \Delta, \compr{A'} \trnstile C
+   }
+   {
+      \Delta, B\theta \trnstile C & A \defeq B & A'\doteq A\theta
+   }
+}
+\]
+
+Reduces to:
+
+\[
+\infer[\m{cut}]
+{\Delta \trnstile C}
+{\Delta, B\theta \trnstile C
+   &
+   \Delta \trnstile B\theta
+}
+\]
+
+\begin{comment}
 \section{Aggregates}
+
+Aggregates have the following syntax form:
+
+\begin{verbatim}
+body(A) -o [op => F | Var-List | CompBody(A) | CompHead(A, F)}.
+\end{verbatim}
+
+Like comprehensions, we may distinguish between two types of aggregates.
+
+\subsection{Persistent Only Aggregates}
+
+For these types of aggregates we only use persistent facts in the body.
+The transformation verifies that the variable combination has not been tried before and then applies the operator function.
+
+\begin{verbatim}
+body(A) -o [sum => W | B | !edge(A, B, W) | total(A, W)].
+
+// is transformed into
+
+body(A) -o do_aggregate(A, CommVar1, ..., CommVarN, 0, []).
+
+do_aggregate(A, CommVar1, ..., CommVarN, Sum, L),
+!edge(A, B, W),
+(B, W) not in L
+   -o do_aggregate(A, CommVar1, ..., CommVarN, Sum + W, [(B, W) | L]).
+   
+do_aggregate(A, CommVar1, ..., CommVarN, Sum, L) -o total(A, Sum).
+\end{verbatim}
+
+\subsection{Aggregates with linear facts}
+
+In this case, the aggregate uses linear facts. We don't need to restrict the predicates used in the body/head since there's only a body.
+
+\begin{verbatim}
+body(A) -o [sum => W | B | !edge(A, B), weight(A, B, W) | total(A, W)].
+
+// is transformed into
+
+body(A) -o do_aggregate(A, CommVar1, ..., CommVarN, 0).
+
+do_aggregate(A, CommVar1, ..., CommVarN, Sum),
+!edge(A, B),
+weight(A, B, W)
+   -o do_aggregate(A, CommVar1, ..., CommVarN, Sum + W).
+   
+do_aggregate(A, CommVar1, ..., CommVarN, Sum) -o total(A, Sum).
+\end{verbatim}
+\end{comment}
+
+\section{Linear Logic}
+
+\newcommand{\sequent}[3]{#1 ; #2 \vdash #3}
+\newcommand{\seqnocut}[3]{#1 ; #2 \Rightarrow #3}
+
+\[
+\infer[\one R]
+{\sequent{\Gamma}{\cdot}{\one}}
+{}
+\tab
+\infer[\one L]
+{\sequent{\Gamma}{\Delta, \one}{C}}
+{\sequent{\Gamma}{\Delta}{C}}
+\]
+
+\[
+\infer[\with R]
+{\sequent{\Gamma}{\Delta}{A \with B}}
+{\sequent{\Gamma}{\Delta}{A} & \sequent{\Gamma}{\Delta}{B}}
+\tab
+\infer[\with L_1]
+{\sequent{\Gamma}{\Delta, A \with B}{C}}
+{\sequent{\Gamma}{\Delta, A}{C}}
+\tab
+\infer[\with L_2]
+{\sequent{\Gamma}{\Delta, B \with B}{C}}
+{\sequent{\Gamma}{\Delta, B}{C}}
+\]
+
+\[
+\infer[\otimes R]
+{\sequent{\Gamma}{\Delta, \Delta'}{A \otimes B}}
+{\sequent{\Gamma}{\Delta}{A} & \sequent{\Gamma}{\Delta}{B}}
+\tab
+\infer[\otimes L]
+{\sequent{\Gamma}{\Delta, A \otimes B}{C}}
+{\sequent{\Gamma}{\Delta, A, B}{C}}
+\]
+
+\[
+\infer[\lolli R]
+{\sequent{\Gamma}{\Delta}{A \lolli B}}
+{\sequent{\Gamma}{\Delta, A}{B}}
+\tab
+\infer[\lolli L]
+{\sequent{\Gamma}{\Delta, \Delta', A \lolli B}{C}}
+{\sequent{\Gamma}{\Delta}{A} &
+   \sequent{\Gamma}{\Delta', B}{C}}
+\]
+
+\[
+\infer[\forall R]
+{\Psi ; \sequent{\Gamma}{\Delta}{\forall n:\tau. A}}
+{\Psi, m:\tau ; \sequent{\Gamma}{\Delta}{A\{m/n\}}}
+\tab
+\infer[\forall L]
+{\Psi ; \sequent{\Gamma}{\Delta, \forall n:\tau. A}{C}}
+{\Psi \vdash M : \tau & \Psi ; \sequent{\Gamma}{\Delta, A\{M/n\}}{C}}
+\]
+
+\[
+\infer[\exists R]
+{\Psi \; \sequent{\Gamma}{\Delta}{\exists n: \tau. A}}
+{\Psi \vdash M : \tau &
+   \Psi \; \sequent{\Gamma}{\Delta}{A \{M/n\}}}
+\tab
+\infer[\exists L]
+{\Psi ; \sequent{\Gamma}{\Delta, \exists n:\tau. A}{C}}
+{\Psi, m:\tau ; \sequent{\Gamma}{\Delta, A\{m/n\}}{C}}
+\]
+
+\[
+\infer[\bang R]
+{\sequent{\Gamma}{\cdot}{\bang A}}
+{\sequent{\Gamma}{\cdot}{A}}
+\tab
+\infer[\bang L]
+{\sequent{\Gamma}{\Delta, \bang A}{C}}
+{\sequent{\Gamma, A}{\Delta}{C}}
+\tab
+\infer[\m{copy}]
+{\sequent{\Gamma, A}{\Delta}{C}}
+{\sequent{\Gamma, A}{\Delta, A}{C}}
+\]
+
+\[
+\infer[\m{def} \; R]
+{\sequent{\Gamma}{\Delta}{\compr{A'}}}
+{\sequent{\Gamma}{\Delta}{B\theta} &
+ A \defeq B & A' \doteq A\theta}
+\tab
+\infer[\m{def} \; L]
+{\sequent{\Gamma}{\Delta, \compr{A'}}{C}}
+{
+   \sequent{\Gamma}{\Delta, B\theta}{C} & A \defeq B & A' \doteq A\theta
+}
+\]
+
+\[
+\infer[\m{cut}]
+{\sequent{\Gamma}{\Delta, \Delta'}{C}}
+{\sequent{\Gamma}{\Delta}{A} &
+   \sequent{\Gamma}{\Delta', A}{C}}
+\tab
+\infer[\m{cut}\bang]
+{\sequent{\Gamma}{\Delta}{C}}
+{\sequent{\Gamma}{\cdot}{A} &
+   \sequent{\Gamma, A}{\Delta}{C}}
+\]
+
+\subsection{Cut Free System}
+
+\[
+\infer[\one R]
+{\seqnocut{\Gamma}{\cdot}{\one}}
+{}
+\tab
+\infer[\one L]
+{\seqnocut{\Gamma}{\Delta, \one}{C}}
+{\seqnocut{\Gamma}{\Delta}{C}}
+\]
+
+\[
+\infer[\with R]
+{\seqnocut{\Gamma}{\Delta}{A \with B}}
+{\seqnocut{\Gamma}{\Delta}{A} & \seqnocut{\Gamma}{\Delta}{B}}
+\tab
+\infer[\with L_1]
+{\seqnocut{\Gamma}{\Delta, A \with B}{C}}
+{\seqnocut{\Gamma}{\Delta, A}{C}}
+\tab
+\infer[\with L_2]
+{\seqnocut{\Gamma}{\Delta, B \with B}{C}}
+{\seqnocut{\Gamma}{\Delta, B}{C}}
+\]
+
+\[
+\infer[\otimes R]
+{\seqnocut{\Gamma}{\Delta, \Delta'}{A \otimes B}}
+{\seqnocut{\Gamma}{\Delta}{A} & \seqnocut{\Gamma}{\Delta}{B}}
+\tab
+\infer[\otimes L]
+{\seqnocut{\Gamma}{\Delta, A \otimes B}{C}}
+{\seqnocut{\Gamma}{\Delta, A, B}{C}}
+\]
+
+\[
+\infer[\lolli R]
+{\seqnocut{\Gamma}{\Delta}{A \lolli B}}
+{\seqnocut{\Gamma}{\Delta, A}{B}}
+\tab
+\infer[\lolli L]
+{\seqnocut{\Gamma}{\Delta, \Delta', A \lolli B}{C}}
+{\seqnocut{\Gamma}{\Delta}{A} &
+   \seqnocut{\Gamma}{\Delta', B}{C}}
+\]
+
+\[
+\infer[\forall R]
+{\Psi ; \seqnocut{\Gamma}{\Delta}{\forall n:\tau. A}}
+{\Psi, m:\tau ; \seqnocut{\Gamma}{\Delta}{A\{m/n\}}}
+\tab
+\infer[\forall L]
+{\Psi ; \seqnocut{\Gamma}{\Delta, \forall n:\tau. A}{C}}
+{\Psi \vdash M : \tau & \Psi ; \seqnocut{\Gamma}{\Delta, A\{M/n\}}{C}}
+\]
+
+\[
+\infer[\exists R]
+{\Psi \; \seqnocut{\Gamma}{\Delta}{\exists n: \tau. A}}
+{\Psi \vdash M : \tau &
+   \Psi \; \seqnocut{\Gamma}{\Delta}{A \{M/n\}}}
+\tab
+\infer[\exists L]
+{\Psi ; \seqnocut{\Gamma}{\Delta, \exists n:\tau. A}{C}}
+{\Psi, m:\tau ; \seqnocut{\Gamma}{\Delta, A\{m/n\}}{C}}
+\]
+
+\[
+\infer[\bang R]
+{\seqnocut{\Gamma}{\cdot}{\bang A}}
+{\seqnocut{\Gamma}{\cdot}{A}}
+\tab
+\infer[\bang L]
+{\seqnocut{\Gamma}{\Delta, \bang A}{C}}
+{\seqnocut{\Gamma, A}{\Delta}{C}}
+\tab
+\infer[\m{copy}]
+{\seqnocut{\Gamma, A}{\Delta}{C}}
+{\seqnocut{\Gamma, A}{\Delta, A}{C}}
+\]
+
+\[
+\infer[\m{def} \; R]
+{\seqnocut{\Gamma}{\Delta}{\compr{A'}}}
+{\seqnocut{\Gamma}{\Delta}{B\theta} &
+ A \defeq B & A' \doteq A\theta}
+\tab
+\infer[\m{def} \; L]
+{\seqnocut{\Gamma}{\Delta, \compr{A'}}{C}}
+{
+   \seqnocut{\Gamma}{\Delta, B\theta}{C} & A \defeq B & A' \doteq A\theta
+}
+\]
+
+\subsection{Cut Elimination Theorem}
+
+If $\seqnocut{\Gamma}{\Delta}{A}$ and $\seqnocut{\Gamma}{\Delta', A}{C}$ then $\seqnocut{\Gamma}{\Delta, \Delta'}{C}$
+
+\section{Optimization Ideas}
+
+\subsection{Data vs Control}
+
+\begin{itemize}
+   \item Discover facts that work like node fields and actually never go away (only their arguments change).
+   \item Discover facts that drive the computation (usually are consumed and then go away).
+\end{itemize}
+
+\subsection{JIT Compilation}
+
+Compile most used rules to assembly.
+
+\subsection{Improve indexing}
+
+Do just in time indexing by gathering statistics about indexing.
+
+\subsection{Improve rule engine}
+
+Indexing of the current set of facts needs to be vastly improved.
+
+\subsection{Find consuming chain of linear facts}
+
+Sometimes a linear fact $a$ derives a $b$ that derives a $c$, etc. Once $a$ is derived we know that a set of rules will be run in sequence. We need to prove that this will happen no matter what.
+
+\subsection{Improved fact loading}
+
+Allow compilation of facts to a separate file. Also, load facts faster.
+
+\section{Low Level Dynamic Semantics}
+
+Low level dynamic semantics handle:
+
+\begin{itemize}
+\item Rule priorities.
+\item No guessing of values for variables.
+\item Maximality for definitions.
+\end{itemize}
+
+For the low level semantics, we consider that $\Theta$ (rules with priority)
+is an ordered context of rules.
+
+\newcommand{\applyl}[6]{\m{apply1} \; #1 ; #2 ; #3 \rightarrow #4 ; #5 ; #6}
+
+\[
+\infer[\m{rule \; app \; priority}]
+{\Psi ; R, \Theta; \Phi; \Gamma; \Delta \hookrightarrow \Gamma'; \Delta' ; \Xi'}
+{\applyl{\Psi}{\Gamma}{\Delta ; [R] ; (\m{rule}; \Theta; \Phi ; \Delta)}{\Gamma'}{\Delta'}{\Xi'}}
+\]
+
+\[
+\infer[\m{rule \; app \; no \; priority}]
+{\Psi ; \cdot; R, \Phi ; \Gamma ; \Delta \hookrightarrow \Gamma'; \Delta' ; \Xi'}
+{\applyl{\Psi}{\Gamma}{\Delta ; [R] ; (\m{rule} ; \Theta; \Phi ; \Delta)}{\Gamma'}{\Delta'}{\Xi'}}
+\]
+
+Note that in the following rule, we do not guess the terms for the variables. Instead, we will try to match the variables against the available facts.
+
+\[
+\infer[\m{\forall L}]
+{\applyl{\Psi}{\Gamma}{\Delta ; [\forall X : \tau. A] ; C}{\Gamma'}{\Delta'}{\Xi}}
+{\applyl{\Psi}{\Gamma}{\Delta ; [A\{\m{var}(X)/X\}]; C}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+Once we get to the implication, we pick both body and head with a rule continuations. The continuation context will have the different facts that may be used to apply the rule. The body $A$ is an ordered context.
+
+\[
+\infer[\m{\lolli L}]
+{\applyl{\Psi}{\Gamma}{\Delta ; [A \lolli B] ; C}{\Gamma'}{\Delta'}{\Xi'}}
+{\m{matchbody} \; \Psi;\Gamma; \Delta ; \cdot ; A ; \cdot ; B ; (\cdot, C) \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+\subsection{Match Body}
+
+This judgment goes through the ordered body context and matches the facts gainst the linear or persistent context. Constraints are put into the context at the right. Once we match everything correctly, we go through the constraint context (note: not an ordered context) and validate each constraint. If a constraint fails or a match fails, we pick the next continuation (body + facts).
+
+For $\exists$, we do the same thing as we did above for $\forall$.
+
+\[
+\infer[\m{matchbody \; exists}]
+{\m{matchbody} \; \Psi ; \Gamma ; \Delta ; \Xi ; \exists X. A', A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{\m{matchbody} \; \Psi ; \Gamma ; \Delta ; \Xi ; [\m{var}(X)/X]A', [\m{var}(X)/X]A ; [\m{var}(X)/X]B; [\m{var}(X)/X]H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+
+If we get $1$, we just skip it.
+
+\[
+\infer[\m{matchbody \; one}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta ; \Xi ; 1, A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{\m{matchbody} \; \Psi;\Gamma;\Delta ; \Xi ; A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+For $\otimes$ we simply deconstruct the connective and keep both elements in the ordered context.
+
+\[
+\infer[\m{matchbody \; split}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta; \Xi ; A_1 \otimes A_2, A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{\m{matchbody} \; \Psi;\Gamma;\Delta; \Xi ; A_1, A_2, A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+This is the constraint case. We simply move the constraint to the constraint context.
+
+\[
+\infer[\m{matchbody \; constraint}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta; \Xi ; \bang\constraint{e}, A; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{\m{matchbody} \; \Psi ; \Gamma; \Delta; \Xi ; A ; \bang\constraint{e}, B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+Finally, the linear case! Here we have two cases, either we have facts in the linear context of this type or we don't.
+
+\[
+\infer[\m{matchbody \; linear}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta, \Delta_f; \Xi ; \fact{name}{e_1}{e_2, ..., e_n}, A; B; H; (C_1, C_2) \rightarrow \Gamma' ; \Delta'; \Xi'}
+{\begin{array}{c}
+   \Delta_f = \m{list} \; [ \fact{name}{v_1}{v_2, ..., v_n} | Xs] \\
+    NC = (\m{body}; \fact{name}{e_1}{e_2, ..., e_n} ; Xs ; \Delta ; \Xi ; A ; B ; H; C_1) \\
+    \Delta_1 = \Delta, \Delta_f - \{\fact{name}{v_1}{v_2, ..., v_n}\} \\
+   \m{matchfact} \; \Psi;\Gamma; \Delta_1; \fact{name}{v_1}{v_2, ..., v_n}, \Xi ; [v_1, ..., v_n] ; [e_1, ..., e_n]; A ; B ; H; (NC, C_2) \rightarrow \Gamma' ; \Delta'; \Xi' \\
+ \end{array}
+}
+\]
+
+\[
+\infer[\m{matchbody \; linear \; empty}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta,\Delta_f; \Xi ; \fact{name}{e_1}{e_2, ..., e_n}, A ; B; H; C \rightarrow \Gamma';\Delta';\Xi'}
+{\begin{array}{c}
+   \Delta_f = [] \\
+   \m{cont} \; \Psi; \Gamma ; C \rightarrow \Gamma';\Delta';\Xi'
+  \end{array}
+}
+\]
+
+Persistent facts are very similar, except we don't mess with the linear context.
+
+\[
+\infer[\m{matchbody \; persistent}]
+{\m{matchbody} \; \Psi;\Gamma, \Gamma_f;\Delta; \Xi ; \bang\fact{name}{e_1}{e_2, ..., e_n}, A; B; H; (C_1, C_2) \rightarrow \Gamma' ; \Delta'; \Xi'}
+{\begin{array}{c}
+   \Gamma_f = \m{list} \; [\bang\fact{name}{v_1}{v_2, ..., v_n} | Xs] \\
+    NC = (\m{body}; \bang\fact{name}{e_1}{e_2, ..., e_n} ; Xs ; \Delta ; \Xi ; A ; B ; H; C_1) \\
+   \m{matchfact} \; \Psi;\Gamma, \Gamma_f; \Delta; \Xi ; [v_1, ..., v_n] ; [e_1, ..., e_n]; A ; B ; H; (NC, C_2) \rightarrow \Gamma' ; \Delta'; \Xi' \\
+ \end{array}
+}
+\]
+
+\[
+\infer[\m{matchbody \; persistent \; empty}]
+{\m{matchbody} \; \Psi;\Gamma, \Gamma_f;\Delta; \Xi ; \bang\fact{name}{e_1}{e_2, ..., e_n}, A ; B; H; C \rightarrow \Gamma';\Delta';\Xi'}
+{\begin{array}{c}
+   \Gamma_f = [] \\
+   \m{cont} \; \Psi; \Gamma ; C \rightarrow \Gamma';\Delta';\Xi'
+  \end{array}
+}
+\]
+
+Now we get to the case where we have no more facts to process. We use $\m{matchconstr}$ to match the required constraints. Note that all constraints will be instantiated at this point, so they can be evaluated.
+
+\[
+\infer[\m{matchbody \; end}]
+{\m{matchbody} \; \Psi; \Gamma ; \Delta; \Xi; \cdot ; B ; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{matchconstr} \; \Psi; \Gamma; \Delta; \Xi; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+\subsubsection{Match Facts}
+
+The following judgments match the fact from the context with the fact from the rule.
+
+\[
+\infer[\m{matchfact \; var}]
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; [v | v_s] ; [\m{var}(X) \| e_s]; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; v_s; [v/\m{var}(X)]e_s; [v/\m{var}(X)]A; [v/\m{var}(X)]B; [v/\m{var}(X)]H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+\[
+\infer[\m{matchfact \; equal}]
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; [v_1 | v_s] ; [v_2 | e_s]; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; v_s; e_s; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi' & \equal{v_1}{v_2}}
+\]
+
+If they are not equal, we fail and grab the next continuation:
+
+\[
+\infer[\m{matchfact \; not \; equal}]
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; [v_1 | v_s] ; [v_2 | e_s]; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{cont} \; \Psi ; \Gamma ; C \rightarrow \Gamma'; \Delta'; \Xi' & v_1 \neq v_2}
+\]
+
+\[
+\infer[\m{matchfact \; done}]
+{\m{matchfact} \; \Psi;\Gamma; \Delta; \Xi ; [] ; []; A ; B ; H; C \rightarrow \Gamma' ; \Delta'; \Xi'}
+{\m{matchbody} \; \Psi;\Gamma;\Delta;\Xi; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+\subsubsection{Match Constraints}
+
+If a constraint succeeds, we keep going on.
+
+\[
+\infer[\m{matchconstr \; true}]
+{\m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; \bang\constraint{e}, B ; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\eval{e}{\m{bool}(\m{true})} & \m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+If not, we get a continuation to try another fact.
+
+\[
+\infer[\m{matchconstr \; false}]
+{\m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; \bang\constraint{e}, B ; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\eval{e}{\m{bool}(\m{false})} & \m{cont} \; \Psi;\Gamma; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+Once all constraints are validated, we have succeeded in matching the body rule, so we can start deriving new facts.
+Note that we get rid of all continuations.
+
+\[
+\infer[\m{matchconstr \; end}]
+{\m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; \cdot ; H ; (C_1, (\m{rule}; ...)) \rightarrow \Gamma';\Delta';\Xi'}
+{\m{derive1} \; \Psi;\Gamma;\Delta;\Xi; \cdot; \cdot; H ; \cdot \rightarrow \Gamma';\Delta';\Xi'}
+\]
+
+The derive continuation is kept however. This way we can return back to the original derivation.
+
+\[
+\infer[\m{matchconstr \; end}]
+{\m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; \cdot ; H ; (C_1, (\m{derive}; \Delta''; \Xi''; \Gamma_1 ; \Delta_1 ; K ; \Omega)) \rightarrow \Gamma';\Delta';\Xi'}
+{\m{derive1} \; \Psi;\Gamma;\Delta;\Xi; \cdot; \cdot; H ; (\m{derive}; \Delta'' ; \Xi''; \Gamma_1; \Delta_1 ; K; \Omega) \rightarrow \Gamma';\Delta';\Xi'}
+\]
+
+\subsubsection{Continuation}
+
+If we have no more fact continuations, we need to get the rule continuation to try another rule.
+
+\[
+\infer[\m{cont \; rule}]
+{\m{cont} \; \Psi ; \Gamma ; (\cdot , (\m{rule} ; \Theta ; \Phi ; \Delta)) \rightarrow \Gamma'; \Delta'; \Xi'}
+{\Psi ; \Theta; \Phi; \Gamma ; \Delta \hookrightarrow \Gamma'; \Delta' ; \Xi'}
+\]
+
+... If there is a derive continuation, it means that an aggregate or continuation has failed.
+
+\[
+\infer[\m{cont \; comp}]
+{\m{cont} \; \Psi ; \Gamma ; (\cdot , (\m{derive}; \Delta ; \Xi; \Gamma_1; \Delta_1; \comprehension{A}; \Omega)) \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \Omega ; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+\[
+\infer[\m{cont \; aggregate}]
+{\m{cont} \; \Psi ; \Gamma ; (\cdot , (\m{derive}; \Delta ; \Xi; \Gamma_1; \Delta_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))}; \Omega)) \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; B(V), \Omega; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+If we have a fact continuation but no more facts for that continuation, we fail and continue:
+
+\[
+\infer[\m{cont \; body \; fail}]
+{\m{cont} \; \Psi ; \Gamma ; ((\m{body} ; \fact{name}{e_1}{e_2, ..., e_n} ; []; \Delta ; \Xi ; A ; B; H; C), C_2) \rightarrow \Gamma'; \Delta'; \Xi'}
+{
+   \m{cont} \; \Psi ; \Gamma ; (C, C_2) \rightarrow \Gamma'; \Delta'; \Xi'
+}
+\]
+
+If we have a fact continuation and also more facts, restore the continuation and continue:
+
+\[
+\infer[\m{cont \; body \; ok}]
+{\m{cont} \; \Psi ; \Gamma ; ((\m{body} ; \fact{name}{e_1}{e_2, ..., e_n} ; [\fact{name}{v_1}{v_2, ..., v_n} | Xs]; \Delta ; \Xi ; A ; B ; H; C_1), C_2) \rightarrow \Gamma'; \Delta'; \Xi'}
+{
+   \begin{array}{c}
+   \Delta_1 = \Delta - {\fact{name}{v_1}{v_2, ..., v_n}}\\
+   NC = (\m{body}; \fact{name}{e_1}{e_2, ..., e_n}; \Delta; A; B; H; C_1) \\
+   \m{matchfact} \; \Psi ; \Gamma; \Delta_1 ; \fact{name}{v_1}{v_2, ..., v_n}, \Xi ; [v_1, ..., v_n]; [e_1, ..., e_n]; A; B; H; (NC, C_2) \rightarrow \Gamma' ; \Delta'; \Xi'\\
+   \end{array}
+}
+\]
+
+\subsubsection{Derive}
+
+\[
+\infer[\m{derive \; \otimes}]
+{\m{derive1} \; \Psi; \Gamma ; \Delta ; \Xi ; \Gamma_1; \Delta_1 ; A \otimes B, \Omega ; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{derive1} \; \Psi; \Gamma ; \Delta ; \Xi ; \Gamma_1; \Delta_1 ; A, B, \Omega; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+\[
+\infer[\m{derive \; exists}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1 ; \Delta_1 ; \exists X : \m{addr}. A, \Omega ; C \rightarrow \Gamma'; \Delta' ; \Xi'}
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1 ; \Delta_1 ; [x/X]A, \Omega ; C \rightarrow \Gamma'; \Delta'; \Xi'
+   & x = \m{new} \; \m{addr}(A)}
+\]
+
+\[
+\infer[\m{derive \; 1}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1 ; \Delta_1 ; 1, \Omega ; C \rightarrow \Gamma'; \Delta' ; \Xi'}
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1 ; \Delta_1 ; \Omega ; C \rightarrow \Gamma'; \Delta' ; \Xi'}
+\]
+
+
+\[
+\infer[\m{derive \; fact}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1; \Delta_1 ; \fact{name}{e_1}{e_2, ..., e_n}, \Omega ; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1, \fact{name}{v_1}{v_2, ..., v_n} ; \Omega ; C \rightarrow \Gamma'; \Delta' ; \Xi'} \\
+   \end{array}
+}
+\]
+
+\[
+\infer[\m{derive \; \bang fact}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \bang \fact{name}{e_1}{e_2, ..., e_n}, \Omega ; C \rightarrow \Gamma'; \Delta' \Xi'}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1, \bang\fact{name}{v_1}{v_2, ..., v_n} ; \Delta_1 ; \Omega ; C \rightarrow \Gamma'; \Delta'; \Xi'} \\
+   \end{array}
+}
+\]
+
+For the comprehension, we define a new continuation for the current state of derivation and call $\m{apply}$ in order to attempt applying the comprehension. Comprehension fails in one of the $\m{cont}$ cases. It succeeds when derive reaches the end and a continuation is in place.
+
+
+\[
+\infer[\m{derive \; comprehension}]
+{\m{derive1} \; \Psi ; \Gamma; \Delta;\Xi;\Gamma_1;\Delta_1; \comprehension{A}, \Omega; \cdot \rightarrow \Gamma' ;\Delta'; \Xi'}
+{\applyl{\Psi}{\Gamma}{\Delta ; [A] ; (\m{derive1}; \Delta ; \Xi; \Gamma_1; \Delta_1; \comprehension{A} ; \Omega)}{\Gamma'}{\Delta'}{\Xi'}}
+\]
+
+We first change the aggregate definition. Note that this only happens at this derivation level (no continuation possible).
+
+\[
+\infer[\m{derive \; aggregate}]
+{\m{derive1} \; \Psi; \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \aggregate{Op}{X}{A}{B}, \Omega; \cdot \rightarrow \Gamma' ; \Delta'; \Xi'}
+{\aggregatestart{Op}{V} & \m{derive1} \; \Psi;\Gamma;\Delta;\Xi;\Gamma_1;\Delta_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))}, \Omega; \cdot \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+When unfolding the aggregate and if there is an aggregate continuation (aggregate has already been applied multiple times), we need to change the definition of the aggregate inside the continuation. Note that the derivation context ($\Omega$) must only contain the aggregate.
+
+\fontsize{8}{9.5}\selectfont
+\[
+\infer[\m{derive \; aggregate \; unfold}]
+{\m{derive1} \; \Psi; \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \aggdef{Op}{V'}{(x. A(x))}{(y. B(y))} ; (\m{derive} ; \Delta'' ; \Xi''; \Gamma'_1; \Delta'_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))} ; \Omega) \rightarrow \Gamma'; \Delta'; \Xi'}
+{\begin{array}{c}
+   \applyl{\Psi}{\Gamma}{\Delta ; [\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}] ; (\m{derive}; \Delta ; \Xi, \Xi''; \Gamma_1, \Gamma'_1; \Delta_1, \Delta'_1; \aggdef{Op}{V'}{(x. A(x))}{(y. B(y))} ; \Omega)}{\Gamma'}{\Delta'}{\Xi'}\\
+   \aggregateop{Op}{V'}{X'}{E} \\
+      \end{array}
+}
+\]
+
+\fontsize{10}{9.5}\selectfont
+Otherwise, if we get an aggregate without a continuation:
+
+\fontsize{8}{9.5}\selectfont
+\[
+\infer[\m{derive \; aggregate \; unfold}]
+{\m{derive1} \; \Psi; \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))}, \Omega ; \cdot \rightarrow \Gamma'; \Delta'; \Xi'}
+{\begin{array}{c}
+   \applyl{\Psi}{\Gamma}{\Delta ; [\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}] ; (\m{derive}; \Delta ; \Xi; \Gamma_1; \Delta_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))} ; \Omega)}{\Gamma'}{\Delta'}{\Xi'}\\
+   \aggregateop{Op}{V}{X'}{E} \\
+      \end{array}
+}
+\]
+
+\fontsize{10}{9.5}\selectfont
+
+If $\m{derive}$ ends and there is a continuation, it means that either the aggregate or comprehension can be reused again.
+
+\[
+\infer[\m{derive \; comprehension \; end}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1; \Delta_1 ; \cdot ; (\m{derive}; \Delta'' ; \Xi''; \Gamma'_1; \Delta'_1; \comprehension{A} ; \Omega) \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{
+   \m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi, \Xi''; \Gamma_1, \Gamma'_1; \Delta_1, \Delta'_1; \comprehension{A}, \Omega; \cdot \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+This is the axiom that wraps everything up. If no rule is applicable in the system, then there is no valid proof derivation.
+
+\[
+\infer[\m{derive \; end}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1; \Delta_1; \cdot ; \cdot \rightarrow \Gamma_1 ; \Delta_1 ; \Xi}
+{}
+\]
+
+\section{Soundness}
+
+If $\Psi; \Theta ; \Phi ; \Gamma ; \Delta \hookrightarrow \Gamma' ; \Delta'; \Xi'$ then $\Psi; \Theta, \Phi ; \Gamma; \Delta \Rightarrow \Gamma' ; \Delta' ; \Xi'$.
+
+
+If $\m{apply1} \; \Psi; \Gamma ; \Delta; [R]; (\m{rule}; \cdot; \cdot; \Delta) \rightarrow \Gamma'; \Delta'; \Xi'$ then $\m{apply} \; \Psi; \Gamma; \Delta, [R] \rightarrow \Gamma'; \Delta'; \Xi'$.
+
+Induction on the first judgment:
+
+\begin{description}
+
+\item[Forall Case:]
+
+$\m{apply1} \; \Psi; \Gamma; \Delta; [\forall X : \tau. A]; (\m{rule}; ...) \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (1) assumption \\
+$\m{apply1} \; \Psi; \Gamma; \Delta; [A\{M/X\}]; (\m{rule}; ...) \rightarrow \Gamma'; \Delta' ; \Xi' $ \hfill (2) inversion of (1) \\
+$\val{M}{\tau}$   \hfill (3) inversion of (1) \\
+$\m{apply} \; \Psi; \Gamma; \Delta, [A\{M/X\}] \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (4) i.h. on (2) \\
+$\m{apply} \; \Psi ; \Gamma; \Delta, [\forall X: \tau. A] \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (5) rule on (4) and (3) \\
+
+\item[Lolli Case:]
+
+$\m{apply1} \; \Psi ; \Gamma; \Delta; [A \lolli B]; (\m{rule} ; ...) \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (1) assumption \\
+$\m{matchbody} \; \Psi; \Gamma; \Delta; \cdot ; A ; \cdot ; B ; (\cdot, (\m{rule}; ...)) \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (2) inversion of (1) \\
+$\m{derive1} \; \Psi; \Gamma; \Delta_2; \cdot; \cdot; B; (\cdot, (\m{rule}; ...)) \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (3) some theorem on (2) \\
+$\m{derive} \; \Psi; \Gamma; \Delta_2; B; \cdot; \cdot \rightarrow \Gamma'; \Delta'; (\Xi' - \cdot)$ \hfill (4) derive theorem on (3) \\
+$\m{match} \; \Psi; \Gamma; \Delta_1 \rightarrow [A]; \Delta_1$ \hfill (5) theorem on (2), $\Delta_1 \subset \Xi'$ \\
+$\m{apply} \; \Psi; \Gamma; \Delta_1, \Delta_2 ; [A \lolli B] \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (6) using (4) and (5) \\
+\end{description}
+
+
+\subsection{Derive theorem}
+
+If $\m{derive1} \; \Psi; \Gamma; \Delta; \Xi; \Gamma_1 ; \Delta_1; \Omega ; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'$ then $\m{derive} \; \Psi ; \Gamma ; \Delta; \Omega; \Delta_1; \Gamma_1 \rightarrow \Gamma'; \Delta'; (\Xi' - \Xi)$. \\
+
+Induction on the first judgment.
+
+\begin{description}
+\item[Case:] $\m{derive1} \; \Psi ; \Gamma; \Delta; \Xi; \Gamma_1 ; \Delta_1 ; A \otimes B, \Omega ; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'$
+
+$\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1; \Delta_1 ; A, B, \Omega ; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'$ \hfill (1) inversion \\
+$\m{derive} \; \Psi ; \Gamma ; \Delta ; A, B, \Omega ; \Delta_1 ; \Gamma_1 \rightarrow \Gamma'; \Delta'; (\Xi' - \Xi)$ \hfill (2) i.h. on (1) \\
+$\m{derive} \; \Psi ; \Gamma ; \Delta ; A \otimes B, \Omega ; \Delta_1 ; \Gamma_1 \rightarrow \Gamma'; \Delta' ; (\Xi' - \Xi)$ \hfill rule applied to (2) \\
+
+\item[Case:] $\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1 ; \Delta_1; \exists X:\m{addr}, \Omega; \cdot \rightarrow \Gamma'; \Delta' ; \Xi'$
+
+Same as the previous case.
+
+\item[Case:] $\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1 ; \Delta_1; 1, \Omega; \cdot \rightarrow \Gamma'; \Delta' ; \Xi'$
+
+Same as the previous case.
+
+\item[Case:] $\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1 ; \Delta_1; \fact{name}{e_1}{e_2, ..., e_n}, \Omega; \cdot \rightarrow \Gamma'; \Delta' ; \Xi'$
+
+Same as the previous case.
+
+\item[Case:] $\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1 ; \Delta_1; \bang\fact{name}{e_1}{e_2, ..., e_n}, \Omega; \cdot \rightarrow \Gamma'; \Delta' ; \Xi'$
+
+Same as the previous case.
+
+\item[Case:] $\m{derive1} \; \Psi ; \Gamma; \Delta ; \Xi; \Gamma_1; \Delta_1 ; \cdot ; \cdot \rightarrow \Gamma_1; \Delta_1; \Xi$
+
+$\m{derive} \; \Psi; \Gamma; \Delta; \cdot ; \Delta_1; \Gamma_1 \rightarrow \Gamma_1; \Delta_1; (\Xi - \Xi)$ \hfill using axiom \\
+
+
+\end{description}
+
 
 \end{document}
 

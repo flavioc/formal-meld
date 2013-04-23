@@ -42,21 +42,34 @@ Inductive match1 : list nat -> list nat -> (list body_tm) -> cont -> list nat ->
    | Match1_One : forall delta xi xi' ls c, match1 delta xi ls c xi' -> match1 delta xi (btm_one :: ls) c xi'
    | Match1_Tensor : forall delta xi a b ls xi' c, match1 delta xi (a :: b :: ls) c xi' -> match1 delta xi (btm_tensor a b :: ls) c xi'
    | Match1_Fact : forall delta delta' xi p xi' ls c, In p delta -> delta = p :: delta' -> match1 delta' (p :: xi) ls c xi' -> match1 delta xi (btm_fact p :: ls) c xi'
+   | Match1_FactFail : forall delta xi p xi' ls nr nrs orig, ~ In p delta -> cont1 (continuation (nr :: nrs) orig) xi' -> match1 delta xi (btm_fact p :: ls) (continuation (nr :: nrs) orig) xi'
    | Match1_Constraint : forall delta bexp xi ls xi' c, eval_bool bexp true -> match1 delta xi ls c xi' -> match1 delta xi (btm_constraint bexp :: ls) c xi'
-   | Match1_End : forall delta xi c, match1 delta xi nil c xi.
-
+   | Match1_End : forall delta xi c, match1 delta xi nil c xi
+with do1 : list nat -> list rule_tm -> list nat -> Prop :=
+   | Do1_Rule : forall delta rules xi rule, apply1 delta rule (continuation rules delta) xi -> do1 delta (rule :: rules) xi
+with cont1 : cont -> list nat -> Prop :=
+   | Cont1_Next : forall r rs xi' delta, do1 delta (r ::rs) xi' -> cont1 (continuation (r :: rs) delta) xi'
+with apply1 : list nat -> rule_tm -> cont -> list nat -> Prop :=
 (** apply1 delta rule cont xi *)
-Inductive apply1 : list nat -> rule_tm -> cont -> list nat -> Prop :=
    | Apply1_Rule : forall delta body head c xi, match1 delta nil (body :: nil) c xi -> apply1 delta (rtm_lolli body head) c xi.
 
-Inductive derive0 : list head_tm -> list nat -> list nat -> Prop :=
-   | Derive_One : forall ctx ls final, derive0 ls ctx final -> derive0 (head_one :: ls) ctx final
-   | Derive_Fact : forall ctx ls p final, derive0 ls (p :: ctx) final -> derive0 (head_fact p :: ls) ctx final
-   | Derive_Tensor : forall ctx ls a b final, derive0 (a :: b :: ls) ctx final -> derive0 (head_tensor a b :: ls) ctx final
-   | Derive_End : forall final, derive0 nil final final.
+(* derive0 head delta new xi final *)
+Inductive derive0 : list head_tm -> list nat -> list nat -> list nat -> list nat -> Prop :=
+   | Derive_One : forall ls delta new xi final, derive0 ls delta new xi final -> derive0 (head_one :: ls) delta new xi final
+   | Derive_Fact : forall delta ls p new xi final, derive0 ls delta (p :: new) xi final -> derive0 (head_fact p :: ls) delta new xi final
+   | Derive_Tensor : forall delta ls a b xi new final, derive0 (a :: b :: ls) delta new xi final -> derive0 (head_tensor a b :: ls) delta new xi final
+   | Derive_End : forall delta new xi, derive0 nil delta new xi new.
 
-Inductive apply0 : list nat -> rule_tm -> list nat -> list nat -> list nat -> Prop :=
-   | Apply0 : forall body head ctx_deleted ctx_maintain ctx_new, match0 ctx_deleted body ctx_deleted -> derive0 (head :: nil) nil ctx_new -> apply0 (ctx_deleted ++ ctx_maintain) (rtm_lolli body head) ctx_maintain ctx_new ctx_deleted.
+(* derive1 head delta xi new cont xi' finalnew *)
+Inductive derive1 : list head_tm -> list nat -> list nat -> list nat -> cont -> list nat -> list nat -> Prop :=
+   | Derive1_One : forall delta new ls xi c xi' final, derive1 ls delta xi new c xi' final -> derive1 (head_one :: ls) delta xi new c xi' final
+   | Derive1_Fact : forall ls delta p xi c new xi' final, derive1 ls delta xi (p :: new) c xi' final -> derive1 (head_fact p :: ls) delta xi new c xi' final
+   | Derive1_Tensor : forall ls delta a b xi c new xi' final, derive1 (a :: b :: ls) delta xi new c xi' final -> derive1 (head_tensor a b :: ls) delta xi new c xi' final
+   | Derive1_End : forall delta xi c new , derive1 nil delta xi new c xi new.
+
+(* apply0 delta rule delta' xi *)
+Inductive apply0 : list nat -> rule_tm -> list nat -> list nat -> Prop :=
+   | Apply0_Rule : forall body head ctx_deleted ctx_maintain ctx_new xi, match0 ctx_deleted body ctx_deleted -> derive0 (head :: nil) ctx_maintain nil xi ctx_new -> apply0 (ctx_deleted ++ ctx_maintain) (rtm_lolli body head) ctx_new (ctx_deleted ++ xi).
 
 Example simple_match1 :
    match0 (1 :: 2 :: 3 :: nil) (btm_tensor (btm_tensor (btm_fact 1) (btm_fact 2)) (btm_fact 3)) (1 :: 2 :: 3 :: nil).
@@ -106,66 +119,72 @@ exists (n :: nil).
 auto.
 Qed.
 
+   (*
+Example apply0_example2:
+   apply0 ((1 :: nil) ++ nil) (rtm_lolli (btm_fact 1) head_one) nil ((1 :: nil) ++ nil).
+   Proof.
+
+   *)
+
 Example apply0_example1:
-   apply0 (1 :: 2 :: 3 :: nil) (rtm_lolli (btm_tensor (btm_fact 1) (btm_fact 2)) (head_tensor (head_tensor (head_fact 5) (head_fact 6)) (head_one))) (3 :: nil) (6 :: 5 :: nil) (1 :: 2 :: nil).
-   assert (1 :: 2 :: 3 :: nil = (1 :: 2 :: nil) ++ 3 :: nil).
-   auto.
+   apply0 (1 :: 2 :: 3 :: nil) (rtm_lolli (btm_tensor (btm_fact 1) (btm_fact 2)) (head_tensor (head_tensor (head_fact 5) (head_fact 6)) (head_one))) (6 :: 5 :: nil) (1 :: 2 :: nil).
+   Proof.
+   assert (1 :: 2 :: 3 :: nil = (1 :: 2 :: nil) ++ (3 :: nil)).
+    simpl.
+     auto.
 
-   rewrite H.
-   apply Apply0.
-   assert (1 :: 2 :: nil = (1 :: nil) ++ 2 :: nil).
-   auto.
+      rewrite H.
+      assert (1 :: 2 :: nil = (1 :: 2 :: nil) ++ nil).
+       auto.
 
-   rewrite H0.
-   apply Match_Tensor.
-   apply Match_Fact.
+        rewrite H0.
+        apply Apply0_Rule.
+         assert (1 :: 2 :: nil = (1 :: nil) ++ 2 :: nil).
+           auto.
 
-   apply Match_Fact.
-   apply Derive_Tensor.
-   apply Derive_Tensor.
-   apply Derive_Fact.
-   apply Derive_Fact.
-   apply Derive_One.
-   apply Derive_End.
-   Qed.
+             rewrite H1.
+               apply Match_Tensor.
+                  apply Match_Fact.
+                   apply Match_Fact.
+
+                    apply Derive_Tensor.
+                     apply Derive_Tensor.
+                      apply Derive_Fact.
+                       apply Derive_Fact.
+                        apply Derive_One.
+                         apply Derive_End.
+                         Qed.
 
 Theorem match1_subset:
-   forall xi a xi' delta c, match1 delta xi a c xi' -> exists xi2, xi2 ++ xi = xi'.
+   forall xi a xi' delta, match1 delta xi a (continuation nil nil) xi' -> exists xi2, xi2 ++ xi = xi'.
 Proof.
+   remember (continuation nil nil) as c.
    intros.
    induction H.
-   inversion IHmatch1.
-   exists x.
-   auto.
+    auto.
 
-   inversion IHmatch1.
-   exists x.
-   auto.
+     auto.
 
-   inversion IHmatch1.
-   simpl in H0.
-    exists (p :: x).
-     simpl.
-      auto.
-       auto.
-        rewrite <- H2.
-         auto.
+      apply IHmatch1 in Heqc.
+       inversion Heqc.
+        exists (p :: x).
+         simpl.
           admit.
 
-   inversion IHmatch1.
-   exists x.
-   auto.
+           inversion Heqc.
 
-   exists nil.
-   simpl.
-   auto.
+            auto.
+
+             exists nil.
+              auto.
 Qed.
 
 Theorem match1_add:
-   forall delta1 xi1 ls xi' c, match1 delta1 xi1 ls c xi' -> forall delta2 xi2, match1 (delta1 ++ delta2) (xi1 ++ xi2) ls c (xi' ++ xi2).
+   forall delta1 xi1 ls xi', match1 delta1 xi1 ls empty_continuation xi' -> forall delta2 xi2, match1 (delta1 ++ delta2) (xi1 ++ xi2) ls empty_continuation (xi' ++ xi2).
 Proof.
-   intros delta1 xi1 ls xi' c.
+   intros delta1 xi1 ls xi'.
    intros H.
+   remember (empty_continuation) as c in H.
    induction H.
    simpl.
    intros.
@@ -178,18 +197,20 @@ Proof.
 
    intros.
    simpl.
-    apply Match1_Fact with (delta' := delta' ++ delta2).
-      rewrite H0.
-        auto.
-          simpl.
-            auto.
+   apply Match1_Fact with (delta' := delta' ++ delta2).
+   rewrite H0.
+   auto.
+   simpl.
+   auto.
 
-              simpl.
-                auto.
-                  rewrite H0.
-                    auto.
+   simpl.
+   auto.
+   rewrite H0.
+   auto.
 
-                      apply IHmatch1.
+   apply IHmatch1.
+   auto.
+    inversion Heqc.
 
    intros.
    apply Match1_Constraint.
@@ -202,10 +223,11 @@ Proof.
 Qed.
 
 Theorem match1_merge:
-   forall delta1 xi1 a xi1' c, match1 delta1 xi1 a c xi1' -> forall delta2 b xi2 xi2', match1 delta2 xi2 b c xi2' -> match1 (delta2 ++ delta1) (xi1 ++ xi2) (a ++ b) c (xi1' ++ xi2').
+   forall delta1 xi1 a xi1', match1 delta1 xi1 a empty_continuation xi1' -> forall delta2 b xi2 xi2', match1 delta2 xi2 b empty_continuation xi2' -> match1 (delta2 ++ delta1) (xi1 ++ xi2) (a ++ b) empty_continuation (xi1' ++ xi2').
 Proof.
-   intros delta1 xi1 a xi1' c.
+   intros delta1 xi1 a xi1'.
    intros H.
+   remember empty_continuation as c in H.
    induction H.
    simpl.
    intros.
@@ -219,35 +241,26 @@ Proof.
    simpl.
    apply IHmatch1.
    auto.
+   auto.
 
    intros.
    simpl.
-   simpl.
-   assert (delta2 ++ p :: delta' = p :: delta' ++ delta2).
-   admit.
-
+   apply Match1_Fact with (delta' := delta' ++ delta2).
     rewrite H0.
-     simpl.
-      apply Match1_Fact with (delta' := delta' ++ delta2).
-        simpl.
-          auto.
-            simpl.
-              rewrite H3.
-                auto.
-                  simpl.
-                    auto.
+    admit.
+    rewrite H0.
+    admit.
+    apply IHmatch1 with (delta2 := delta2) (b := b) (xi2 := xi2) (xi2' := xi2')
+       in Heqc.
+          simpl Heqc.
+             assert (delta' ++ delta2 = delta2 ++ delta').
+                 admit.
 
-                      rewrite H3.
-                        auto.
+                     rewrite H3.
+                         apply Heqc.
 
-                          auto.
-                            simpl in IHmatch1.
-                              assert (delta' ++ delta2 = delta2 ++ delta').
-                                 admit.
-
-                                    rewrite H4.
-      apply IHmatch1.
-         auto.
+                            auto.
+                            inversion Heqc.
 
    intros.
    simpl.
@@ -324,3 +337,146 @@ Proof.
    apply Match1_End.
 Qed.
 
+Theorem match_cont_theorem:
+   forall delta xi a c xi' deltany, match1 delta xi a c xi' -> match1 delta xi a (continuation nil deltany) xi' \/ cont1 c xi'.
+Proof.
+intros.
+induction H.
+inversion IHmatch1.
+left.
+apply Match1_One.
+auto.
+
+right.
+auto.
+
+inversion IHmatch1.
+left.
+apply Match1_Tensor.
+auto.
+
+right.
+auto.
+
+inversion IHmatch1.
+left.
+apply Match1_Fact with (delta' := delta').
+auto.
+
+auto.
+
+auto.
+
+right.
+auto.
+
+right.
+auto.
+
+inversion IHmatch1.
+left.
+apply Match1_Constraint.
+auto.
+
+auto.
+
+right.
+auto.
+
+left.
+apply Match1_End.
+Qed.
+
+Theorem apply1_cont_theorem:
+   forall delta rule c xi' deltany, apply1 delta rule c xi' -> apply1 delta rule (continuation nil deltany) xi' \/ cont1 c xi'.
+Proof.
+intros.
+induction H.
+apply match_cont_theorem with (deltany := deltany) in H.
+inversion H.
+ left.
+  apply Apply1_Rule.
+   auto.
+
+    right.
+     auto.
+Qed.
+
+Theorem do_cont_theorem:
+   forall rules delta xi, do1 delta rules xi -> exists r, In r rules /\ do1 delta (r :: nil) xi.
+Proof.
+induction rules.
+intros.
+inversion H.
+
+intros.
+inversion H.
+apply apply1_cont_theorem with (deltany := delta) in H4.
+inversion H4.
+exists a.
+split.
+simpl.
+auto.
+
+apply Do1_Rule.
+auto.
+
+inversion H5.
+rewrite H6.
+rewrite H6 in H9.
+apply IHrules in H9.
+inversion H9.
+exists x.
+inversion H10.
+split.
+simpl.
+right.
+auto.
+
+auto.
+Qed.
+
+Theorem derive_soundness:
+   forall a delta xi xi' delta1 delta' c, derive1 a delta xi delta1 c xi' delta' -> derive0 a delta delta1 xi' delta'.
+Proof.
+   intros.
+   induction H.
+   apply Derive_One.
+   auto.
+
+   apply Derive_Fact.
+   auto.
+
+   apply Derive_Tensor.
+   auto.
+
+   apply Derive_End.
+Qed.
+
+Theorem derive1_includes_delta1:
+   forall a delta xi xi' delta1 delta' c, derive1 a delta xi delta1 c xi' delta' -> exists other, delta' = delta1 ++ other.
+   intros.
+   induction H.
+   inversion IHderive1.
+   exists x.
+   auto.
+
+   inversion IHderive1.
+   exists (p :: x).
+   admit.
+
+   inversion IHderive1.
+   exists x.
+   auto.
+
+   exists nil.
+   simpl.
+   rewrite app_nil_r.
+   auto.
+Qed.
+
+(*
+Theorem match_soundness:
+   forall delta others a xi xi', delta = xi' ++ others /\ match1 delta xi (a :: nil) empty_continuation (xi ++ xi') -> match0 xi' a xi'.
+Proof.
+*)

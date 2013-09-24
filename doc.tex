@@ -20,7 +20,7 @@
 \newcommand{\defeq}{\buildrel\triangle\over =}
 \newcommand{\trnstile}{\sststile{}{}}
 \newcommand{\typ}[1]{\m{#1} \; \m{typ}}
-\newcommand{\btyp}[1]{\m{#1} \; \m{btyp}}
+\newcommand{\typelist}[1]{\m{#1} \; \m{type \; list}}
 \newcommand{\eexpr}[2]{\m{#1}:\m{#2}}
 \newcommand{\aexp}[4]{#1;#2 \sststile{}{} \eexpr{#3}{#4}}
 \newcommand{\expr}[3]{\aexp{\Psi}{#1}{#2}{#3}}
@@ -70,29 +70,37 @@
 
 \[
 \infer[\m{addr}]
-{\btyp{addr}}{}
+{\typ{addr}}{}
 \tab
 \infer[\m{int}]
-{\btyp{int}}
+{\typ{int}}
 {}
 \tab
 \infer[\m{float}]
-{\btyp{float}}
+{\typ{float}}
 {}
 \tab
 \infer[\m{bool}]
-{\btyp{bool}}{}
+{\typ{bool}}{}
 \tab
 \infer[\m{string}]
-{\btyp{string}}{}
+{\typ{string}}{}
 \]
 
 \[
-\infer[\m{btyp}]
-{\typ{\tau}}{\btyp{\tau}}
-\tab
 \infer[\m{list}]
-{\typ{list \; \tau}}{\btyp{\tau}}
+{\typ{list \; \tau}}{\typ{\tau}}
+\tab
+\infer[\m{struct}]
+{\typ{struct \; T}}{\typelist{T}}
+\]
+
+\[
+\infer[\m{type \; list \; end}]
+{\typelist{\cdot}}
+\tab
+\infer[\m{type \; list}]
+{\typelist{\tau ; T}}{\typelist{T}}
 \]
 
 \subsection{Expressions}
@@ -127,6 +135,16 @@
 {\expr{\Gamma}{[e_1 \; | \; e_2]}{\m{list \; \tau}}}
 {\expr{\Gamma}{e_1}{\m{\tau}} &
    \expr{\Gamma}{e_2}{\m{list \; \tau}}}
+\]
+
+\[
+\infer[\m{make \; struct}]
+{\expr{\Gamma}{\m{struct} \; e_1; ...; e_n}{\m{struct \; \tau_1; ...; \tau_n}}}
+{\expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n}}
+\tab
+\infer[\m{get \; struct}]
+{\expr{\Gamma}{\#i(e)}{\tau_i}}
+{\expr{\Gamma}{e}{\m{struct \; \tau_1; ...; \tau_n}}}
 \]
 
 \[
@@ -425,6 +443,12 @@
 {\val{x}{\tau} & \val{ls}{list \; \tau}}
 \]
 
+\[
+\infer[\m{struct}]
+{\val{:(v_1, ..., v_n)}{\m{struct \; \tau_1; ...; \tau_n}}}
+{\val{v_1}{\tau_1} & ... & \val{v_n}{\tau_n}}
+\]
+
 \subsection{Expression Evaluation}
 
 \[
@@ -452,7 +476,7 @@
 {\eval{\m{string}(S)}{\m{string}(S)}}
 {}
 \tab
-\infer[\m{listnil}]
+\infer[\m{list\; nil}]
 {\eval{[]}{[]}}
 {}
 \tab
@@ -465,6 +489,18 @@
 \infer[\m{cons}]
 {\eval{[e_1 | e_2]}{v_1 :: v_2}}
 {\eval{e_1}{v_1} & \eval{e_2}{v_2}}
+\]
+
+\[
+\infer[\m{make \; struct}]
+{\eval{\m{struct \; e_1; ...; e_n}}{:(v_1; ...; v_n)}}
+{\eval{e_1}{v_1} & ... & \eval{e_n}{v_n}}
+\]
+
+\[
+\infer[\m{get \; struct}]
+{\eval{\m{\#i(e)}}{v_i}}
+{\eval{e}{:(v_1; ...; v_i ; ... ; v_n)}}
 \]
 
 \[
@@ -1736,6 +1772,708 @@ This is the axiom that wraps everything up. If no rule is applicable in the syst
 {}
 \]
 
+\section{Simplified Systems}
+
+\newcommand{\mz}{\m{m}_0 \;}
+\newcommand{\mo}{\m{m}_1 \;}
+\newcommand{\dz}{\m{d}_0 \;}
+\newcommand{\done}{\m{d}_1 \;}
+\newcommand{\az}{\m{a}_0 \;}
+\newcommand{\ao}{\m{a}_1 \;}
+\newcommand{\doz}{\m{do}_0 \;}
+\newcommand{\doo}{\m{do}_1 \;}
+\newcommand{\cont}{\m{cont} \;}
+\newcommand{\contc}{\m{contc} \;}
+\newcommand{\dc}{\m{dc} \;}
+
+\subsection{High Level System}
+
+\[
+\infer[]
+{\mz \cdot ; 1 \rightarrow 1}
+{}
+\]
+
+\[
+\infer[]
+{\mz p ; p \rightarrow p}
+{}
+\]
+
+\[
+\infer[]
+{\mz \Delta_1, \Delta_2 ; A \otimes B \rightarrow \Xi_1, \Xi_2}
+{\mz \Delta_1 ; A \rightarrow \Xi_1 & \mz \Delta_2 ; B \rightarrow \Xi_2}
+\]
+
+\[
+\infer[]
+{\dz \Delta ; \Xi ; \Delta_1 ; p, \Omega \rightarrow \Xi' ; \Delta'}
+{\dz \Delta ; \Xi ; p, \Delta_1 ; \Omega \rightarrow \Xi' ; \Delta'}
+\tab
+\infer[]
+{\dz \Delta; \Xi; \Delta_1; 1, \Omega \rightarrow \Xi';\Delta'}
+{\dz \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi';\Delta'}
+\]
+
+
+\[
+\infer[]
+{\dz \Delta;\Xi;\Delta_1;A \otimes B, \Omega \rightarrow \Xi'; \Delta'}
+{\dz \Delta;\Xi;\Delta_1;A, B, \Omega \rightarrow \Xi';\Delta'}
+\tab
+\]
+
+\[
+\infer[]
+{\dz \Delta; \Xi; \Delta_1; A \with B, \Omega \rightarrow \Xi';\Delta'}
+{\dz \Delta; \Xi; \Delta_1; A, \Omega \rightarrow \Xi';\Delta'}
+\tab
+\infer[]
+{\dz \Delta; \Xi; \Delta_1; A \with B, \Omega \rightarrow \Xi';\Delta'}
+{\dz \Delta; \Xi; \Delta_1; B, \Omega \rightarrow \Xi';\Delta'}
+\]
+
+\[
+\infer[]
+{\dz \Delta ; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega \rightarrow \Xi';\Delta'}
+{\dz \Delta; \Xi; \Delta_1; 1 \with (A \lolli B \otimes \m{comp} A \lolli B), \Omega \rightarrow \Xi';\Delta'}
+\]
+
+\[
+\infer[]
+{\dz \Delta_a, \Delta_b; \Xi; \Delta_1; A \lolli B, \Omega \rightarrow \Xi';\Delta'}
+{\mz \Delta_a; A \rightarrow \Delta_a & \dz \Delta_b ; \Xi; \Delta_a; \Delta_1; B, \Omega \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[]
+{\dz \Delta; \Xi'; \Delta'; \cdot \rightarrow \Xi';\Delta'}
+{}
+\]
+
+\[
+\infer[]
+{\az \Delta, \Delta''; A \lolli B \rightarrow \Xi'; \Delta'}
+{\mz \Delta; A \rightarrow \Delta & \dz \Delta''; \Delta; \cdot ; B \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[]
+{\doz \Delta; R, \Phi \rightarrow \Xi';\Delta'}
+{\doz \Delta; R \rightarrow \Xi';\Delta'}
+\]
+
+\subsection{Low Level System}
+
+\[
+\infer[]
+{\done \Delta; \Xi; \Delta_1; p, \Omega; C \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; p, \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
+\tab
+\infer[]
+{\done \Delta; \Xi; \Delta_1; 1, \Omega; C \rightarrow \Xi';\Delta'}
+{\done \Delta; \Xi; \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[]
+{\done \Delta; \Xi; \Delta_1; A \otimes B, \Omega; C \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; \Delta_1; A, B, \Omega; C \rightarrow \Xi';\Delta'}
+\]
+
+\[
+\infer[]
+{\done \Delta; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi; \Delta'}
+{\ao \Delta; A \lolli B; (\done \Delta; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega; \cdot) \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[ok]
+{\mo \Delta, p ; \Xi; p, \Omega; H; C \rightarrow \Xi'; \Delta'}
+{\mo \Delta; \Xi, p; \Omega; H; C \rightarrow \Xi'; \Delta'}
+\tab
+\infer[fail]
+{\mo \Delta; \Xi; p, \Omega; H; C \rightarrow \Xi'; \Delta'}
+{p \notin \Delta & \cont C ; H; \Xi'; \Delta'}
+\]
+
+\[
+\infer[]
+{\mo \Delta; \Xi; A \otimes B, \Omega ; H ; C \rightarrow \Xi'; \Delta'}
+{\mo \Delta; \Xi; A, B, \Omega; H; C \rightarrow \Xi';\Delta'}
+\]
+
+\[
+\infer[\m{rule} \; \m{cont}]
+{\mo \Delta; \Xi; \cdot ; H; (\Phi; \Delta) \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\m{compr} \; \m{cont}]
+{\mo \Delta; \Xi; \cdot; H; (\done \Delta''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega; \cdot) \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; \cdot ; H; (\done \Delta''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega; \cdot) \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[]
+{\cont (\Phi; \Delta); \Xi'; \Delta'}
+{\doo \Delta; \Phi \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[]
+{\cont (\done \Delta''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega); \Xi'; \Delta'}
+{\done \Delta; \Xi''; \Delta_1; \Omega; \cdot \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[]
+{\done \Delta; \Xi; \Delta_1; \cdot; \cdot \rightarrow \Xi; \Delta_1}
+{}
+\]
+
+\[
+\infer[]
+{\done \Delta; \Xi; \Delta_1; \cdot; (\done \Delta''; \Xi''; \Delta''_1; \m{comp} A \lolli B, \Omega) \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi, \Xi''; \Delta_1, \Delta''_1; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[]
+{\ao \Delta; A \lolli B; C \rightarrow \Xi'; \Delta'}
+{\mo \Delta; \cdot; A; B; C \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[]
+{\doo \Delta; R, \Phi \rightarrow \Xi'; \Delta'}
+{\ao \Delta; R; (\Phi; \Delta) \rightarrow \Xi';\Delta'}
+\]
+
+\subsection{Low level comprehension match succeeds or fails}
+
+If $\mo \Delta'', \Delta_1, ..., \Delta_n; \Xi; \Omega; H; (\done \Delta'''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ then either:
+
+\begin{itemize}
+\item $\cont (\done \Delta'''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega'); \Xi'; \Delta'$ or
+\item $\mo \Delta''; \Xi, \Delta_1, ..., \Delta_n' \cdot ; H ; (\done ...) \rightarrow \Xi'; \Delta'$ and $\Omega = \Omega_1, ..., \Omega_n$ where $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$, ..., $\mz \Delta_n ; \Omega_n \rightarrow \Delta_n$.
+\end{itemize}
+
+It's trivial by induction on the assumption, except the case $p, \Omega$ and $A \otimes B, \Omega$.
+
+\subsection{Low level comprehension gives one match}
+
+If $\mo \Delta'', \Xi''; \cdot; A ; H; (\done \Delta'''; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ then either
+
+\begin{itemize}
+\item $\cont (\done \Delta'''; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega'); \Xi'; \Delta'$ or
+\item $\mo \Delta'' ; \Xi''; \cdot; H; (\done \Delta'''; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ and $\mz \Xi''; A \rightarrow \Xi''$
+\end{itemize}
+
+This follows trivially from the previous theorem.
+
+\subsection{Comprehension head is another derivation theorem}
+
+If $\done \Delta; \Xi; \Delta_1; \Omega'; (\done \Delta''; \Xi''; \Delta'_1; \m{comp} A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \\ then \\ $\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; \Omega', \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$.
+
+\begin{itemize}
+\item $p$
+
+$\done \Delta; \Xi; \Delta_1; p, \Omega''; (\done ...) \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\Omega' = p, \Omega''$ \hfill (2) from (1) \\
+$\done \Delta; \Xi; p, \Delta_1; \Omega''; (\done ...) \rightarrow \Xi'; \Delta'$ \hfill (3) inversion of (1) \\
+$\done \Delta; \Xi, \Xi''; p, \Delta_1, \Delta'_1; \Omega'', \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (4) i.h. on (3) \\
+$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; p, \Omega'', \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (5) apply rule on (4) \\
+
+\item $A \otimes B$
+
+$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; A, B, \Omega''; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) by i.h. \\
+$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; A \otimes B, \Omega''; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) rule application on (1) \\
+
+\item $\cdot$
+
+$\done \Delta; \Xi; \Delta_1; \cdot; (\done \Delta''; \Xi''; \Delta'_1; \m{comp} A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+
+\end{itemize}
+
+\subsection{Low level matching gives high level matching theorem}
+
+If \\
+$\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A_1, ..., A_n; H; \cdot \rightarrow \Xi'; \Delta'$ \\
+then \\
+$\mz \Delta_1; A_1 \rightarrow \Delta_1$ through $\mz \Delta_n; A_n \rightarrow \Delta_n$ and \\
+$\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot; H; \cdot \rightarrow \Xi'; \Delta'$
+
+Induction on the assumption judgment.
+
+\begin{itemize}
+\item $1, \Omega$
+
+Trivial.
+
+\item $p, \Omega$ and $p \notin \Delta$
+
+Not applicable.
+
+\item $p, \Omega$
+
+$\mo \Delta, \Delta_1, ..., \Delta_n, p; \Xi; p, A_1, ..., A_n; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\mo \Delta, \Delta_1, ..., \Delta_n; \Xi, p; A_1, ..., A_n; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+$\mz \Delta_1 ; A_1 \rightarrow \Delta_1$ ... $\mz \Delta_n ; A_n \rightarrow \Delta_n$ \hfill (3) induction on (2) \\
+$\mo \Delta; \Xi, p, \Delta_1, ..., \Delta_n; \cdot ; H ; \cdot \rightarrow \Xi'; \Delta'$ \hfill (4) induction on (2) \\
+$\mz p; p \rightarrow p$ \hfill (5) axiom \\
+
+\item $A \otimes B, \Omega$
+
+$\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A \otimes B, A_1, ..., A_n; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A, B, A_1, ..., A_{n-2}; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+$\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (3) induction on (2) \\
+$\mz \Delta_1 ; A \rightarrow \Delta_1$, $\mz \Delta_2; B \rightarrow \Delta_2$, $\mz \Delta_n; A_{n-2} \rightarrow \Delta_n$ \hfill (4) induction on (2) \\
+
+\item $\cdot$
+
+$\mo \Delta ; \Xi; \cdot ; H; (\cdot ; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$n = 0$ \hfill since $\Omega = \cdot$ \\
+
+\end{itemize}
+
+\subsection{Derive soundness}
+
+If $\done \Delta; \Xi; \Delta_1; \Omega; \cdot \rightarrow \Xi'; \Delta'$ then \\
+$\dz \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta'$
+
+
+By induction on the assumption.
+
+\begin{itemize}
+\item $p, \Omega$
+
+$\done \Delta; \Xi; \Delta_1; p, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\done \Delta; \Xi; \Delta_1, p; \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+$\dz \Delta; \Xi; \Delta_1, p; \Omega \rightarrow \Xi'; \Delta'$ \hfill (3) by induction on (2) \\
+$\dz \Delta; \Xi; \Delta_1; p, \Omega \rightarrow \Xi'; \Delta'$ \hfill (4) rule application on (3) \\
+
+\item $1, \Omega$
+
+Same as before.
+
+\item $A \otimes B, \Omega$
+
+Same as before.
+
+\item $\comp A \lolli B, \Omega$
+
+$\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\ao \Delta; A \lolli B; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+$\mo \Delta; \cdot; A; B ; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (3) inversion of (2) \\
+Using (3) on theorem "Low level comprehension gives one match" we get two subcases:
+
+\begin{itemize}
+\item Comprehension fails:
+
+$\cont (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega); \Xi' \Delta'$ \hfill (4) from theorem \\
+$\done \Delta; \Xi; \Delta_1; \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (5) inversion of (4) \\
+$\dz \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta'$ \hfill (6) induction on (5) \\
+$\dz \Delta; \Xi; \Delta_1; 1, \Omega \rightarrow \Xi';\Delta'$ \hfill (7) rule on (6) \\
+$\dz \Delta; \Xi; \Delta_1; 1 \with (A \lolli B \otimes \comp A \lolli B), \Omega \rightarrow \Xi'; \Delta'$ \hfill (8) rule application on (7) \\
+$\dz \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ (9) rule application on (8) \\
+\item Comprehension succeeds:
+$\Delta = \Delta'', \Xi''$ \hfill (4) from theorem \\
+$\mo \Delta''; \Xi''; \cdot ; B; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (5) from theorem \\
+$\mz \Xi''; A \rightarrow \Xi''$ \hfill (6) from theorem \\
+$\done \Delta''; \Xi''; \cdot; B; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (7) inversion of (5) \\
+$\done \Delta''; \Xi'', \Xi; \Delta_1; B, \comp A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (8) using theorem "Comprehension head is another derivation theorem" on (7) \\
+$\dz \Delta''; \Xi''; \Xi; \Delta_1; B, \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (9) by i.h. on (8) \\
+$\dz \Xi'', \Delta''; \Xi'; \Delta_1; A \lolli B, \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (10) using rule on (8) and (6) \\
+$\dz \Xi'', \Delta''; \Xi'; \Delta_1; (A \lolli B) \otimes (\comp A \lolli B), \Omega \rightarrow \Xi'; \Delta'$ \hfill (11) using rule on (10) \\
+$\dz \Xi'', \Delta''; \Xi'; \Delta_1; 1 \with ((A \lolli B) \otimes (\comp A \lolli B)), \Omega \rightarrow \Xi'; \Delta'$ \hfill (12) rule on (11) \\
+$\dz \Xi'', \Delta''; \Xi'; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (13) rule on (12) \\
+
+\end{itemize}
+\end{itemize}
+
+\subsection{Soundness Theorem}
+
+If $\ao \Delta; R; (\cdot; \Delta) \rightarrow \Xi'; \Delta'$ then \\
+      $\az \Delta; R \rightarrow \Xi'; \Delta'$
+
+Case by case analysis:
+
+\begin{itemize}
+\item $R = A \lolli B$
+
+$\ao \Delta; A \lolli B ; (\cdot ; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\mo \Delta_1, \Delta_2; \cdot; A ; B ; (\cdot ; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+$\mo \Delta_2; \Delta_1; \cdot ; B ; (\cdot ; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (3) using theorem "Low level matching gives high level matching theorem" on (2) \\
+$\mz \Delta_1 ; A \rightarrow \Delta_1$ \hfill (4) from same theorem on (2) \\
+$\do \Delta_2; \Delta_1; \cdot ; B ; (\cdot ; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (5) inversion of (3) \\
+$\dz \Delta_2; \Delta_1; \cdot ; B \rightarrow \Xi'; \Delta'$ \hfill (6) derive soundness on (5) \\
+$\az \Delta_1, \Delta_2; A \lolli B \rightarrow \Xi'; \Delta'$ \hfill (7) using rule on (6) and (4) \\
+\end{itemize}
+
+\section{Improved Simplified System}
+
+\newcommand{\mc}{\m{mc} \;}
+
+\subsection{High Level System}
+
+\[
+\infer[]
+{\mz \Gamma; \cdot ; 1 \rightarrow 1}
+{}
+\]
+
+\[
+\infer[]
+{\mz \Gamma; p ; p \rightarrow p}
+{}
+\tab
+\infer[]
+{\mz \Gamma, \bang p; \bang p \rightarrow \cdot}
+{}
+\]
+
+\[
+\infer[]
+{\mz \Gamma; \Delta_1, \Delta_2 ; A \otimes B \rightarrow \Xi_1, \Xi_2}
+{\mz \Gamma; \Delta_1 ; A \rightarrow \Xi_1 & \mz \Gamma; \Delta_2 ; B \rightarrow \Xi_2}
+\]
+
+\[
+\infer[]
+{\dz \Gamma ; \Delta ; \Xi ; \Delta_1 ; \Gamma_1; p, \Omega \rightarrow \Xi' ; \Delta'; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; p, \Delta_1 ; \Gamma_1 ; \Omega \rightarrow \Xi' ; \Delta'; \Gamma'}
+\tab
+\infer[]
+{\dz \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; 1, \Omega \rightarrow \Xi';\Delta';\Gamma'}
+{\dz \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; \Omega \rightarrow \Xi';\Delta';\Gamma'}
+\]
+
+\[
+\infer[]
+{\dz \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; \bang p, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dz \Gamma; \Delta; \Xi; \Delta_1; \bang p, \Gamma_1; \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[]
+{\dz \Gamma; \Delta;\Xi;\Delta_1;\Gamma_1; A \otimes B, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dz \Gamma; \Delta;\Xi;\Delta_1;\Gamma_1; A, B, \Omega \rightarrow \Xi';\Delta'; \Gamma'}
+\tab
+\]
+
+\[
+\infer[]
+{\dz \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; A \with B, \Omega \rightarrow \Xi';\Delta'; \Gamma'}
+{\dz \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; A, \Omega \rightarrow \Xi';\Delta'; \Gamma'}
+\tab
+\infer[]
+{\dz \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; A \with B, \Omega \rightarrow \Xi';\Delta';\Gamma'}
+{\dz \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; B, \Omega \rightarrow \Xi';\Delta';\Gamma'}
+\]
+
+\[
+\infer[]
+{\dz \Gamma; \Delta ; \Xi; \Delta_1; \Gamma_1; \m{comp} A \lolli B, \Omega \rightarrow \Xi';\Delta';\Gamma'}
+{\dz \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; 1 \with (A \lolli B \otimes \m{comp} A \lolli B), \Omega \rightarrow \Xi';\Delta';\Gamma'}
+\]
+
+\[
+\infer[]
+{\dz \Gamma; \Delta_a, \Delta_b; \Xi; \Delta_1; \Gamma_1; A \lolli B, \Omega \rightarrow \Xi';\Delta';\Gamma'}
+{\mz \Gamma; \Delta_a; A \rightarrow \Delta_a & \dz \Gamma; \Delta_b ; \Xi; \Delta_a; \Delta_1; \Gamma_1; B, \Omega \rightarrow \Xi'; \Delta';\Gamma'}
+\]
+
+\[
+\infer[]
+{\dz \Delta; \Xi'; \Delta'; \Gamma'; \cdot \rightarrow \Xi';\Delta'; \Gamma'}
+{}
+\]
+
+\[
+\infer[]
+{\az \Gamma; \Delta, \Delta''; A \lolli B \rightarrow \Xi'; \Delta';\Gamma'}
+{\mz \Gamma; \Delta; A \rightarrow \Delta & \dz \Gamma; \Delta''; \Delta; \cdot ; \cdot ; B \rightarrow \Xi'; \Delta';\Gamma'}
+\]
+
+\[
+\infer[]
+{\doz \Gamma; \Delta; R, \Phi \rightarrow \Xi';\Delta';\Gamma'}
+{\doz \Gamma; \Delta; R \rightarrow \Xi';\Delta';\Gamma'}
+\]
+
+\subsection{Low Level System}
+
+\[
+\infer[]
+{\done \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; p, \Omega; C \rightarrow \Xi'; \Delta'; \Gamma'}
+{\done \Gamma; \Delta; \Xi; p, \Delta_1; \Gamma_1; \Omega; C \rightarrow \Xi'; \Delta'; \Gamma'}
+\tab
+\infer[]
+{\done \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; 1, \Omega; C \rightarrow \Xi';\Delta';\Gamma'}
+{\done \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; \Omega; C \rightarrow \Xi'; \Delta';\Gamma'}
+\]
+
+\[
+\infer[]
+{\done \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; \bang p, \Omega; C \rightarrow \Xi'; \Delta'; \Gamma'}
+{\done \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1, \bang p; \Omega; C \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[]
+{\done \Gamma ; \Delta; \Xi; \Delta_1; \Gamma_1; A \otimes B, \Omega; C \rightarrow \Xi'; \Delta'; \Gamma'}
+{\done \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; A, B, \Omega; C \rightarrow \Xi';\Delta'; \Gamma'}
+\]
+
+\[
+\infer[]
+{\done \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; \comp A \lolli B, \Omega; \cdot \rightarrow \Xi; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta ; \Xi; \Delta_1; \Gamma_1; \cdot; A ; H; (\done \Omega); \cdot \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[ok]
+{\mo \Gamma; \Delta, p ; \Xi; p, \Omega; H; C \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma; \Delta; \Xi, p; \Omega; H; C \rightarrow \Xi'; \Delta'; \Gamma'}
+\tab
+\infer[fail]
+{\mo \Delta; \Xi; p, \Omega; H; C \rightarrow \Xi'; \Delta'}
+{p \notin \Delta & \cont C ; H; \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\bang ok]
+{\mo \Gamma, \bang p; \Delta; \Xi; \bang p, \Omega; H; C \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma, \bang p; \Delta; \Xi; \Omega; H; C \rightarrow \Xi'; \Delta'; \Gamma'}
+\tab
+\infer[\bang fail]
+{\mo \Gamma; \Delta; \Xi; \bang p, \Omega; H; C \rightarrow \Xi'; \Delta'; \Gamma'}
+{\bang p \notin \Gamma & \cont C ; H; \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[]
+{\mo \Gamma; \Delta; \Xi; A \otimes B, \Omega ; H ; C \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma; \Delta; \Xi; A, B, \Omega; H; C \rightarrow \Xi';\Delta'; \Gamma'}
+\]
+
+\[
+\infer[]
+{\mo \Gamma; \Delta; \Xi; \cdot ; H; (\Phi; \Delta) \rightarrow \Xi'; \Delta'; \Gamma'}
+{\done \Gamma; \Delta; \Xi; \cdot ; \cdot; H; \cdot \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[]
+{\cont (\Phi; \Gamma; \Delta); \Xi'; \Delta'; \Gamma'}
+{\doo \Gamma; \Delta; \Phi \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[]
+{\done \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; \cdot; \cdot \rightarrow \Xi; \Delta_1; \Gamma_1}
+{}
+\]
+
+\[
+\infer[]
+{\ao \Gamma; \Delta; A \lolli B; C \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma; \Delta; \cdot; A; B; C \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[]
+{\doo \Gamma; \Delta; R, \Phi \rightarrow \Xi'; \Delta'; \Gamma'}
+{\ao \Gamma; \Delta; R; (\Phi; \Gamma; \Delta) \rightarrow \Xi';\Delta'; \Gamma'}
+\]
+
+$\mc$ rules:
+
+\[
+\infer[\otimes]
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; A \otimes B, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; A, B, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[1]
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; 1, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[first1 \; p]
+{\mc \Gamma; p, \Delta'', \Delta ; \Xi; \Delta_1; \Gamma_1; U; p, \Omega; H; C; \cdot \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta'', \Delta; \Xi; \Delta_1; \Gamma_1; U, p; \Omega; H; (\comp p, \Omega; p; \Xi; \Delta''; C); (\comp p, \Omega; p; \Xi; \Delta''; C) \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[first2 \; p]
+{\mc \Gamma; p, \Delta'', \Delta ; \Xi; \Delta_1; \Gamma_1; U; p, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta'', \Delta; \Xi; \Delta_1; \Gamma_1; U, p; \Omega; H; (\comp p, \Omega; p; \Xi; \Delta''; C); L \rightarrow \Xi'; \Delta'; \Gamma' & L \ne \cdot}
+\]
+
+\[
+\infer[first \; p \; not \; available]
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; p, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta; \Xi; \Delta_1 ; \Gamma_1; U; H; C; L \rightarrow \Xi'; \Delta'; \Gamma' & p \notin \Delta}
+\]
+
+\[
+\infer[first \; \bang p]
+{\mc \Gamma, \bang p, \Gamma_n; \Delta; \Xi; \Delta_1; \Gamma_1; U; \bang p, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma, \bang p, \Gamma_n; \Delta; \Xi; \Delta_1; \Gamma_1; U; \Omega; H; (\bang \comp \bang p, \Omega; \Xi; \Gamma_n; C); L \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[first \; \bang p \; not \; available]
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; \bang p, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; H; C; L \rightarrow \Xi'; \Delta'; \Gamma' & \bang p \notin \Gamma}
+\]
+
+\[
+\infer[finished]
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; \cdot ; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; H; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[consumed \; next1]
+{\contc \Gamma; p, \Delta; \Xi; \Delta_1; \Gamma_1; U, p ; H ; (\comp p, \Omega; p; \Xi''; p, \Delta_n; C); (\comp p, \Omega; p; \Xi''; p, \Delta_n; C) \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U, p; \Omega; H; (\comp p, \Omega; p; \Xi; \Delta_n; C); (\comp p, \Omega; p; \Xi; \Delta_n; C) \rightarrow \Xi'; \Delta'; \Gamma' & \Xi = \Xi'', \Xi_1}
+\]
+
+\[
+\infer[consumed \; next2]
+{\contc \Gamma; p, \Delta; \Xi; \Delta_1; \Gamma_1; U, p ; H ; (\comp p, \Omega; p; \Xi''; p, \Delta_n; C); L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U, p; \Omega; H; (\comp p, \Omega; p; \Xi; \Delta_n; C); L \rightarrow \Xi'; \Delta'; \Gamma' & \Xi = \Xi'', \Xi_1 & L \ne (\comp p, \Omega; p; \Xi''; p, \Delta_n; C)}
+\]
+
+\[
+\infer[consumed \; next \; no \; choices1]
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U, p; H; (\comp p, \Omega; p; \Xi''; \cdot ; C); (\comp p, \Omega; p; \Xi''; \cdot; C) \rightarrow \Xi'; \Delta'; \Gamma}
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; H; C; C \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[consumed \; next \; no \; choices2]
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U, p; H; (\comp p, \Omega; p; \Xi''; \cdot ; C); L \rightarrow \Xi'; \Delta'; \Gamma}
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; H; C; L \rightarrow \Xi'; \Delta'; \Gamma' & L \ne (\comp p, \Omega; p; \Xi''; \cdot; C)}
+\]
+
+\[
+\infer[not \; consumed \; next1]
+{\contc \Gamma; \Delta, p; \Xi; \Delta_1; \Gamma_1; U, p; H; (\comp p, \Omega; p; \Xi''; p, \Delta_n; C); (\comp p, \Omega; p; \Xi''; p, \Delta_n; C) \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta, p; \Xi; \Delta_1; \Gamma_1; U, p; \Omega; H; (\comp p, \Omega; p; \Xi; \Delta_n; C); (\comp p, \Omega; p; \Xi; \Delta_n; C) \rightarrow \Xi'; \Delta'; \Gamma' & \Xi = \Xi''}
+\]
+
+\[
+\infer[not \; consumed \; next2]
+{\contc \Gamma; \Delta, p; \Xi; \Delta_1; \Gamma_1; U, p; H; (\comp p, \Omega; p; \Xi''; p, \Delta_n; C); L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta, p; \Xi; \Delta_1; \Gamma_1; U, p; \Omega; H; (\comp p, \Omega; p; \Xi; \Delta_n; C); L \rightarrow \Xi'; \Delta'; \Gamma' & \Xi = \Xi'' & L \ne (\comp p, \Omega; p; \Xi''; p, \Delta_n; C)}
+\]
+
+\[
+\infer[not \; consumed \; no \; choices1]
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U, p; H; (\comp p, \Omega ; p ; \Xi''; \cdot ; C); (\comp p, \Omega; p; \Xi''; \cdot; C) \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta, p; \Xi; \Delta_1; \Gamma_1; U; H; C; C \rightarrow \Xi'; \Delta'; \Gamma' & \Xi = \Xi''}
+\]
+
+\[
+\infer[not \; consumed \; no \; choices2]
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U, p; H; (\comp p, \Omega ; p ; \Xi''; \cdot ; C); L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta, p; \Xi; \Delta_1; \Gamma_1; U; H; C; L \rightarrow \Xi'; \Delta'; \Gamma' & \Xi = \Xi'' & L \ne (\comp p, \Omega; p; \Xi''; \cdot; C)}
+\]
+
+\[
+\infer[\bang next]
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; H; (\bang \comp \bang p, \Omega; \Xi''; \bang p, \Gamma_n; C); L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; \Omega; (\bang \comp \bang p, \Omega; \Xi; \Gamma_n; C); L \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+
+\[
+\infer[\bang no \; options]
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; H; (\bang \comp \bang p, \Omega; \Xi''; \cdot; C); L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[no \; more \; options]
+{\contc \Gamma; \Delta; \Xi; \Delta_1;\Gamma_1; U; H; (\done \Omega); L \rightarrow \Xi' ; \Delta'; \Gamma'}
+{\done \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; \Omega ; \cdot \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[derive \; p]
+{\dc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; p, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dc \Gamma; \Delta; \Xi; \Delta_1, p; \Gamma_1; U; \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+\tab
+\infer[derive \; 1]
+{\dc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; 1, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[derive \; \bang p]
+{\dc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; \bang p, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dc \Gamma; \Delta; \Xi; \Delta_1; \bang p, \Gamma_1; U; \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[derive \; A \otimes B]
+{\dc \Gamma'; \Delta; \Xi; \Delta_1; \Gamma_1; U; A \otimes B, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dc \Gamma'; \Delta; \Xi; \Delta_1; \Gamma_1; U; A, B, \Omega; H; C; L \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[derive \; end \; linear]
+{\dc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; \cdot; H; C ; L \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; H; L; L \rightarrow \Xi'; \Delta'; \Gamma' & L = (\comp p, \Omega;p;\Omega;\Xi''; \Delta_n; L') }
+\]
+
+\[
+\infer[derive \; end \; not \; linear]
+{\dc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; \cdot; H; C ; \cdot \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta; \Xi; \Delta_1; \Gamma_1; U; H; C; \cdot \rightarrow \Xi'; \Delta'; \Gamma' }
+\]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{comment}
 \section{Soundness}
 
 If $\Psi; \Theta ; \Phi ; \Gamma ; \Delta \hookrightarrow \Gamma' ; \Delta'; \Xi'$ then $\Psi; \Theta, \Phi ; \Gamma; \Delta \Rightarrow \Gamma' ; \Delta' ; \Xi'$.
@@ -1801,6 +2539,7 @@ $\m{derive} \; \Psi; \Gamma; \Delta; \cdot ; \Delta_1; \Gamma_1 \rightarrow \Gam
 
 
 \end{description}
+\end{comment}
 
 
 \end{document}

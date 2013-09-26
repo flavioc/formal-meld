@@ -1789,77 +1789,77 @@ This is the axiom that wraps everything up. If no rule is applicable in the syst
 \subsection{High Level System}
 
 \[
-\infer[]
-{\mz \cdot ; 1 \rightarrow 1}
+\infer[1]
+{\mz \cdot ; 1 \rightarrow \cdot}
 {}
 \]
 
 \[
-\infer[]
+\infer[p]
 {\mz p ; p \rightarrow p}
 {}
 \]
 
 \[
-\infer[]
+\infer[\otimes]
 {\mz \Delta_1, \Delta_2 ; A \otimes B \rightarrow \Xi_1, \Xi_2}
 {\mz \Delta_1 ; A \rightarrow \Xi_1 & \mz \Delta_2 ; B \rightarrow \Xi_2}
 \]
 
 \[
-\infer[]
+\infer[p]
 {\dz \Delta ; \Xi ; \Delta_1 ; p, \Omega \rightarrow \Xi' ; \Delta'}
 {\dz \Delta ; \Xi ; p, \Delta_1 ; \Omega \rightarrow \Xi' ; \Delta'}
 \tab
-\infer[]
+\infer[1]
 {\dz \Delta; \Xi; \Delta_1; 1, \Omega \rightarrow \Xi';\Delta'}
 {\dz \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi';\Delta'}
 \]
 
 
 \[
-\infer[]
+\infer[\otimes]
 {\dz \Delta;\Xi;\Delta_1;A \otimes B, \Omega \rightarrow \Xi'; \Delta'}
 {\dz \Delta;\Xi;\Delta_1;A, B, \Omega \rightarrow \Xi';\Delta'}
 \tab
 \]
 
 \[
-\infer[]
+\infer[\with L]
 {\dz \Delta; \Xi; \Delta_1; A \with B, \Omega \rightarrow \Xi';\Delta'}
 {\dz \Delta; \Xi; \Delta_1; A, \Omega \rightarrow \Xi';\Delta'}
 \tab
-\infer[]
+\infer[\with R]
 {\dz \Delta; \Xi; \Delta_1; A \with B, \Omega \rightarrow \Xi';\Delta'}
 {\dz \Delta; \Xi; \Delta_1; B, \Omega \rightarrow \Xi';\Delta'}
 \]
 
 \[
-\infer[]
+\infer[\m{unfold \; comp}]
 {\dz \Delta ; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega \rightarrow \Xi';\Delta'}
 {\dz \Delta; \Xi; \Delta_1; 1 \with (A \lolli B \otimes \m{comp} A \lolli B), \Omega \rightarrow \Xi';\Delta'}
 \]
 
 \[
-\infer[]
+\infer[\lolli \; \m{comp}]
 {\dz \Delta_a, \Delta_b; \Xi; \Delta_1; A \lolli B, \Omega \rightarrow \Xi';\Delta'}
 {\mz \Delta_a; A \rightarrow \Delta_a & \dz \Delta_b ; \Xi; \Delta_a; \Delta_1; B, \Omega \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[]
+\infer[\m{end}]
 {\dz \Delta; \Xi'; \Delta'; \cdot \rightarrow \Xi';\Delta'}
 {}
 \]
 
 \[
-\infer[]
+\infer[\m{apply \; rule}]
 {\az \Delta, \Delta''; A \lolli B \rightarrow \Xi'; \Delta'}
 {\mz \Delta; A \rightarrow \Delta & \dz \Delta''; \Delta; \cdot ; B \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[]
+\infer[\m{end}]
 {\doz \Delta; R, \Phi \rightarrow \Xi';\Delta'}
 {\doz \Delta; R \rightarrow \Xi';\Delta'}
 \]
@@ -1867,25 +1867,25 @@ This is the axiom that wraps everything up. If no rule is applicable in the syst
 \subsection{Low Level System}
 
 \[
-\infer[]
+\infer[p]
 {\done \Delta; \Xi; \Delta_1; p, \Omega; C \rightarrow \Xi'; \Delta'}
 {\done \Delta; \Xi; p, \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
 \tab
-\infer[]
+\infer[1]
 {\done \Delta; \Xi; \Delta_1; 1, \Omega; C \rightarrow \Xi';\Delta'}
 {\done \Delta; \Xi; \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[]
+\infer[\otimes]
 {\done \Delta; \Xi; \Delta_1; A \otimes B, \Omega; C \rightarrow \Xi'; \Delta'}
 {\done \Delta; \Xi; \Delta_1; A, B, \Omega; C \rightarrow \Xi';\Delta'}
 \]
 
 \[
-\infer[]
-{\done \Delta; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi; \Delta'}
-{\ao \Delta; A \lolli B; (\done \Delta; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega; \cdot) \rightarrow \Xi'; \Delta'}
+\infer[\m{comp}]
+{\done \Delta; \Xi; \Delta_1; \m{comp} \; A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'}
+{\ao \Delta; A \lolli B; (\done \Delta; \Xi; \Delta_1; \m{comp} \; A \lolli B, \Omega; \cdot) \rightarrow \Xi'; \Delta'}
 \]
 
 \[
@@ -1899,84 +1899,84 @@ This is the axiom that wraps everything up. If no rule is applicable in the syst
 \]
 
 \[
-\infer[]
+\infer[\tensor]
 {\mo \Delta; \Xi; A \otimes B, \Omega ; H ; C \rightarrow \Xi'; \Delta'}
 {\mo \Delta; \Xi; A, B, \Omega; H; C \rightarrow \Xi';\Delta'}
 \]
 
 \[
 \infer[\m{rule} \; \m{cont}]
-{\mo \Delta; \Xi; \cdot ; H; (\Phi; \Delta) \rightarrow \Xi'; \Delta'}
+{\mo \Delta; \Xi; \cdot ; H; (\Phi; \Delta'') \rightarrow \Xi'; \Delta'}
 {\done \Delta; \Xi; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[\m{compr} \; \m{cont}]
-{\mo \Delta; \Xi; \cdot; H; (\done \Delta''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega; \cdot) \rightarrow \Xi'; \Delta'}
-{\done \Delta; \Xi; \cdot ; H; (\done \Delta''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega; \cdot) \rightarrow \Xi'; \Delta'}
+\infer[\m{comp \; derivation}]
+{\mo \Delta; \Xi; \cdot; H; (\done \Delta''; \Xi''; \Delta_1; \m{comp} \; A \lolli B, \Omega; \cdot) \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; \cdot ; H; (\done \Delta''; \Xi''; \Delta_1; \m{comp} \; A \lolli B, \Omega; \cdot) \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[]
+\infer[\m{rule \; fail}]
 {\cont (\Phi; \Delta); \Xi'; \Delta'}
 {\doo \Delta; \Phi \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[]
-{\cont (\done \Delta''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega); \Xi'; \Delta'}
+\infer[\m{comp \; done}]
+{\cont (\done \Delta''; \Xi''; \Delta_1; \m{comp} \; A \lolli B, \Omega); \Xi'; \Delta'}
 {\done \Delta; \Xi''; \Delta_1; \Omega; \cdot \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[]
+\infer[\m{end}]
 {\done \Delta; \Xi; \Delta_1; \cdot; \cdot \rightarrow \Xi; \Delta_1}
 {}
 \]
 
 \[
-\infer[]
-{\done \Delta; \Xi; \Delta_1; \cdot; (\done \Delta''; \Xi''; \Delta''_1; \m{comp} A \lolli B, \Omega) \rightarrow \Xi'; \Delta'}
-{\done \Delta; \Xi, \Xi''; \Delta_1, \Delta''_1; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'}
+\infer[\m{next \; comp}]
+{\done \Delta; \Xi; \Delta_1; \cdot; (\done \Delta''; \Xi''; \Delta''_1; \m{comp} \; A \lolli B, \Omega) \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi, \Xi''; \Delta_1, \Delta''_1; \m{comp} \; A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[]
+\infer[\m{apply \; rule}]
 {\ao \Delta; A \lolli B; C \rightarrow \Xi'; \Delta'}
 {\mo \Delta; \cdot; A; B; C \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[]
+\infer[\m{pick \; rule}]
 {\doo \Delta; R, \Phi \rightarrow \Xi'; \Delta'}
 {\ao \Delta; R; (\Phi; \Delta) \rightarrow \Xi';\Delta'}
 \]
 
 \subsection{Low level comprehension match succeeds or fails}
 
-If $\mo \Delta'', \Delta_1, ..., \Delta_n; \Xi; \Omega; H; (\done \Delta'''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ then either:
+If $\mo \Delta'', \Delta_1, ..., \Delta_n; \Xi; \Omega; H; (\done \Delta'''; \Xi''; \Delta_1; \m{comp} \; A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ then either:
 
 \begin{itemize}
-\item $\cont (\done \Delta'''; \Xi''; \Delta_1; \m{comp} A \lolli B, \Omega'); \Xi'; \Delta'$ or
-\item $\mo \Delta''; \Xi, \Delta_1, ..., \Delta_n' \cdot ; H ; (\done ...) \rightarrow \Xi'; \Delta'$ and $\Omega = \Omega_1, ..., \Omega_n$ where $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$, ..., $\mz \Delta_n ; \Omega_n \rightarrow \Delta_n$.
+\item $\cont (\done \Delta'''; \Xi''; \Delta_1; \m{comp} \; A \lolli B, \Omega'); \Xi'; \Delta'$ or
+\item $\mo \Delta''; \Xi, \Delta_1, ..., \Delta_n' \cdot ; H ; (\done ...) \rightarrow \Xi'; \Delta'$ and $\Omega = \Omega_1, ..., \Omega_n$ where $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$, ..., $\mz \Delta_n ; \Omega_n \rightarrow \Delta_n$ and $\Delta_1, ..., \Delta_n$ is not empty.
 \end{itemize}
 
 It's trivial by induction on the assumption, except the case $p, \Omega$ and $A \otimes B, \Omega$.
 
 \subsection{Low level comprehension gives one match}
 
-If $\mo \Delta'', \Xi''; \cdot; A ; H; (\done \Delta'''; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ then either
+If $\mo \Delta'', \Xi''; \cdot; A ; H; (\done \Delta'''; \Xi; \Delta_1; \m{comp} \; A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ then either
 
 \begin{itemize}
-\item $\cont (\done \Delta'''; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega'); \Xi'; \Delta'$ or
-\item $\mo \Delta'' ; \Xi''; \cdot; H; (\done \Delta'''; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ and $\mz \Xi''; A \rightarrow \Xi''$
+\item $\cont (\done \Delta'''; \Xi; \Delta_1; \m{comp} \; A \lolli B, \Omega'); \Xi'; \Delta'$ or
+\item $\mo \Delta'' ; \Xi''; \cdot; H; (\done \Delta'''; \Xi; \Delta_1; \m{comp} \; A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ and $\mz \Xi''; A \rightarrow \Xi''$, where $\Xi''$ is not empty
 \end{itemize}
 
 This follows trivially from the previous theorem.
 
 \subsection{Comprehension head is another derivation theorem}
 
-If $\done \Delta; \Xi; \Delta_1; \Omega'; (\done \Delta''; \Xi''; \Delta'_1; \m{comp} A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \\ then \\ $\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; \Omega', \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$.
+If $\done \Delta; \Xi; \Delta_1; \Omega'; (\done \Delta''; \Xi''; \Delta'_1; \m{comp} \; A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \\ then \\ $\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; \Omega', \m{comp} \; A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$.
 
 \begin{itemize}
 \item $p$
@@ -1984,18 +1984,18 @@ If $\done \Delta; \Xi; \Delta_1; \Omega'; (\done \Delta''; \Xi''; \Delta'_1; \m{
 $\done \Delta; \Xi; \Delta_1; p, \Omega''; (\done ...) \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
 $\Omega' = p, \Omega''$ \hfill (2) from (1) \\
 $\done \Delta; \Xi; p, \Delta_1; \Omega''; (\done ...) \rightarrow \Xi'; \Delta'$ \hfill (3) inversion of (1) \\
-$\done \Delta; \Xi, \Xi''; p, \Delta_1, \Delta'_1; \Omega'', \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (4) i.h. on (3) \\
-$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; p, \Omega'', \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (5) apply rule on (4) \\
+$\done \Delta; \Xi, \Xi''; p, \Delta_1, \Delta'_1; \Omega'', \m{comp} \; A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (4) i.h. on (3) \\
+$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; p, \Omega'', \m{comp} \; A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (5) apply rule on (4) \\
 
 \item $A \otimes B$
 
-$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; A, B, \Omega''; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) by i.h. \\
-$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; A \otimes B, \Omega''; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) rule application on (1) \\
+$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; A, B, \Omega''; \m{comp} \; A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) by i.h. \\
+$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; A \otimes B, \Omega''; \m{comp} \; A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) rule application on (1) \\
 
 \item $\cdot$
 
-$\done \Delta; \Xi; \Delta_1; \cdot; (\done \Delta''; \Xi''; \Delta'_1; \m{comp} A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
-$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; \m{comp} A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+$\done \Delta; \Xi; \Delta_1; \cdot; (\done \Delta''; \Xi''; \Delta'_1; \m{comp} \; A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; \m{comp} \; A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
 
 \end{itemize}
 
@@ -2005,15 +2005,12 @@ If \\
 $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A_1, ..., A_n; H; \cdot \rightarrow \Xi'; \Delta'$ \\
 then \\
 $\mz \Delta_1; A_1 \rightarrow \Delta_1$ through $\mz \Delta_n; A_n \rightarrow \Delta_n$ and \\
-$\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot; H; \cdot \rightarrow \Xi'; \Delta'$
+$\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot; H; \cdot \rightarrow \Xi'; \Delta'$ and \\
+$\Delta_1, ..., \Delta_n$ is not empty if $A_1, ..., A_n$ is not $\cdot$.
 
-Induction on the assumption judgment.
+Induction on $\Omega = A_1, ..., A_n$.
 
 \begin{itemize}
-\item $1, \Omega$
-
-Trivial.
-
 \item $p, \Omega$ and $p \notin \Delta$
 
 Not applicable.
@@ -2025,13 +2022,17 @@ $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi, p; A_1, ..., A_n; H; \cdot \rightarro
 $\mz \Delta_1 ; A_1 \rightarrow \Delta_1$ ... $\mz \Delta_n ; A_n \rightarrow \Delta_n$ \hfill (3) induction on (2) \\
 $\mo \Delta; \Xi, p, \Delta_1, ..., \Delta_n; \cdot ; H ; \cdot \rightarrow \Xi'; \Delta'$ \hfill (4) induction on (2) \\
 $\mz p; p \rightarrow p$ \hfill (5) axiom \\
+$p, \Delta_1, ..., \Delta_n$ is not empty\\
 
 \item $A \otimes B, \Omega$
 
-$\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A \otimes B, A_1, ..., A_n; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A \otimes B, A_1, ..., A_{n-2}; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
 $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A, B, A_1, ..., A_{n-2}; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
 $\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (3) induction on (2) \\
-$\mz \Delta_1 ; A \rightarrow \Delta_1$, $\mz \Delta_2; B \rightarrow \Delta_2$, $\mz \Delta_n; A_{n-2} \rightarrow \Delta_n$ \hfill (4) induction on (2) \\
+$\mz \Delta_1 ; A \rightarrow \Delta_1$, \; $\mz \Delta_2; B \rightarrow \Delta_2$, \; ... \; $\mz \Delta_n; A_{n-2} \rightarrow \Delta_n$ \hfill (4) induction on (2) \\
+$\mz \Delta_1, \Delta_2; A \otimes B \rightarrow \Delta_1, \Delta_2$ \hfill (5) rule on (4) \\
+$\mz \Delta_1, \Delta_2; A \otimes B \rightarrow \Delta_1, \Delta_2$ \; ... \; $\mz \Delta_n; A_{n-2} \rightarrow \Delta_n$ \hfill (6) from (5) \\
+$\Delta_1, ..., \Delta_n$ is not empty \hfill (7) from induction on (2) \\
 
 \item $\cdot$
 
@@ -2046,7 +2047,7 @@ If $\done \Delta; \Xi; \Delta_1; \Omega; \cdot \rightarrow \Xi'; \Delta'$ then \
 $\dz \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta'$
 
 
-By induction on the assumption.
+By induction first on $\Omega$ and then on the derivation structure of the assumption.
 
 \begin{itemize}
 \item $p, \Omega$
@@ -2082,20 +2083,21 @@ $\dz \Delta; \Xi; \Delta_1; 1 \with (A \lolli B \otimes \comp A \lolli B), \Omeg
 $\dz \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ (9) rule application on (8) \\
 \item Comprehension succeeds:
 $\Delta = \Delta'', \Xi''$ \hfill (4) from theorem \\
-$\mo \Delta''; \Xi''; \cdot ; B; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (5) from theorem \\
-$\mz \Xi''; A \rightarrow \Xi''$ \hfill (6) from theorem \\
-$\done \Delta''; \Xi''; \cdot; B; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (7) inversion of (5) \\
-$\done \Delta''; \Xi'', \Xi; \Delta_1; B, \comp A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (8) using theorem "Comprehension head is another derivation theorem" on (7) \\
-$\dz \Delta''; \Xi''; \Xi; \Delta_1; B, \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (9) by i.h. on (8) \\
-$\dz \Xi'', \Delta''; \Xi'; \Delta_1; A \lolli B, \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (10) using rule on (8) and (6) \\
-$\dz \Xi'', \Delta''; \Xi'; \Delta_1; (A \lolli B) \otimes (\comp A \lolli B), \Omega \rightarrow \Xi'; \Delta'$ \hfill (11) using rule on (10) \\
-$\dz \Xi'', \Delta''; \Xi'; \Delta_1; 1 \with ((A \lolli B) \otimes (\comp A \lolli B)), \Omega \rightarrow \Xi'; \Delta'$ \hfill (12) rule on (11) \\
-$\dz \Xi'', \Delta''; \Xi'; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (13) rule on (12) \\
+$\mo \Delta''; \Xi''; \cdot ; B; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (5) from theorem "Low level comprehension gives one match" \\
+$\mz \Xi''; A \rightarrow \Xi''$ \hfill (6) from the same theorem \\
+$\Delta''$ is smaller than $\Delta$ \hfill (7) from the same theorem \\
+$\done \Delta''; \Xi''; \cdot; B; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (8) inversion of (5) \\
+$\done \Delta''; \Xi'', \Xi; \Delta_1; B, \comp A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (9) using theorem "Comprehension head is another derivation theorem" on (8) \\
+$\dz \Delta''; \Xi''; \Xi; \Delta_1; B, \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (10) by i.h. on (9) because of (7) \\
+$\dz \Xi'', \Delta''; \Xi'; \Delta_1; A \lolli B, \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (11) using rule on (10) and (6) \\
+$\dz \Xi'', \Delta''; \Xi'; \Delta_1; (A \lolli B) \otimes (\comp A \lolli B), \Omega \rightarrow \Xi'; \Delta'$ \hfill (12) using rule on (11) \\
+$\dz \Xi'', \Delta''; \Xi'; \Delta_1; 1 \with ((A \lolli B) \otimes (\comp A \lolli B)), \Omega \rightarrow \Xi'; \Delta'$ \hfill (13) rule on (12) \\
+$\dz \Xi'', \Delta''; \Xi'; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (14) rule on (13) \\
 
 \end{itemize}
 \end{itemize}
 
-\subsection{Soundness Theorem}
+\subsection{Apply Soundness Theorem}
 
 If $\ao \Delta; R; (\cdot; \Delta) \rightarrow \Xi'; \Delta'$ then \\
       $\az \Delta; R \rightarrow \Xi'; \Delta'$
@@ -2112,6 +2114,79 @@ $\mz \Delta_1 ; A \rightarrow \Delta_1$ \hfill (4) from same theorem on (2) \\
 $\do \Delta_2; \Delta_1; \cdot ; B ; (\cdot ; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (5) inversion of (3) \\
 $\dz \Delta_2; \Delta_1; \cdot ; B \rightarrow \Xi'; \Delta'$ \hfill (6) derive soundness on (5) \\
 $\az \Delta_1, \Delta_2; A \lolli B \rightarrow \Xi'; \Delta'$ \hfill (7) using rule on (6) and (4) \\
+\end{itemize}
+
+\subsection{Success or continuation}
+
+If $\mo \Delta; \Xi; \Delta_1; \Omega; H; (\Phi; \Delta'') \rightarrow \Xi'; \Delta'$ then either:
+
+\begin{itemize}
+   \item $\cont \; (\Phi; \Delta''); \Xi'; \Delta'$
+   \item $\mo \Delta; \Xi; \Delta_1; \Omega; H; (\cdot; \Delta'') \rightarrow \Xi'; \Delta'$
+\end{itemize}
+
+Induction on $\Omega$:
+
+\begin{itemize}
+\item $p, \Omega$ and $p \in \Omega$
+
+$\mo \Delta, p; \Xi; p, \Omega; H; (\Phi; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (1) assumption\\
+$\mo \Delta; \Xi, p; \Omega; H; (\Phi; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1)\\
+$\cont \; (\Phi; \Delta'') ; \Xi'; \Delta'$ or $\mo \Delta; \Xi, p; \Omega; H; (\cdot; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (3) induction of (2) \\
+$\cont \; (\Phi; \Delta'') ; \Xi'; \Delta'$ or $\mo \Delta, p; \Xi; p, \Omega; H; (\cdot; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (4) rule application on (3) \\
+
+\item $p, \Omega$ and $p \notin \Delta$
+
+$\mo \Delta; \Xi; p, \Omega; H; (\Phi; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\cont \; (\Phi; \Delta''); \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+
+\item $A \otimes B, \Omega$
+
+$\mo \Delta; \Xi; A \otimes B, \Omega; H; (\Phi; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\mo \Delta; \Xi; A, B, \Omega; H; (\Phi; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+$\cont \; (\Phi; \Delta''); \Xi'; \Delta'$ or $\mo \Delta; \Xi; A, B, \Omega; H; (\cdot; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (3) i.h. on (2) \\
+$\cont \; (\Phi; \Delta''); \Xi'; \Delta'$ or $\mo \Delta; \Xi; A \otimes B, \Omega; H; (\cdot; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (4) rule on (3) \\
+
+\item $\cdot$
+
+$\mo \Delta; \Xi; \cdot; H; (\Phi; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+$\done \Delta; \Xi; \cdot; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+$\mo \Delta; \Xi; \cdot; H; (\cdot; \Delta'') \rightarrow \Xi'; \Delta'$ \hfill (3) rule application on (2) \\
+\end{itemize}
+
+\subsection{One Rule Theorem}
+
+If $\doo \Delta; \Phi \rightarrow \Xi'; \Delta'$ then $\exists R \in \Phi. \doo \Delta; R \rightarrow \Xi'; \Delta'$.
+
+Induction on the size of $\Phi$.
+
+\begin{itemize}
+\item $\Phi = \cdot$
+
+Not applicable.
+
+\item $\Phi = R', \Phi'$
+
+$\doo \Delta; R', \Phi' \rightarrow \Xi' \Delta'$ \hfill (1) assumption \\
+$\ao \Delta; R'; (\Phi'; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+$\mo \Delta; \cdot; A; B; (\Phi'; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (3) inversion of (2) where $R' = A \lolli B$\\
+
+From theorem "Success or continuation" we have two cases:
+
+   \begin{itemize}
+   \item Match Success \\
+   $\mo \Delta; \cdot; A; B; (\cdot; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (4) from theorem \\
+   $\ao \Delta; A \lolli B; (\cdot; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (5) rule application on (4) \\
+   $\doo \Delta; A \lolli B \rightarrow \Xi'; \Delta'$ \hfill (6) rule application on (5) \\
+   $\doo \Delta; R \rightarrow \Xi'; \Delta'$ \hfill (7) rewrite of (6) \\
+
+   \item Continuation \\
+   $\cont (\Phi'; \Delta); \Xi'; \Delta'$ \hfill (4) from theorem \\
+   $\doo \Delta; \Phi' \rightarrow \Xi'; \Delta'$ \hfill (5) inversion of (4) \\
+   $\exists R \in \Phi'. \doo \Delta; R \rightarrow \Xi'; \Delta'$ \hfill (6) i.h. on (5) \\
+   $\exists R \in \Phi.$ \hfill (7) from (6) \\
+   \end{itemize}
+
 \end{itemize}
 
 \section{Improved Simplified System}

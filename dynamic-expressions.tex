@@ -1,0 +1,298 @@
+
+\subsection{Expression Values}
+
+\[
+\infer[\m{int}]
+{\val{\m{int}(N)}{int}}
+{}
+\tab
+\infer[\m{bool}]
+{\val{\m{bool}(B)}{bool}}
+{}
+\tab
+\infer[\m{float}]
+{\val{\m{float}(F)}{float}}
+{}
+\]
+
+\[
+\infer[\m{string}]
+{\val{\m{string}(S)}{string}}
+{}
+\tab
+\infer[\m{addr}]
+{\val{\m{addr}(A)}{addr}}
+{}
+\]
+
+\[
+\infer[\m{nil}]
+{\val{[]}{list \; \tau}}
+{}
+\tab
+\infer[\m{cons}]
+{\val{x :: ls}{list \; \tau}}
+{\val{x}{\tau} & \val{ls}{list \; \tau}}
+\]
+
+\[
+\infer[\m{struct}]
+{\val{:(v_1, ..., v_n)}{\m{struct \; \tau_1; ...; \tau_n}}}
+{\val{v_1}{\tau_1} & ... & \val{v_n}{\tau_n}}
+\]
+
+\subsection{Expression Evaluation}
+
+\[
+\infer[\m{int}]
+{\eval{\m{int}(N)}{\m{int}(N)}}
+{}
+\tab
+\infer[\m{float}]
+{\eval{\m{float}(F)}{\m{float}(F)}}
+{}
+\tab
+\infer[\m{addr}]
+{\eval{\m{addr}(A)}{\m{addr}(A)}}
+{}
+\]
+
+\[
+\infer[\m{bool}]
+{\eval{\m{bool}(B)}{\m{bool}(B)}}
+{}
+\]
+
+\[
+\infer[\m{string}]
+{\eval{\m{string}(S)}{\m{string}(S)}}
+{}
+\tab
+\infer[\m{list\; nil}]
+{\eval{[]}{[]}}
+{}
+\tab
+\infer[\m{list}]
+{\eval{L}{L}}
+{}
+\]
+
+\[
+\infer[\m{cons}]
+{\eval{[e_1 | e_2]}{v_1 :: v_2}}
+{\eval{e_1}{v_1} & \eval{e_2}{v_2}}
+\]
+
+\[
+\infer[\m{make \; struct}]
+{\eval{\m{struct \; e_1; ...; e_n}}{:(v_1; ...; v_n)}}
+{\eval{e_1}{v_1} & ... & \eval{e_n}{v_n}}
+\]
+
+\[
+\infer[\m{get \; struct}]
+{\eval{\m{\#i(e)}}{v_i}}
+{\eval{e}{:(v_1; ...; v_i ; ... ; v_n)}}
+\]
+
+\[
+\infer[\m{math \; int}]
+{\eval{e_1 \; \m{op} \; e_2}{\m{int}(V)}}
+{\expr{\cdot}{e_1}{\m{int}} & \expr{\cdot}{e_2}{\m{int}} & \eval{e_1}{\m{int}(A)} & \eval{e_2}{\m{int}(B)} &
+   V = A \; \m{op} \; B}
+\]
+
+\[
+\infer[\m{math \; float}]
+{\eval{e_1 \; \m{op} \; e_2}{\m{float}(V)}}
+{\expr{\cdot}{e_1}{\m{float}} & \expr{\cdot}{e_2}{\m{float}} &
+   \eval{e_1}{\m{float}(A)} & \eval{e_2}{\m{float}(B)} &
+   V = A \; \m{op} \; B}
+\]
+
+\[
+\infer[\m{math \; cast1}]
+{\eval{e_1 \; \m{op} \; e_2}{\m{float}(V)}}
+{\expr{\cdot}{e_1}{\m{int}} & \expr{\cdot}{e_2}{\m{float}} &
+   \eval{e_1}{\m{int}(A)} & \eval{e_2}{\m{float}(B)} &
+   V = A \; \m{op} \; B}
+\]
+
+\[
+\infer[\m{math \; cast2}]
+{\eval{e_1 \; \m{op} \; e_2}{\m{float}(V)}}
+{\expr{\cdot}{e_1}{\m{float}} & \expr{\cdot}{e_2}{\m{int}} &
+   \eval{e_1}{\m{float}(A)} & \eval{e_2}{\m{int}(B)} &
+   V = A \; \m{op} \; B}
+\]
+
+\[
+\infer[\m{if \; true}]
+{\eval{\mif{c}{e_1}{e_2}}{v_1}}
+{\eval{c}{\m{bool}(true)} &
+   \eval{e_1}{v_1}}
+\tab
+\infer[\m{if \; false}]
+{\eval{\mif{c}{e_1}{e_2}}{v_2}}
+{\eval{c}{\m{bool}(false)} &
+   \eval{e_2}{v_2}}
+\]
+
+\[
+\infer[\m{cmp \; int}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{int}(A)} &
+   \eval{e_2}{\m{int}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{cmp \; float}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{float}(A)} &
+   \eval{e_2}{\m{float}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{cmp \; bool}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{bool}(A)} &
+   \eval{e_2}{\m{bool}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{cmp \; string}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{string}(A)} &
+   \eval{e_2}{\m{string}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{cmp \; addr}]
+{\eval{e_1 \; \m{cmp} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{addr}(A)} &
+   \eval{e_2}{\m{addr}(B)} &
+   V = A \; \m{cmp} \; B
+}
+\]
+
+\[
+\infer[\m{or}]
+{\eval{e_1 \; \m{or} \; e_2}{\m{bool}(V)}}
+{\eval{e_1}{\m{bool}(A)} &
+   \eval{e_2}{\m{bool}(B)} &
+   V = A \; \m{or} \; B
+}
+\]
+
+\[
+\infer[\m{let}]
+{\eval{\elet{X}{e_1}{e_2}}{v}}
+{\eval{e_1}{v_1} &
+   \eval{[v_1/x]e_2}{v}}
+\]
+
+\[
+\infer[\m{const}]
+{\eval{\getconst{name}}{v}}
+{\const{name}{v} : \tau \in \Psi}
+\]
+
+\[
+\infer[\m{external}]
+{\eval{\callexternal{name}{[e_1, ..., e_n]}}{v}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\eexpr{\external{name}{[arg_1, ..., arg_n]}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi} \\
+   \multicolumn{3}{c}{v = \callexternal{name}{[v_1, ..., v_n]}} \\
+ \end{array}
+}
+\]
+
+\[
+\infer[\m{fun}]
+{\eval{\callfun{name}{[e_1, ..., e_n]}}{v}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\eexpr{\fun{name}{[arg_1, ..., arg_n]}{e}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi} \\
+   \multicolumn{3}{c}{\eval{[v_1/\m{arg}_1]...[v_n/\m{arg}_n]e}{v}} \\
+   \multicolumn{3}{c}{v = \callfun{name}{v_1, ..., v_n}} \\
+ \end{array}
+}
+\]
+
+\[
+\infer[\m{world}]
+{\eval{\m{world}}{\m{int}(N)}}
+{}
+\tab
+\infer[\m{arg}]
+{\eval{\m{arg}(N)}{\m{string}(S)}}
+{}
+\]
+
+\subsection{Aggregates}
+
+\[
+\infer[\m{init \; count}]
+{\aggregatestart{count}{\m{int}(0)}}
+{}
+\]
+
+\[
+\infer[\m{init \; collect \; int}]
+{\aggregatestart{collect \; int}{[]}}
+{}
+\]
+
+\[
+\infer[\m{init \; sum}]
+{\aggregatestart{sum}{\m{int}(0)}}
+{}
+\tab
+\infer[\m{init \; max}]
+{\aggregatestart{max}{\m{int}(-\infty)}}
+{}
+\tab
+\infer[\m{init \; min}]
+{\aggregatestart{min}{\m{int}(+\infty)}}
+{}
+\]
+
+\[
+\infer[\m{op \; sum}]
+{\aggregateop{sum}{A}{B}{A + B}}
+{}
+\]
+
+\[
+\infer[\m{op \; count}]
+{\aggregateop{count}{A}{B}{A + 1}}
+{}
+\]
+
+\[
+\infer[\m{op \; collect \; int}]
+{\aggregateop{collect \; int}{A}{B}{[B | A]}}
+{}
+\]
+
+\[
+\infer[\m{op \; min}]
+{\aggregateop{min}{A}{B}{\mif{A \leq B}{A}{B}}}
+{}
+\]
+
+\[
+\infer[\m{op \; max}]
+{\aggregateop{max}{A}{B}{\mif{A \leq B}{B}{A}}}
+{}
+\]
+

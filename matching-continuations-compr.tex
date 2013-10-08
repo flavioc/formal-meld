@@ -1,0 +1,174 @@
+
+
+\input{high-level}
+
+\subsection{Low Level System}
+
+We extend the previous system with comprehensions.
+
+\subsubsection{Match}
+
+\[
+\infer[\mo ok]
+{\mo \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'}
+{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'}
+\tab
+\infer[\mo fail]
+{\mo \Delta; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'}
+{p \notin \Delta & \cont C ; R; \Xi'; \Delta'}
+\]
+
+\[
+\infer[\mo \otimes]
+{\mo \Delta; \Xi; A \otimes B, \Omega ; H ; C; R \rightarrow \Xi'; \Delta'}
+{\mo \Delta; \Xi; A, B, \Omega; H; C; R \rightarrow \Xi';\Delta'}
+\]
+
+\[
+\infer[\mo end]
+{\mo \Delta; \Xi; \cdot ; H; C; R \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'}
+\]
+
+\subsubsection{Derive}
+
+\newcommand{\mc}[0]{\m{mc} \; }
+\newcommand{\dall}[0]{\m{dall} \; }
+
+\[
+\infer[\done p]
+{\done \Delta; \Xi; \Delta_1; p, \Omega; C \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; p, \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
+\tab
+\infer[\done 1]
+{\done \Delta; \Xi; \Delta_1; 1, \Omega; C \rightarrow \Xi';\Delta'}
+{\done \Delta; \Xi; \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\done \otimes]
+{\done \Delta; \Xi; \Delta_1; A \otimes B, \Omega; C \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; \Delta_1; A, B, \Omega; C \rightarrow \Xi';\Delta'}
+\]
+
+\[
+\infer[\done end]
+{\done \Delta; \Xi; \Delta_1; \cdot \rightarrow \Xi; \Delta_1}
+{}
+\]
+
+\[
+\infer[\done comp]
+{\done \Delta ; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega \rightarrow \Xi';\Delta'}
+{\mc \Delta; \Xi; \Delta_1; \cdot; A ; B ; \cdot; \m{comp} A \lolli B; \Omega \rightarrow \Xi';\Delta'}
+\]
+
+\subsubsection{Continuation}
+
+\[
+\infer[next \; rule]
+{\cont \cdot; (\Phi; \Delta); \Xi'; \Delta'}
+{\doo \Delta; \Phi \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\cont next]
+{\cont (\Delta; p_1, \Delta''; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'}
+{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\cont no \; more]
+{\cont (\Delta; \cdot; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'}
+{\cont C; R; \Xi'; \Delta'}
+\]
+
+\subsubsection{Match Comprehension}
+
+\[
+\infer[\mc p \; ok]
+{\mc \Delta, p_1, \Delta''; \Xi_a; \Delta_a; \Xi; p, \Omega; H; C; B; Next \rightarrow \Xi'; \Delta'}
+{\mc \Delta, \Delta''; \Xi_a; \Delta_a; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; \Xi; p, \Omega; H), C; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\mc p \; fail]
+{\mc \Delta; \Xi_a; \Delta_a; \Xi; p, \Omega; H; C; B; Next \rightarrow \Xi'; \Delta'}
+{\contc \Xi_a; \Delta_a; C; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\mc \otimes]
+{\mc \Delta; \Xi_a; \Delta_a; \Xi; A \otimes B, \Omega; H; C; B; Next \rightarrow \Xi'; \Delta'}
+{\mc \Delta; \Xi_a; \Delta_a; \Xi; A, B, \Omega; H; C; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\mc end]
+{\mc \Delta; \Xi_a; \Delta_a; \Xi; \cdot; H; C; B; Next \rightarrow \Xi'; \Delta'}
+{\dall \Xi_a; \Delta_a; \Xi; H; C; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\dall end]
+{\dall \Xi_a; \Delta_a; \Xi; H; (\Delta_x; \Delta''; \Xi_b; p, \Omega; H); B; Next \rightarrow \Xi'; \Delta'}
+{\dc \Xi_a, \Xi; \Delta_a; H; (\Delta_x - (\Xi - \Xi_b); \Delta'' - (\Xi - \Xi_b); \cdot; p, \Omega; H) ; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\dall more]
+{\dall \Xi_a; \Delta_a; \Xi; H; \_, X, C; B; Next \rightarrow \Xi'; \Delta'}
+{\dall \Xi_a; \Delta_a; \Xi; H; X, C; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\dc p]
+{\dc \Xi; \Delta_1; p, \Omega; C; B; Next \rightarrow \Xi'; \Delta'}
+{\dc \Xi; \Delta_1, p; \Omega; C; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\dc \otimes]
+{\dc \Xi; \Delta_1; A \otimes B, \Omega; C; B; Next \rightarrow \Xi'; \Delta'}
+{\dc \Xi; \Delta_1; A, B, \Omega; C; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\dc end]
+{\dc \Xi; \Delta_1; \cdot; C; B; Next \rightarrow \Xi'; \Delta'}
+{\contc \Xi; \Delta_1; C; B; Next; \rightarrow \Xi'; \Delta'}
+\]
+
+\subsubsection{Match Comprehension Continuation}
+
+\[
+\infer[contc \; end]
+{\contc \Delta; \Xi_a; \Delta_a; \cdot; \comp \; A \lolli B; \Omega \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi_a; \Delta_a; \Omega \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[contc \; next]
+{\contc \Delta_x; \Xi_a; \Delta_a; (\Delta; p_1, \Delta''; \Xi; p, \Omega; H), C; B; Next \rightarrow \Xi'; \Delta'}
+{\mc \Delta; \Xi_a; \Delta_a; \Xi; \Omega; H; (\Delta, p_1; \Delta''; \Xi; p, \Omega; H), C; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[contc \; next \; empty]
+{\contc \Delta_x; \Xi_a; \Delta_a; (\Delta; \cdot; \Xi; p, \Omega; H), C; B; Next \rightarrow \Xi'; \Delta'}
+{\contc \Delta_x; \Xi_a; \Delta_a; C; B; Next \rightarrow \Xi'; \Delta'}
+\]
+
+\subsubsection{Apply}
+
+\[
+\infer[start \; matching]
+{\ao \Delta; A \lolli B; R \rightarrow \Xi'; \Delta'}
+{\mo \Delta; \cdot; A; B; \cdot; R \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[do \; rule]
+{\doo \Delta; R, \Phi \rightarrow \Xi'; \Delta'}
+{\ao \Delta; R; (\Phi; \Delta) \rightarrow \Xi';\Delta'}
+\]

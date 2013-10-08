@@ -1,0 +1,208 @@
+
+
+\newcommand{\sequent}[3]{#1 ; #2 \vdash #3}
+\newcommand{\seqnocut}[3]{#1 ; #2 \Rightarrow #3}
+
+\[
+\infer[\one R]
+{\sequent{\Gamma}{\cdot}{\one}}
+{}
+\tab
+\infer[\one L]
+{\sequent{\Gamma}{\Delta, \one}{C}}
+{\sequent{\Gamma}{\Delta}{C}}
+\]
+
+\[
+\infer[\with R]
+{\sequent{\Gamma}{\Delta}{A \with B}}
+{\sequent{\Gamma}{\Delta}{A} & \sequent{\Gamma}{\Delta}{B}}
+\tab
+\infer[\with L_1]
+{\sequent{\Gamma}{\Delta, A \with B}{C}}
+{\sequent{\Gamma}{\Delta, A}{C}}
+\tab
+\infer[\with L_2]
+{\sequent{\Gamma}{\Delta, B \with B}{C}}
+{\sequent{\Gamma}{\Delta, B}{C}}
+\]
+
+\[
+\infer[\otimes R]
+{\sequent{\Gamma}{\Delta, \Delta'}{A \otimes B}}
+{\sequent{\Gamma}{\Delta}{A} & \sequent{\Gamma}{\Delta}{B}}
+\tab
+\infer[\otimes L]
+{\sequent{\Gamma}{\Delta, A \otimes B}{C}}
+{\sequent{\Gamma}{\Delta, A, B}{C}}
+\]
+
+\[
+\infer[\lolli R]
+{\sequent{\Gamma}{\Delta}{A \lolli B}}
+{\sequent{\Gamma}{\Delta, A}{B}}
+\tab
+\infer[\lolli L]
+{\sequent{\Gamma}{\Delta, \Delta', A \lolli B}{C}}
+{\sequent{\Gamma}{\Delta}{A} &
+   \sequent{\Gamma}{\Delta', B}{C}}
+\]
+
+\[
+\infer[\forall R]
+{\Psi ; \sequent{\Gamma}{\Delta}{\forall n:\tau. A}}
+{\Psi, m:\tau ; \sequent{\Gamma}{\Delta}{A\{m/n\}}}
+\tab
+\infer[\forall L]
+{\Psi ; \sequent{\Gamma}{\Delta, \forall n:\tau. A}{C}}
+{\Psi \vdash M : \tau & \Psi ; \sequent{\Gamma}{\Delta, A\{M/n\}}{C}}
+\]
+
+\[
+\infer[\exists R]
+{\Psi \; \sequent{\Gamma}{\Delta}{\exists n: \tau. A}}
+{\Psi \vdash M : \tau &
+   \Psi \; \sequent{\Gamma}{\Delta}{A \{M/n\}}}
+\tab
+\infer[\exists L]
+{\Psi ; \sequent{\Gamma}{\Delta, \exists n:\tau. A}{C}}
+{\Psi, m:\tau ; \sequent{\Gamma}{\Delta, A\{m/n\}}{C}}
+\]
+
+\[
+\infer[\bang R]
+{\sequent{\Gamma}{\cdot}{\bang A}}
+{\sequent{\Gamma}{\cdot}{A}}
+\tab
+\infer[\bang L]
+{\sequent{\Gamma}{\Delta, \bang A}{C}}
+{\sequent{\Gamma, A}{\Delta}{C}}
+\tab
+\infer[\m{copy}]
+{\sequent{\Gamma, A}{\Delta}{C}}
+{\sequent{\Gamma, A}{\Delta, A}{C}}
+\]
+
+\[
+\infer[\m{def} \; R]
+{\sequent{\Gamma}{\Delta}{\compr{A'}}}
+{\sequent{\Gamma}{\Delta}{B\theta} &
+ A \defeq B & A' \doteq A\theta}
+\tab
+\infer[\m{def} \; L]
+{\sequent{\Gamma}{\Delta, \compr{A'}}{C}}
+{
+   \sequent{\Gamma}{\Delta, B\theta}{C} & A \defeq B & A' \doteq A\theta
+}
+\]
+
+\[
+\infer[\m{cut}]
+{\sequent{\Gamma}{\Delta, \Delta'}{C}}
+{\sequent{\Gamma}{\Delta}{A} &
+   \sequent{\Gamma}{\Delta', A}{C}}
+\tab
+\infer[\m{cut}\bang]
+{\sequent{\Gamma}{\Delta}{C}}
+{\sequent{\Gamma}{\cdot}{A} &
+   \sequent{\Gamma, A}{\Delta}{C}}
+\]
+
+\subsection{Cut Free System}
+
+\[
+\infer[\one R]
+{\seqnocut{\Gamma}{\cdot}{\one}}
+{}
+\tab
+\infer[\one L]
+{\seqnocut{\Gamma}{\Delta, \one}{C}}
+{\seqnocut{\Gamma}{\Delta}{C}}
+\]
+
+\[
+\infer[\with R]
+{\seqnocut{\Gamma}{\Delta}{A \with B}}
+{\seqnocut{\Gamma}{\Delta}{A} & \seqnocut{\Gamma}{\Delta}{B}}
+\tab
+\infer[\with L_1]
+{\seqnocut{\Gamma}{\Delta, A \with B}{C}}
+{\seqnocut{\Gamma}{\Delta, A}{C}}
+\tab
+\infer[\with L_2]
+{\seqnocut{\Gamma}{\Delta, B \with B}{C}}
+{\seqnocut{\Gamma}{\Delta, B}{C}}
+\]
+
+\[
+\infer[\otimes R]
+{\seqnocut{\Gamma}{\Delta, \Delta'}{A \otimes B}}
+{\seqnocut{\Gamma}{\Delta}{A} & \seqnocut{\Gamma}{\Delta}{B}}
+\tab
+\infer[\otimes L]
+{\seqnocut{\Gamma}{\Delta, A \otimes B}{C}}
+{\seqnocut{\Gamma}{\Delta, A, B}{C}}
+\]
+
+\[
+\infer[\lolli R]
+{\seqnocut{\Gamma}{\Delta}{A \lolli B}}
+{\seqnocut{\Gamma}{\Delta, A}{B}}
+\tab
+\infer[\lolli L]
+{\seqnocut{\Gamma}{\Delta, \Delta', A \lolli B}{C}}
+{\seqnocut{\Gamma}{\Delta}{A} &
+   \seqnocut{\Gamma}{\Delta', B}{C}}
+\]
+
+\[
+\infer[\forall R]
+{\Psi ; \seqnocut{\Gamma}{\Delta}{\forall n:\tau. A}}
+{\Psi, m:\tau ; \seqnocut{\Gamma}{\Delta}{A\{m/n\}}}
+\tab
+\infer[\forall L]
+{\Psi ; \seqnocut{\Gamma}{\Delta, \forall n:\tau. A}{C}}
+{\Psi \vdash M : \tau & \Psi ; \seqnocut{\Gamma}{\Delta, A\{M/n\}}{C}}
+\]
+
+\[
+\infer[\exists R]
+{\Psi \; \seqnocut{\Gamma}{\Delta}{\exists n: \tau. A}}
+{\Psi \vdash M : \tau &
+   \Psi \; \seqnocut{\Gamma}{\Delta}{A \{M/n\}}}
+\tab
+\infer[\exists L]
+{\Psi ; \seqnocut{\Gamma}{\Delta, \exists n:\tau. A}{C}}
+{\Psi, m:\tau ; \seqnocut{\Gamma}{\Delta, A\{m/n\}}{C}}
+\]
+
+\[
+\infer[\bang R]
+{\seqnocut{\Gamma}{\cdot}{\bang A}}
+{\seqnocut{\Gamma}{\cdot}{A}}
+\tab
+\infer[\bang L]
+{\seqnocut{\Gamma}{\Delta, \bang A}{C}}
+{\seqnocut{\Gamma, A}{\Delta}{C}}
+\tab
+\infer[\m{copy}]
+{\seqnocut{\Gamma, A}{\Delta}{C}}
+{\seqnocut{\Gamma, A}{\Delta, A}{C}}
+\]
+
+\[
+\infer[\m{def} \; R]
+{\seqnocut{\Gamma}{\Delta}{\compr{A'}}}
+{\seqnocut{\Gamma}{\Delta}{B\theta} &
+ A \defeq B & A' \doteq A\theta}
+\tab
+\infer[\m{def} \; L]
+{\seqnocut{\Gamma}{\Delta, \compr{A'}}{C}}
+{
+   \seqnocut{\Gamma}{\Delta, B\theta}{C} & A \defeq B & A' \doteq A\theta
+}
+\]
+
+\subsection{Cut Elimination Theorem}
+
+If $\seqnocut{\Gamma}{\Delta}{A}$ and $\seqnocut{\Gamma}{\Delta', A}{C}$ then $\seqnocut{\Gamma}{\Delta, \Delta'}{C}$

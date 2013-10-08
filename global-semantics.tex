@@ -1,0 +1,206 @@
+
+Meaning of variables:
+
+\begin{description}
+\item[$\Psi$]: Program state: constants, functions, external functions and declarations.
+\item[$\Theta$]: Rules with priority.
+\item[$\Phi$]: Rules without priority.
+\item[$\Gamma$]: Persistent fact context.
+\item[$\Delta$]: Linear fact context.
+\end{description}
+
+\[
+\infer[\m{rule \; app}]
+{\changes{\Psi}{\Theta, \Phi, R}{\Gamma}{\Delta}{\Gamma'}{\Delta'}{\Xi}}
+{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{\lolli L}]
+{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Gamma'}{\Delta'}{\Delta_1, \Xi}}
+{\match{\Psi}{\Gamma}{\Delta_1}{[A]}{\Delta_1} &
+   \derive{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Gamma'}{\Delta'}{\Xi}
+}
+\]
+
+\[
+\infer[\m{\forall L}]
+{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Gamma'}{\Delta'}{\Xi}}
+{\val{M}{\tau} & \apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\subsubsection{Match}
+
+\[
+\infer[\m{match \; exists}]
+{\match{\Psi}{\Gamma}{\Delta}{[\exists X. A]}{\Xi}}
+{\match{\Psi}{\Gamma}{\Delta}{[[M/X]A]}{\Xi}}
+\]
+
+\[
+\infer[\m{match \; one}]
+{\match{\Psi}{\Gamma}{\cdot}{[1]}{\cdot}}
+{}
+\]
+
+\[
+\infer[\m{match \; split}]
+{\match{\Psi}{\Gamma}{\Delta, \Delta'}{[A \otimes B]}{\Xi_1, \Xi_2}}
+{\match{\Psi}{\Gamma}{\Delta}{[A]}{\Xi_1} &
+   \match{\Psi}{\Gamma}{\Delta'}{[B]}{\Xi_2}
+}
+\]
+
+\[
+\infer[\m{match \; end \; constraint}]
+{\match{\Psi}{\Gamma}{\cdot}{[\bang\constraint{e}]}{\cdot}}
+{\eval{e}{\m{bool}(\m{true})}}
+\]
+
+\[
+\infer[\m{match \; end \; linear}]
+{\match{\Psi}{\Gamma}{\fact{name}{v_1}{v_2, ..., v_n}}{[\fact{name}{v_1}{v_2, ..., v_n}]}{\fact{name}{v_1}{v_2, ..., v_n}}}
+{\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'}}
+\]
+%% do I need a val here?
+
+\[
+\infer[\m{match \; end \; persistent}]
+{\match{\Psi}{\Gamma, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\cdot}{[\bang\fact{name}{v_1'}{v_2', ..., v_n'}]}{\cdot}}
+{\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'}}
+\]
+
+\[
+\infer[\m{equal \; int}]
+{\equal{\m{int}(N)}{\m{int}(N)}}
+{}
+\tab
+\infer[\m{equal \; float}]
+{\equal{\m{float}(F)}{\m{float}(F)}}
+{}
+\tab
+\infer[\m{equal \; addr}]
+{\equal{\m{addr}(A)}{\m{addr}(A)}}
+{}
+\]
+
+\[
+\infer[\m{equal \; string}]
+{\equal{\m{string}(S)}{\m{string}(S)}}
+{}
+\tab
+\infer[\m{equal \; bool}]
+{\equal{\m{bool}(B)}{\m{bool}(B)}}
+{}
+\]
+
+\[
+\infer[\m{equal \; nil}]
+{\equal{[]}{[]}}
+{}
+\tab
+\infer[\m{equal \; cons}]
+{\equal{x :: ls}{x' :: ls'}}
+{\equal{x}{x'} & \equal{ls}{ls'}}
+\]
+
+\subsection{Derive}
+
+\[
+\infer[\m{derive \; blur}]
+{\derive{\Gamma}{\Delta}{[A]}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{A}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{derive \; \otimes}]
+{\derive{\Gamma}{\Delta}{A \otimes B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{A, B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{derive \; exists}]
+{\derive{\Gamma}{\Delta}{\exists X : \m{addr}. A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{[x/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi} &
+   x = \m{new} \; \m{addr}(A)}
+\]
+
+\[
+\infer[\m{derive \; fact}]
+{\derive{\Gamma}{\Delta}{\fact{name}{e_1}{e_2, ..., e_n}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\derive{\Gamma}{\Delta}{\Omega}{\Delta_1, \fact{name}{v_1}{v_2, ..., v_n}}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}} \\
+   \end{array}
+}
+\]
+
+\[
+\infer[\m{derive \; \bang fact}]
+{\derive{\Gamma}{\Delta}{\bang\fact{name}{e_1}{e_2, ..., e_n}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\derive{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\Gamma'}{\Delta'}{\Xi}} \\
+   \end{array}
+}
+\]
+
+\[
+\infer[\m{derive \; 1}]
+{\derive{\Gamma}{\Delta}{1, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{\Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{derive \; comprehension}]
+{\derive{\Gamma}{\Delta}{\comprehension{A}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{1 \with (A \otimes \comprehension{A}), \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+
+\[
+\infer[\m{derive \; \with \; left}]
+{\derive{\Gamma}{\Delta}{A \with B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{derive \; \with \; right}]
+{\derive{\Gamma}{\Delta}{A \with B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\newcommand{\aggdef}[4]{\m{agg} \; \m{#1} \; #2 \; #3 \; #4}
+
+\[
+\infer[\m{derive \; aggregate}]
+{\derive{\Gamma}{\Delta}{\aggregate{Op}{X}{A}{B}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\aggregatestart{Op}{V} & \derive{\Gamma}{\Delta}{\aggdef{Op}{V}{(x. A(x))}{(y. B(y))}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{derive \; aggregate \; unfold}]
+{\derive{\Gamma}{\Delta}{\aggdef{Op}{V'}{(x. A(x))}{(y. B(y))}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{B(V) \with (\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}), \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi} & \aggregateop{Op}{V'}{X'}{E}
+}
+\]
+
+\[
+\infer[\m{derive \; forall}]
+{\derive{\Gamma}{\Delta}{\forall X : \tau. A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
+{\derive{\Gamma}{\Delta}{[M/X]A, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi} & \val{M}{\tau}}
+\]
+
+\[
+\infer[\m{derive \; lolli}]
+{\derive{\Gamma}{\Delta}{A \lolli B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi, \Xi'}}
+{\match{\Psi}{\Gamma}{\Delta}{A}{\Xi'} &
+   \derive{\Gamma}{\Delta - \Xi'}{B, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}
+}
+\]
+
+\[
+\infer[\m{derive \; end}]
+{\derive{\Gamma}{\Delta}{\cdot}{\Delta_1}{\Gamma_1}{\Gamma_1}{\Delta_1}{\cdot}}
+{}
+\]

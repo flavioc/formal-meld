@@ -1,0 +1,27 @@
+
+\subsection{Data vs Control}
+
+\begin{itemize}
+   \item Discover facts that work like node fields and actually never go away (only their arguments change).
+   \item Discover facts that drive the computation (usually are consumed and then go away).
+\end{itemize}
+
+\subsection{JIT Compilation}
+
+Compile most used rules to assembly.
+
+\subsection{Improve indexing}
+
+Do just in time indexing by gathering statistics about indexing.
+
+\subsection{Improve rule engine}
+
+Indexing of the current set of facts needs to be vastly improved.
+
+\subsection{Find consuming chain of linear facts}
+
+Sometimes a linear fact $a$ derives a $b$ that derives a $c$, etc. Once $a$ is derived we know that a set of rules will be run in sequence. We need to prove that this will happen no matter what.
+
+\subsection{Improved fact loading}
+
+Allow compilation of facts to a separate file. Also, load facts faster.

@@ -1,0 +1,205 @@
+
+\subsection{Low Level System}
+
+For this system, we include only linear facts but we use a continuation stack to match facts.
+
+\subsubsection{Match}
+
+\[
+\infer[ok]
+{\mo \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'}
+{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'}
+\tab
+\infer[fail]
+{\mo \Delta; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'}
+{p \notin \Delta & \cont C ; R; \Xi'; \Delta'}
+\]
+
+\[
+\infer[match \; \otimes]
+{\mo \Delta; \Xi; A \otimes B, \Omega ; H ; C; R \rightarrow \Xi'; \Delta'}
+{\mo \Delta; \Xi; A, B, \Omega; H; C; R \rightarrow \Xi';\Delta'}
+\]
+
+\[
+\infer[end]
+{\mo \Delta; \Xi; \cdot ; H; C; R \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'}
+\]
+
+\subsubsection{Derive}
+
+\[
+\infer[derive \; p]
+{\done \Delta; \Xi; \Delta_1; p, \Omega; C \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; p, \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
+\tab
+\infer[derive \; 1]
+{\done \Delta; \Xi; \Delta_1; 1, \Omega; C \rightarrow \Xi';\Delta'}
+{\done \Delta; \Xi; \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[derive \; \otimes]
+{\done \Delta; \Xi; \Delta_1; A \otimes B, \Omega; C \rightarrow \Xi'; \Delta'}
+{\done \Delta; \Xi; \Delta_1; A, B, \Omega; C \rightarrow \Xi';\Delta'}
+\]
+
+\[
+\infer[derive \; end]
+{\done \Delta; \Xi; \Delta_1; \cdot \rightarrow \Xi; \Delta_1}
+{}
+\]
+
+\subsubsection{Continuation}
+
+\[
+\infer[next \; rule]
+{\cont \cdot; (\Phi; \Delta); \Xi'; \Delta'}
+{\doo \Delta; \Phi \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[cont \; next]
+{\cont (\Delta; p_1, \Delta''; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'}
+{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[cont \; no \; more]
+{\cont (\Delta; \cdot; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'}
+{\cont C; R; \Xi'; \Delta'}
+\]
+
+\subsubsection{Apply}
+
+\[
+\infer[start \; matching]
+{\ao \Delta; A \lolli B; R \rightarrow \Xi'; \Delta'}
+{\mo \Delta; \cdot; A; B; \cdot; R \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[do \; rule]
+{\doo \Delta; R, \Phi \rightarrow \Xi'; \Delta'}
+{\ao \Delta; R; (\Phi; \Delta) \rightarrow \Xi';\Delta'}
+\]
+
+\input{high-level-simple}
+
+\subsection{Theorems}
+
+\subsubsection{Match soundness theorem}
+
+If $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; \Omega_1, ..., \Omega_n; H; C; R \rightarrow \Xi'; \Delta'$ then either:\\
+1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
+2. \hspace{1cm} $\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ and $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$ or \\
+3. \hspace{1cm} $\exists f = (\Delta_a; \Delta_b; \Omega_1, ..., \Omega_n; H; \Xi_a) \in C$ such that:\\
+3.1 \hspace{2cm} $\Delta_a, \Delta_b = \Delta_c, \Delta_1, ..., \Delta_n$ and \\
+3.2 \hspace{2cm} $\mo \Delta_c; \Xi_a, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ and \\
+3.3 \hspace{2cm} $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$.\\
+
+If $\cont C; R; \Xi'; \Delta'$ then either:\\
+1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
+2. \hspace{1cm} $\exists f = (\Delta_a; \Delta_b; \Omega_1, ..., \Omega_n; H; \Xi_a) \in C$ such that:\\
+2.1 \hspace{2cm} $\Delta_a, \Delta_b = \Delta_c, \Delta_1, ..., \Delta_n$ and \\
+2.2 \hspace{2cm} $\mo \Delta_c; \Xi_a, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ and \\
+2.3 \hspace{2cm} $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$.\\
+
+Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$ on the size of $C$ and $\Delta''$.
+
+\begin{itemize}
+   \item $ok$
+   
+   By induction.
+   
+   \item $fail$
+   
+   $\mo \Delta; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+   $\cont C; R; \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+   Apply i.h. on (2) to get $\cont \cdot; R; \Xi'; \Delta'$ or the $\exists f.$.
+   
+   \item $match \; \otimes$
+   
+   By induction.
+   
+   \item $end$
+   
+   $\mz \Delta; \Xi; \cdot; H; C; R \rightarrow \Xi'; \Delta'$ \hfill (1) assumption.\\
+   
+   \item $next \; rule$
+   
+   $\cont \cdot; (\Phi; \Delta); \Xi'; \Delta'$ \hfill (1) assumption \\
+   
+   \item $cont \; next$ -- some doubts about this one.
+   
+   $\cont (\Delta; p_1, \Delta''; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'$ \hfill (1) assumption \\
+   $\mo \Delta, \Delta''; \Xi, p_1;  \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1)\\
+   Induction on (2):
+   
+   \begin{itemize}
+      \item $\cont \cdot; R; \Xi'; \Delta'$
+      
+      \item $\mo \Delta_a; \Xi, p_1, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ 
+      
+      where $\Delta_a, \Delta_1, ..., \Delta_n = \Delta, \Delta'$ \\
+      
+      $\exists f = (\Delta; p_1; \Delta''; p, \Omega; H; \Xi)$
+      
+      \item $\exists f \in (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C$
+      
+      $f$ can be $(\Delta, p_1; \Delta''; p, \Omega; H; \Xi)$ (which is contained in the original $\cont$)\\
+      or $f \in C$\\
+      
+   \end{itemize}
+   
+   \item $cont \; no \; more$
+   
+   $\cont (\Delta; \cdot; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'$ \hfill (1) assumption \\
+   $\cont C; R; \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+   
+   By induction:
+   
+   \begin{itemize}
+      \item $\cont \cdot; R; \Xi'; \Delta'$
+      
+      \item $\exists f \in C$
+      
+      Then $\exists f \in (\Delta; \cdot; p, \Omega; H; \Xi), C$ \\
+   \end{itemize}
+   
+\end{itemize}
+
+\subsection{Match Soundness Lemma}
+
+If $\mo \Delta, \Delta''; \cdot; \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'$ then either:\\
+1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
+2. \hspace{1cm} $\mo \Delta; \Delta''; \cdot; H; C'; R \rightarrow \Xi'; \Delta'$ and\\
+2.1 \hspace{2cm} $\mz \Delta''; \Omega \rightarrow \Delta''$\\
+
+Proof: By direct use of the match soundness theorem.
+
+\subsection{Derive Soundness Theorem}
+
+If $\done \Delta; \Xi; \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'$ then $\dz \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta'$.
+
+By simple induction on $\Omega$.
+
+\begin{itemize}
+   \item $derive \; p$
+   
+   By induction.
+   
+   \item $derive \; 1$
+   
+   By induction.
+   
+   \item $derive \; \otimes$
+   
+   By induction.
+   
+   \item $derive \; end$
+   
+   Use axioms.
+   
+\end{itemize}

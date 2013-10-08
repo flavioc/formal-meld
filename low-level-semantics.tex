@@ -1,0 +1,352 @@
+
+
+Low level dynamic semantics handle:
+
+\begin{itemize}
+\item Rule priorities.
+\item No guessing of values for variables.
+\item Maximality for definitions.
+\end{itemize}
+
+For the low level semantics, we consider that $\Theta$ (rules with priority)
+is an ordered context of rules.
+
+\newcommand{\applyl}[6]{\m{apply1} \; #1 ; #2 ; #3 \rightarrow #4 ; #5 ; #6}
+
+\[
+\infer[\m{rule \; app \; priority}]
+{\Psi ; R, \Theta; \Phi; \Gamma; \Delta \hookrightarrow \Gamma'; \Delta' ; \Xi'}
+{\applyl{\Psi}{\Gamma}{\Delta ; [R] ; (\m{rule}; \Theta; \Phi ; \Delta)}{\Gamma'}{\Delta'}{\Xi'}}
+\]
+
+\[
+\infer[\m{rule \; app \; no \; priority}]
+{\Psi ; \cdot; R, \Phi ; \Gamma ; \Delta \hookrightarrow \Gamma'; \Delta' ; \Xi'}
+{\applyl{\Psi}{\Gamma}{\Delta ; [R] ; (\m{rule} ; \Theta; \Phi ; \Delta)}{\Gamma'}{\Delta'}{\Xi'}}
+\]
+
+Note that in the following rule, we do not guess the terms for the variables. Instead, we will try to match the variables against the available facts.
+
+\[
+\infer[\m{\forall L}]
+{\applyl{\Psi}{\Gamma}{\Delta ; [\forall X : \tau. A] ; C}{\Gamma'}{\Delta'}{\Xi}}
+{\applyl{\Psi}{\Gamma}{\Delta ; [A\{\m{var}(X)/X\}]; C}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+Once we get to the implication, we pick both body and head with a rule continuations. The continuation context will have the different facts that may be used to apply the rule. The body $A$ is an ordered context.
+
+\[
+\infer[\m{\lolli L}]
+{\applyl{\Psi}{\Gamma}{\Delta ; [A \lolli B] ; C}{\Gamma'}{\Delta'}{\Xi'}}
+{\m{matchbody} \; \Psi;\Gamma; \Delta ; \cdot ; A ; \cdot ; B ; (\cdot, C) \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+\subsection{Match Body}
+
+This judgment goes through the ordered body context and matches the facts gainst the linear or persistent context. Constraints are put into the context at the right. Once we match everything correctly, we go through the constraint context (note: not an ordered context) and validate each constraint. If a constraint fails or a match fails, we pick the next continuation (body + facts).
+
+For $\exists$, we do the same thing as we did above for $\forall$.
+
+\[
+\infer[\m{matchbody \; exists}]
+{\m{matchbody} \; \Psi ; \Gamma ; \Delta ; \Xi ; \exists X. A', A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{\m{matchbody} \; \Psi ; \Gamma ; \Delta ; \Xi ; [\m{var}(X)/X]A', [\m{var}(X)/X]A ; [\m{var}(X)/X]B; [\m{var}(X)/X]H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+
+If we get $1$, we just skip it.
+
+\[
+\infer[\m{matchbody \; one}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta ; \Xi ; 1, A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{\m{matchbody} \; \Psi;\Gamma;\Delta ; \Xi ; A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+For $\otimes$ we simply deconstruct the connective and keep both elements in the ordered context.
+
+\[
+\infer[\m{matchbody \; split}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta; \Xi ; A_1 \otimes A_2, A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{\m{matchbody} \; \Psi;\Gamma;\Delta; \Xi ; A_1, A_2, A ; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+This is the constraint case. We simply move the constraint to the constraint context.
+
+\[
+\infer[\m{matchbody \; constraint}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta; \Xi ; \bang\constraint{e}, A; B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{\m{matchbody} \; \Psi ; \Gamma; \Delta; \Xi ; A ; \bang\constraint{e}, B ; H ; C \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+Finally, the linear case! Here we have two cases, either we have facts in the linear context of this type or we don't.
+
+\[
+\infer[\m{matchbody \; linear}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta, \Delta_f; \Xi ; \fact{name}{e_1}{e_2, ..., e_n}, A; B; H; (C_1, C_2) \rightarrow \Gamma' ; \Delta'; \Xi'}
+{\begin{array}{c}
+   \Delta_f = \m{list} \; [ \fact{name}{v_1}{v_2, ..., v_n} | Xs] \\
+    NC = (\m{body}; \fact{name}{e_1}{e_2, ..., e_n} ; Xs ; \Delta ; \Xi ; A ; B ; H; C_1) \\
+    \Delta_1 = \Delta, \Delta_f - \{\fact{name}{v_1}{v_2, ..., v_n}\} \\
+   \m{matchfact} \; \Psi;\Gamma; \Delta_1; \fact{name}{v_1}{v_2, ..., v_n}, \Xi ; [v_1, ..., v_n] ; [e_1, ..., e_n]; A ; B ; H; (NC, C_2) \rightarrow \Gamma' ; \Delta'; \Xi' \\
+ \end{array}
+}
+\]
+
+\[
+\infer[\m{matchbody \; linear \; empty}]
+{\m{matchbody} \; \Psi;\Gamma;\Delta,\Delta_f; \Xi ; \fact{name}{e_1}{e_2, ..., e_n}, A ; B; H; C \rightarrow \Gamma';\Delta';\Xi'}
+{\begin{array}{c}
+   \Delta_f = [] \\
+   \m{cont} \; \Psi; \Gamma ; C \rightarrow \Gamma';\Delta';\Xi'
+  \end{array}
+}
+\]
+
+Persistent facts are very similar, except we don't mess with the linear context.
+
+\[
+\infer[\m{matchbody \; persistent}]
+{\m{matchbody} \; \Psi;\Gamma, \Gamma_f;\Delta; \Xi ; \bang\fact{name}{e_1}{e_2, ..., e_n}, A; B; H; (C_1, C_2) \rightarrow \Gamma' ; \Delta'; \Xi'}
+{\begin{array}{c}
+   \Gamma_f = \m{list} \; [\bang\fact{name}{v_1}{v_2, ..., v_n} | Xs] \\
+    NC = (\m{body}; \bang\fact{name}{e_1}{e_2, ..., e_n} ; Xs ; \Delta ; \Xi ; A ; B ; H; C_1) \\
+   \m{matchfact} \; \Psi;\Gamma, \Gamma_f; \Delta; \Xi ; [v_1, ..., v_n] ; [e_1, ..., e_n]; A ; B ; H; (NC, C_2) \rightarrow \Gamma' ; \Delta'; \Xi' \\
+ \end{array}
+}
+\]
+
+\[
+\infer[\m{matchbody \; persistent \; empty}]
+{\m{matchbody} \; \Psi;\Gamma, \Gamma_f;\Delta; \Xi ; \bang\fact{name}{e_1}{e_2, ..., e_n}, A ; B; H; C \rightarrow \Gamma';\Delta';\Xi'}
+{\begin{array}{c}
+   \Gamma_f = [] \\
+   \m{cont} \; \Psi; \Gamma ; C \rightarrow \Gamma';\Delta';\Xi'
+  \end{array}
+}
+\]
+
+Now we get to the case where we have no more facts to process. We use $\m{matchconstr}$ to match the required constraints. Note that all constraints will be instantiated at this point, so they can be evaluated.
+
+\[
+\infer[\m{matchbody \; end}]
+{\m{matchbody} \; \Psi; \Gamma ; \Delta; \Xi; \cdot ; B ; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{matchconstr} \; \Psi; \Gamma; \Delta; \Xi; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+\subsubsection{Match Facts}
+
+The following judgments match the fact from the context with the fact from the rule.
+
+\[
+\infer[\m{matchfact \; var}]
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; [v | v_s] ; [\m{var}(X) \| e_s]; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; v_s; [v/\m{var}(X)]e_s; [v/\m{var}(X)]A; [v/\m{var}(X)]B; [v/\m{var}(X)]H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+\[
+\infer[\m{matchfact \; equal}]
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; [v_1 | v_s] ; [v_2 | e_s]; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; v_s; e_s; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi' & \equal{v_1}{v_2}}
+\]
+
+If they are not equal, we fail and grab the next continuation:
+
+\[
+\infer[\m{matchfact \; not \; equal}]
+{\m{matchfact} \; \Psi;\Gamma;\Delta;\Xi; [v_1 | v_s] ; [v_2 | e_s]; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{cont} \; \Psi ; \Gamma ; C \rightarrow \Gamma'; \Delta'; \Xi' & v_1 \neq v_2}
+\]
+
+\[
+\infer[\m{matchfact \; done}]
+{\m{matchfact} \; \Psi;\Gamma; \Delta; \Xi ; [] ; []; A ; B ; H; C \rightarrow \Gamma' ; \Delta'; \Xi'}
+{\m{matchbody} \; \Psi;\Gamma;\Delta;\Xi; A; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+\subsubsection{Match Constraints}
+
+If a constraint succeeds, we keep going on.
+
+\[
+\infer[\m{matchconstr \; true}]
+{\m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; \bang\constraint{e}, B ; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\eval{e}{\m{bool}(\m{true})} & \m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; B; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+If not, we get a continuation to try another fact.
+
+\[
+\infer[\m{matchconstr \; false}]
+{\m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; \bang\constraint{e}, B ; H; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\eval{e}{\m{bool}(\m{false})} & \m{cont} \; \Psi;\Gamma; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+Once all constraints are validated, we have succeeded in matching the body rule, so we can start deriving new facts.
+Note that we get rid of all continuations.
+
+\[
+\infer[\m{matchconstr \; end}]
+{\m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; \cdot ; H ; (C_1, (\m{rule}; ...)) \rightarrow \Gamma';\Delta';\Xi'}
+{\m{derive1} \; \Psi;\Gamma;\Delta;\Xi; \cdot; \cdot; H ; \cdot \rightarrow \Gamma';\Delta';\Xi'}
+\]
+
+The derive continuation is kept however. This way we can return back to the original derivation.
+
+\[
+\infer[\m{matchconstr \; end}]
+{\m{matchconstr} \; \Psi;\Gamma;\Delta;\Xi; \cdot ; H ; (C_1, (\m{derive}; \Delta''; \Xi''; \Gamma_1 ; \Delta_1 ; K ; \Omega)) \rightarrow \Gamma';\Delta';\Xi'}
+{\m{derive1} \; \Psi;\Gamma;\Delta;\Xi; \cdot; \cdot; H ; (\m{derive}; \Delta'' ; \Xi''; \Gamma_1; \Delta_1 ; K; \Omega) \rightarrow \Gamma';\Delta';\Xi'}
+\]
+
+\subsubsection{Continuation}
+
+If we have no more fact continuations, we need to get the rule continuation to try another rule.
+
+\[
+\infer[\m{cont \; rule}]
+{\m{cont} \; \Psi ; \Gamma ; (\cdot , (\m{rule} ; \Theta ; \Phi ; \Delta)) \rightarrow \Gamma'; \Delta'; \Xi'}
+{\Psi ; \Theta; \Phi; \Gamma ; \Delta \hookrightarrow \Gamma'; \Delta' ; \Xi'}
+\]
+
+... If there is a derive continuation, it means that an aggregate or continuation has failed.
+
+\[
+\infer[\m{cont \; comp}]
+{\m{cont} \; \Psi ; \Gamma ; (\cdot , (\m{derive}; \Delta ; \Xi; \Gamma_1; \Delta_1; \comprehension{A}; \Omega)) \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \Omega ; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+\[
+\infer[\m{cont \; aggregate}]
+{\m{cont} \; \Psi ; \Gamma ; (\cdot , (\m{derive}; \Delta ; \Xi; \Gamma_1; \Delta_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))}; \Omega)) \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; B(V), \Omega; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'}
+\]
+
+If we have a fact continuation but no more facts for that continuation, we fail and continue:
+
+\[
+\infer[\m{cont \; body \; fail}]
+{\m{cont} \; \Psi ; \Gamma ; ((\m{body} ; \fact{name}{e_1}{e_2, ..., e_n} ; []; \Delta ; \Xi ; A ; B; H; C), C_2) \rightarrow \Gamma'; \Delta'; \Xi'}
+{
+   \m{cont} \; \Psi ; \Gamma ; (C, C_2) \rightarrow \Gamma'; \Delta'; \Xi'
+}
+\]
+
+If we have a fact continuation and also more facts, restore the continuation and continue:
+
+\[
+\infer[\m{cont \; body \; ok}]
+{\m{cont} \; \Psi ; \Gamma ; ((\m{body} ; \fact{name}{e_1}{e_2, ..., e_n} ; [\fact{name}{v_1}{v_2, ..., v_n} | Xs]; \Delta ; \Xi ; A ; B ; H; C_1), C_2) \rightarrow \Gamma'; \Delta'; \Xi'}
+{
+   \begin{array}{c}
+   \Delta_1 = \Delta - {\fact{name}{v_1}{v_2, ..., v_n}}\\
+   NC = (\m{body}; \fact{name}{e_1}{e_2, ..., e_n}; \Delta; A; B; H; C_1) \\
+   \m{matchfact} \; \Psi ; \Gamma; \Delta_1 ; \fact{name}{v_1}{v_2, ..., v_n}, \Xi ; [v_1, ..., v_n]; [e_1, ..., e_n]; A; B; H; (NC, C_2) \rightarrow \Gamma' ; \Delta'; \Xi'\\
+   \end{array}
+}
+\]
+
+\subsubsection{Derive}
+
+\[
+\infer[\m{derive \; \otimes}]
+{\m{derive1} \; \Psi; \Gamma ; \Delta ; \Xi ; \Gamma_1; \Delta_1 ; A \otimes B, \Omega ; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\m{derive1} \; \Psi; \Gamma ; \Delta ; \Xi ; \Gamma_1; \Delta_1 ; A, B, \Omega; C \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+\[
+\infer[\m{derive \; exists}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1 ; \Delta_1 ; \exists X : \m{addr}. A, \Omega ; C \rightarrow \Gamma'; \Delta' ; \Xi'}
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1 ; \Delta_1 ; [x/X]A, \Omega ; C \rightarrow \Gamma'; \Delta'; \Xi'
+   & x = \m{new} \; \m{addr}(A)}
+\]
+
+\[
+\infer[\m{derive \; 1}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1 ; \Delta_1 ; 1, \Omega ; C \rightarrow \Gamma'; \Delta' ; \Xi'}
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1 ; \Delta_1 ; \Omega ; C \rightarrow \Gamma'; \Delta' ; \Xi'}
+\]
+
+
+\[
+\infer[\m{derive \; fact}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1; \Delta_1 ; \fact{name}{e_1}{e_2, ..., e_n}, \Omega ; C \rightarrow \Gamma'; \Delta'; \Xi'}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1, \fact{name}{v_1}{v_2, ..., v_n} ; \Omega ; C \rightarrow \Gamma'; \Delta' ; \Xi'} \\
+   \end{array}
+}
+\]
+
+\[
+\infer[\m{derive \; \bang fact}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \bang \fact{name}{e_1}{e_2, ..., e_n}, \Omega ; C \rightarrow \Gamma'; \Delta' \Xi'}
+{\begin{array}{ccc}
+   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
+   \multicolumn{3}{c}{\m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi; \Gamma_1, \bang\fact{name}{v_1}{v_2, ..., v_n} ; \Delta_1 ; \Omega ; C \rightarrow \Gamma'; \Delta'; \Xi'} \\
+   \end{array}
+}
+\]
+
+For the comprehension, we define a new continuation for the current state of derivation and call $\m{apply}$ in order to attempt applying the comprehension. Comprehension fails in one of the $\m{cont}$ cases. It succeeds when derive reaches the end and a continuation is in place.
+
+
+\[
+\infer[\m{derive \; comprehension}]
+{\m{derive1} \; \Psi ; \Gamma; \Delta;\Xi;\Gamma_1;\Delta_1; \comprehension{A}, \Omega; \cdot \rightarrow \Gamma' ;\Delta'; \Xi'}
+{\applyl{\Psi}{\Gamma}{\Delta ; [A] ; (\m{derive1}; \Delta ; \Xi; \Gamma_1; \Delta_1; \comprehension{A} ; \Omega)}{\Gamma'}{\Delta'}{\Xi'}}
+\]
+
+We first change the aggregate definition. Note that this only happens at this derivation level (no continuation possible).
+
+\[
+\infer[\m{derive \; aggregate}]
+{\m{derive1} \; \Psi; \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \aggregate{Op}{X}{A}{B}, \Omega; \cdot \rightarrow \Gamma' ; \Delta'; \Xi'}
+{\aggregatestart{Op}{V} & \m{derive1} \; \Psi;\Gamma;\Delta;\Xi;\Gamma_1;\Delta_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))}, \Omega; \cdot \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+When unfolding the aggregate and if there is an aggregate continuation (aggregate has already been applied multiple times), we need to change the definition of the aggregate inside the continuation. Note that the derivation context ($\Omega$) must only contain the aggregate.
+
+\fontsize{8}{9.5}\selectfont
+\[
+\infer[\m{derive \; aggregate \; unfold}]
+{\m{derive1} \; \Psi; \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \aggdef{Op}{V'}{(x. A(x))}{(y. B(y))} ; (\m{derive} ; \Delta'' ; \Xi''; \Gamma'_1; \Delta'_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))} ; \Omega) \rightarrow \Gamma'; \Delta'; \Xi'}
+{\begin{array}{c}
+   \applyl{\Psi}{\Gamma}{\Delta ; [\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}] ; (\m{derive}; \Delta ; \Xi, \Xi''; \Gamma_1, \Gamma'_1; \Delta_1, \Delta'_1; \aggdef{Op}{V'}{(x. A(x))}{(y. B(y))} ; \Omega)}{\Gamma'}{\Delta'}{\Xi'}\\
+   \aggregateop{Op}{V'}{X'}{E} \\
+      \end{array}
+}
+\]
+
+\fontsize{10}{9.5}\selectfont
+Otherwise, if we get an aggregate without a continuation:
+
+\fontsize{8}{9.5}\selectfont
+\[
+\infer[\m{derive \; aggregate \; unfold}]
+{\m{derive1} \; \Psi; \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))}, \Omega ; \cdot \rightarrow \Gamma'; \Delta'; \Xi'}
+{\begin{array}{c}
+   \applyl{\Psi}{\Gamma}{\Delta ; [\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}] ; (\m{derive}; \Delta ; \Xi; \Gamma_1; \Delta_1; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))} ; \Omega)}{\Gamma'}{\Delta'}{\Xi'}\\
+   \aggregateop{Op}{V}{X'}{E} \\
+      \end{array}
+}
+\]
+
+\fontsize{10}{9.5}\selectfont
+
+If $\m{derive}$ ends and there is a continuation, it means that either the aggregate or comprehension can be reused again.
+
+\[
+\infer[\m{derive \; comprehension \; end}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1; \Delta_1 ; \cdot ; (\m{derive}; \Delta'' ; \Xi''; \Gamma'_1; \Delta'_1; \comprehension{A} ; \Omega) \rightarrow \Gamma' ; \Delta' ; \Xi'}
+{
+   \m{derive1} \; \Psi ; \Gamma ; \Delta ; \Xi, \Xi''; \Gamma_1, \Gamma'_1; \Delta_1, \Delta'_1; \comprehension{A}, \Omega; \cdot \rightarrow \Gamma'; \Delta'; \Xi'}
+\]
+
+This is the axiom that wraps everything up. If no rule is applicable in the system, then there is no valid proof derivation.
+
+\[
+\infer[\m{derive \; end}]
+{\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1; \Delta_1; \cdot ; \cdot \rightarrow \Gamma_1 ; \Delta_1 ; \Xi}
+{}
+\]

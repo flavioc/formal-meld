@@ -1,0 +1,338 @@
+\subsection{Types}
+
+\[
+\infer[\m{addr}]
+{\typ{addr}}{}
+\tab
+\infer[\m{int}]
+{\typ{int}}
+{}
+\tab
+\infer[\m{float}]
+{\typ{float}}
+{}
+\tab
+\infer[\m{bool}]
+{\typ{bool}}{}
+\tab
+\infer[\m{string}]
+{\typ{string}}{}
+\]
+
+\[
+\infer[\m{list}]
+{\typ{list \; \tau}}{\typ{\tau}}
+\tab
+\infer[\m{struct}]
+{\typ{struct \; T}}{\typelist{T}}
+\]
+
+\[
+\infer[\m{type \; list \; end}]
+{\typelist{\cdot}}
+\tab
+\infer[\m{type \; list}]
+{\typelist{\tau ; T}}{\typelist{T}}
+\]
+
+\subsection{Expressions}
+
+\[
+\infer[\m{addr \; literal}]
+{\expr{\Gamma}{\m{addr}(N)}{\m{addr}}}
+{}
+\]
+
+\[
+\infer[\m{int \; literal}]
+{\expr{\Gamma}{\m{int}(N)}{int}}{\m{N \; is \; a \; literal}}
+\tab
+\infer[\m{float \; literal}]
+{\expr{\Gamma}{\m{float}(F)}{float}}{\m{F \; is \; a \; float \; literal}}
+\]
+
+\[
+\infer[\m{string \; literal}]
+{\expr{\Gamma}{\m{string}(S)}{string}}{\m{S \; is \; a \; string \; literal}}
+\tab
+\infer[\m{var}]
+{\expr{\Gamma, \eexpr{X}{\tau}}{X}{\tau}}{}
+\]
+
+\[
+\infer[\m{nil}]
+{\expr{\Gamma}{[]}{\m{list \; \tau}}}{\m{\tau}}
+\tab
+\infer[\m{cons}]
+{\expr{\Gamma}{[e_1 \; | \; e_2]}{\m{list \; \tau}}}
+{\expr{\Gamma}{e_1}{\m{\tau}} &
+   \expr{\Gamma}{e_2}{\m{list \; \tau}}}
+\]
+
+\[
+\infer[\m{make \; struct}]
+{\expr{\Gamma}{\m{struct} \; e_1; ...; e_n}{\m{struct \; \tau_1; ...; \tau_n}}}
+{\expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n}}
+\tab
+\infer[\m{get \; struct}]
+{\expr{\Gamma}{\#i(e)}{\tau_i}}
+{\expr{\Gamma}{e}{\m{struct \; \tau_1; ...; \tau_n}}}
+\]
+
+\[
+\infer[\m{math \; int}]
+{\expr{\Gamma}{e_1 \; \m{op} \; e_2}{\m{int}}}
+{\expr{\Gamma}{e_1}{\m{int}} & \expr{\Gamma}{e_2}{\m{int}}}
+\tab
+\infer[\m{math \; float}]
+{\expr{\Gamma}{e_1 \; \m{op} \; e_2}{\m{float}}}
+{\expr{\Gamma}{e_1}{\m{float}} & \expr{\Gamma}{e_2}{\m{float}}}
+\]
+
+\[
+\infer[\m{math \; cast1}]
+{\expr{\Gamma}{e_1 \; \m{op} \; e_2}{\m{float}}}
+{\expr{\Gamma}{e_1}{\m{int}} & \expr{\Gamma}{e_2}{\m{float}}}
+\tab
+\infer[\m{math \; cast2}]
+{\expr{\Gamma}{e_1 \; \m{op} \; e_2}{\m{float}}}
+{\expr{\Gamma}{e_1}{\m{float}} & \expr{\Gamma}{e_2}{\m{int}}}
+\]
+
+\[
+\infer[\m{if}]
+{\expr{\Gamma}{\mif{c}{e_1}{e_2}}{\tau}}
+{\expr{\Gamma}{c}{\m{bool}} &
+   \expr{\Gamma}{e_1}{\m{\tau}} &
+      \expr{\Gamma}{e_2}{\m{\tau}}}
+\]
+
+\[
+\infer[\m{cmp} \; \m{int}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{int}} &
+   \expr{\Gamma}{e_2}{\m{int}}}
+\tab
+\infer[\m{cmp} \; \m{float}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{float}} &
+   \expr{\Gamma}{e_2}{\m{float}}}
+\]
+
+\[
+\infer[\m{cmp} \; \m{bool}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{bool}} &
+   \expr{\Gamma}{e_2}{\m{bool}}}
+\tab
+\infer[\m{cmp} \; \m{string}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{string}} &
+   \expr{\Gamma}{e_2}{\m{string}}}
+\]
+
+\[
+\infer[\m{cmp} \; \m{addr}]
+{\expr{\Gamma}{e_1 \; \m{cmp} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{addr}} &
+   \expr{\Gamma}{e_2}{\m{addr}}}
+\]
+
+\[
+\infer[\m{or}]
+{\expr{\Gamma}{e_1 \; \m{or} \; e_2}{\m{bool}}}
+{\expr{\Gamma}{e_1}{\m{bool}} & \expr{\Gamma}{e_2}{\m{bool}}}
+\]
+
+\[
+\infer[\m{let}]
+{\expr{\Gamma}{\elet{X}{e_1}{e_2}}{\tau}}
+{\expr{\Gamma}{e_1}{\tau_1} &
+   \expr{\Gamma, \eexpr{X}{\tau_1}}{e_2}{\tau}}
+\]
+
+\[
+\infer[\m{const}]
+{\aexp{\Psi, \eexpr{\const{name}{v}}{\tau}}{\Gamma}{\getconst{name}}{\tau}}
+{}
+\]
+
+\[
+\infer[\m{external}]
+{\expr{\Gamma}{\callexternal{name}{[e_1, ..., e_n]}}{\tau}}
+{\expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
+   \eexpr{\external{name}{[arg_1, ..., arg_n]}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi
+}
+\]
+
+\[
+\infer[\m{fun}]
+{\expr{\Gamma}{\callfun{name}{[e_1, ..., e_n]}}{\tau}}
+{\expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
+   \eexpr{\fun{name}{[arg_1, ..., arg_n]}{e}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi
+}
+\]
+
+\[
+\infer[\m{world}]
+{\expr{\Gamma}{\m{world}}{\m{int}}}
+{}
+\tab
+\infer[\m{arg}]
+{\expr{\Gamma}{\m{arg}(N)}{\m{string}}}
+{}
+\]
+
+\subsection{Declarations}
+
+\[
+\infer[\m{decl}]
+{\decl{name}{\m{addr}, \tau_1, ..., \tau_n}}
+{\typ{addr} & \typ{\tau_1} & ... & \typ{\tau_n}}
+\tab
+\infer[\m{\bang decl}]
+{\bang\decl{name}{\m{addr}, \tau_1, ..., \tau_n}}
+{\typ{addr} & \typ{\tau_1} & ... & \typ{\tau_n}}
+\]
+
+\[
+\infer[\m{const}]
+{\declconst{name}{v}{\tau}}
+{\expr{\Gamma}{e}{\tau} & \eval{e}{v} & \val{v}{\tau}}
+\]
+
+\[
+\infer[\m{fun}]
+{\declfun{name}{arg_1 : \tau_1, ..., arg_n : \tau_n}{e}{\tau}}
+{\expr{arg_1 : \tau_1, ..., arg_n : \tau_n}{e}{\tau}}
+\]
+
+\subsection{Rules}
+
+\[
+\infer[\m{rule \; start}]
+{\mrulestart{\forall H : \m{addr}. A}}
+{\mrule{\cdot}{H}{A}{1}}
+\]
+
+\[
+\infer[\m{rule \; add \; var}]
+{\mrule{\Gamma}{H}{\forall X : \tau. A}{N}}
+{\mrule{\Gamma, X : \tau}{H}{A}{N}}
+\]
+
+\[
+\infer[\m{rule \; body \; head}]
+{\mrule{\Gamma}{H}{A \lolli B}{N}}
+{\mrulebody{\Gamma, H : \m{addr}}{H}{\Gamma}{A} & \mrulehead{\Gamma, H:\m{addr}}{H}{B}{N}}
+\]
+
+\[
+\infer[\m{rule \; body \; tensor}]
+{\mrulebody{\Gamma}{H}{\Gamma', \Gamma''}{A \otimes B}}
+{\mrulebody{\Gamma}{H}{\Gamma''}{B} &
+   \mrulebody{\Gamma}{H}{\Gamma'}{A} & }
+\]
+
+\[
+\infer[\m{rule \; body \; 1}]
+{\mrulebody{\Gamma}{H}{\cdot}{1}}
+{}
+\]
+
+\[
+\infer[\m{rule \; body \; exists}]
+{\mrulebody{\Gamma}{H}{\Gamma'}{\exists X : \tau. A}}
+{\mrulebody{\Gamma, X : \tau}{H}{\Gamma', X : \tau}{A}}
+\]
+
+\[
+\infer[\m{rule \; body \; fact}]
+{\mrulebody{\Gamma, H_{fact} : \m{addr}}{H}{X_1 : \tau_1, ..., X_n : \tau_n}{\fact{name}{H_{fact}}{X_1, ..., X_n}}}
+{\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
+\]
+
+
+\[
+\infer[\m{rule \; body \; \bang fact}]
+{\mrulebody{\Gamma, H_{fact} : \m{addr}}{H}{X_1 : \tau_1, ..., X_n : \tau_n}{\bang\fact{name}{H_{fact}}{X_1, ..., X_n}}}
+{\bang\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
+\]
+
+\[
+\infer[\m{rule}]
+{\mrulebody{\Gamma}{H}{\cdot}{\bang (\constraint{e})}}
+{\expr{\Gamma}{e}{\m{bool}}}
+\]
+
+\[
+\infer[\m{rule \; head \; tensor}]
+{\mrulehead{\Gamma}{H}{A \otimes B}{N}}
+{\mrulehead{\Gamma}{H}{A}{N} & \mrulehead{\Gamma}{H}{B}{N}}
+\]
+
+\[
+\infer[\m{rule \; head \; 1}]
+{\mrulehead{\Gamma}{H}{\m{1}}{N}}
+{}
+\]
+
+\[
+\infer[\m{rule \; head \; fact}]
+{\mrulehead{\Gamma}{H}{\fact{name}{e}{e_1, ..., e_n}}{N}}
+{\expr{\Gamma}{e}{\m{addr}} & \expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
+   \decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
+\]
+
+\[
+\infer[\m{rule \; head \; \bang fact}]
+{\mrulehead{\Gamma}{H}{\bang\fact{name}{e}{e_1, ..., e_n}}{N}}
+{\expr{\Gamma}{e}{\m{addr}} & \expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
+   \bang\decl{name}{\m{addr}, \tau_1, ..., \tau_n} \in \Psi}
+\]
+
+\[
+\infer[\m{rule \; head \; exists}]
+{\mrulehead{\Gamma}{H}{\exists X : \m{addr}. A}{N}}
+{\mrulehead{\Gamma, X : \m{addr}}{H}{A}{N}}
+\]
+
+\[
+\infer[\m{rule \; head \; comprehension}]
+{\mrulehead{\Gamma}{H}{\comprehension{A}}{1}}
+{\mrule{\Gamma}{H}{A}{2}}
+\]
+
+\[
+\infer[\m{rule \; head \; aggregate}]
+{\mrulehead{\Gamma}{H}{\aggregate{Op}{X}{A}{B}}{1}}
+{\aggregatetype{Op}{\tau_1}{\tau_2} & \mrule{\Gamma, X : \tau_1}{H}{A \lolli 1}{2} & \mrulehead{\Gamma, X : \tau_2}{H}{B}{2}}
+\]
+
+\subsection{Aggregate Types}
+
+\[
+\infer[\m{agg \; count}]
+{\aggregatetype{count}{\m{int}}{\m{int}}}
+{}
+\tab
+\infer[\m{agg \; collect \; int}]
+{\aggregatetype{collect \; int}{\m{int}}{\m{list \; int}}}
+{}
+\]
+
+\[
+\infer[\m{agg \; int \; sum}]
+{\aggregatetype{sum \; int}{\m{int}}{\m{int}}}
+{}
+\]
+
+\[
+\infer[\m{agg \; int \; max}]
+{\aggregatetype{max \; int}{\m{int}}{\m{int}}}
+{}
+\tab
+\infer[\m{agg \; int \; min}]
+{\aggregatetype{min \; int}{\m{int}}{\m{int}}}
+{}
+\]

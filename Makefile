@@ -1,7 +1,14 @@
 
 all: doc.pdf
 
-doc.pdf: doc.tex
+doc.pdf: doc.tex high-level.tex high-level-simple.tex \
+		static.tex basic-with-compr.tex \
+		dynamic-expressions.tex \
+		matching-continuations.tex \
+		matching-continuations-compr.tex \
+		low-level-semantics.tex \
+		global-semantics.tex local-semantics.tex \
+		linear-logic.tex ideas.tex
 	pdflatex doc.tex
 
 clean:

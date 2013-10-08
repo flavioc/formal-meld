@@ -1,0 +1,60 @@
+
+
+\[
+\infer[\m{rule \; app}]
+{\at{\changes{\Psi}{\Theta, R}{\Gamma}{\Delta}{\Gamma, \Gamma'}{\Delta', N}}{\pi}}
+{\at{\apply{\Psi}{\Gamma}{\Delta, [R]}{\Gamma'}{\Delta'}{\Xi}}{\pi} & N = \Delta - \Xi}
+\]
+
+\[
+\infer[\m{\lolli L}]
+{\at{\apply{\Psi}{\Gamma}{\Delta_1, \Delta_2, [A \lolli B]}{\Gamma'}{\Delta'}{\Xi}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta_1}{[A]}{\Xi}}{\pi} &
+   \derive{\Gamma}{\Delta_2}{[B]}{\cdot}{\cdot}{\Gamma'}{\Delta'}{\Xi}}
+\]
+
+\[
+\infer[\m{\forall L}]
+{\at{\apply{\Psi}{\Gamma}{\Delta, [\forall X : \tau. A]}{\Gamma'}{\Delta'}{\Xi}}{\pi}}
+{\val{M}{\tau} & \at{\apply{\Psi}{\Gamma}{\Delta, [A\{M/X\}]}{\Gamma'}{\Delta'}{\Xi}}{\pi}}
+\]
+
+\subsubsection{Match}
+
+\[
+\infer[\m{match \; exists}]
+{\at{\match{\Psi}{\Gamma}{\Delta}{[\exists X. A]}{\Xi}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta}{[[M/X]A]}{\Xi}}{\pi}}
+\]
+
+\[
+\infer[\m{match \; one}]
+{\at{\match{\Psi}{\Gamma}{\cdot}{[1]}{\cdot}}{\pi}}
+{}
+\]
+
+\[
+\infer[\m{match \; split}]
+{\at{\match{\Psi}{\Gamma}{\Delta, \Delta'}{[A \otimes B]}{\Xi_1, \Xi_2}}{\pi}}
+{\at{\match{\Psi}{\Gamma}{\Delta}{[A]}{\Xi_1}}{\pi} &
+   \at{\match{\Psi}{\Gamma}{\Delta'}{[B]}{\Xi_2}}{\pi}}
+\]
+
+\[
+\infer[\m{match \; end \; constraint}]
+{\at{\match{\Psi}{\Gamma}{\cdot}{[\bang\constraint{e}]}{\cdot}}{\pi}}
+{\eval{e}{\m{bool}(\m{true})}}
+\]
+
+\[
+\infer[\m{match \; end \; linear}]
+{\at{\match{\Psi}{\Gamma}{\fact{name}{v_1}{v_2, ..., v_n}}{[\fact{name}{v_1}{v_2, ..., v_n}]}{\fact{name}{v_1}{v_2, ..., v_n}}}{\pi}}
+{\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'} & v_1 = \m{addr}(\pi)}
+\]
+%% do I need a val here?
+
+\[
+\infer[\m{match \; end \; persistent}]
+{\at{\match{\Psi}{\Gamma, \bang\fact{name}{v_1}{v_2, ..., v_n}}{\cdot}{[\bang\fact{name}{v_1'}{v_2', ..., v_n'}]}{\cdot}}{\pi}}
+{\equal{v_1}{v_1'} & ... & \equal{v_n}{v_n'} & v_1 = \m{addr}(\pi)}
+\]

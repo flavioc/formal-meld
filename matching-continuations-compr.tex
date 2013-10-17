@@ -157,7 +157,7 @@ We extend the previous system with comprehensions.
 \[
 \infer[\contc next]
 {\contc \Delta_N; \Xi_N; \Delta_{N1}; (\Delta; p_1, \Delta''; \Xi; p; \Omega; \Lambda), C; AB; \Omega_N \rightarrow \Xi'; \Delta'}
-{\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \Omega; H; (\Delta, p_1; \Delta''; \Xi; p; \Omega; \Lambda), C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; \Lambda), C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
 \]
 
 \[
@@ -180,153 +180,155 @@ We extend the previous system with comprehensions.
 {\ao \Delta; R; (\Phi; \Delta) \rightarrow \Xi';\Delta'}
 \]
 
-\subsection{Flatten}
+\subsection{Flat Equivalence}
 
 \newcommand{\flatten}[0]{\m{flatten} \;}
 
-
-\[
-\infer[\flatten p]
-{\flatten p; p}
-{}
-\tab
-\infer[\flatten 1]
-{\flatten 1; \cdot}
-{}
-\]
-
-\[
-\infer[\flatten \otimes]
-{\flatten A \otimes B; A', B'}
-{\flatten A; A' & \flatten B; B'}
-\]
-
-\subsubsection{Flatten Empty Theorem}
-
-If $\flatten \Omega; \cdot$ and $\mz \Delta; \Omega \rightarrow \Delta$ then $\Delta = \cdot$.
-
-\begin{proof}
-   Induction on $\Omega$.
-   
-   \begin{itemize}
-      \item $p$
-      
-      Immediate.
-      
-      \item $1$
-      
-      Immediate.
-      
-      \item $A \otimes B$
-      
-      $\flatten A \otimes B; A', B'$ \hfill (1) assumption \\
-      $A', B' = \cdot$ \hfill (2) from assumption \\
-      $\flatten A; \cdot$ \hfill (3) inversion of (1) \\
-      $\flatten B; \cdot$ \hfill (4) inversion of (1) \\
-      $\mz \Delta_1, \Delta_2; A \otimes B \rightarrow \Delta_1, \Delta_2$ \hfill (5) assumption \\
-      $\mz \Delta_1; A \rightarrow \Delta_1$ \hfill (6) inversion of (5) \\
-      $\mz \Delta_2; B \rightarrow \Delta_2$ \hfill (7) inversion of (5) \\
-      $\Delta_1, \Delta_2 = \cdot$ \hfill using i.h. on (6, 7, 3, 4) \\
-   \end{itemize}
-\end{proof}
-
-\subsubsection{Flatten Identity Theorem}
-
-If $\mz \Delta; \Omega \rightarrow \Delta$ and $\flatten \Omega; p$ then $\Delta = p$.
-
-\begin{proof}
-   Induction on $\Omega$.
-   
-   \begin{itemize}
-      \item $p$
-      
-      Use the assumption.
-      
-      \item $1$
-      
-      Fails.
-      
-      \item $A \otimes B$
-      
-      $\mz \Delta_1, \Delta_2; A \otimes B \rightarrow \Delta_1, \Delta_2$ \hfill (1) assumption \\
-      $\flatten A \otimes B; A', B'$ \hfill (2) assumption \\
-      
-      Since $A', B' = p$ then either $A'$ or $B'$ is $p$. Assume it is $A'$ ($B'$ is solved using the same method).\\
-      
-      $\mz \Delta_1; A \rightarrow \Delta_1$ \hfill (3) inversion of (1) \\
-      $\flatten A; p$ \hfill (4) inversion of (2) \\
-      $\Delta_1 = p$ \hfill (5) i.h. on (3) and (4) \\
-      $\flatten B; \cdot$ \hfill (6) inversion of (2) \\
-      $\Delta_2 = \cdot$ \hfill (7) from flatten empty theorem \\
-      $\Delta = \Delta_1, \Delta_2 = p$ \\
-      
-   \end{itemize}
-\end{proof}
-
-\subsubsection{Flatten Same Theorem}
-
-If $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ and $\mz \Delta_2; \Omega_2 \rightarrow \Delta_2$ and $\flatten \Omega_1; X$ and $\flatten \Omega_2; X$ then $\Delta_1 = \Delta_2$.
-
-\begin{comment}
-
-\begin{proof}
-   Induction on the size of $\Omega_1$.
-   
-   \begin{itemize}
-      \item $\Omega_1 = p$
-      
-      $\mz p; p \rightarrow p$ \hfill (1) assumption \\
-      $\mz \Delta_2; \Omega_2 \rightarrow \Delta_2$ \hfill (2) assumption \\
-      $\flatten p; p$ \hfill (3) assumption \\
-      $\flatten \Omega_2; p$ \hfill (4) assumption \\
-      $\Delta_2 = p$ \hfill (5) using flatten identity theorem on (4, 2) \\
-      
-      \item $\Omega_1 = 1$
-      
-      $\mz \cdot; 1 \rightarrow \cdot$ \hfill (1) assumption \\
-      $\mz \Delta_2; \Omega_2 \rightarrow \Delta_2$ \hfill (2) assumption \\
-      $\flatten 1; \cdot$ \hfill (3) assumption \\
-      $\flatten \Omega_2; \cdot$ \hfill (4) assumption \\
-      $\Delta_2 = \Delta_1 = \cdot$ \hfill (5) using flatten empty theorem on (4, 2) \\
-      
-      \item $\Omega_1 = \Omega_{11} \otimes \Omega_{12}$
-      
-      $\mz \Delta_{11}, \Delta_{12}; \Omega_{11} \otimes \Omega_{12} \rightarrow \Delta_{11}, \Delta_{12}$ \hfill (1) assumption \\
-      $\mz \Delta_{11}; \Omega_{11} \rightarrow \Delta_{11}$ \hfill (2) inversion of (1) \\
-      $\mz \Delta_{12}; \Omega_{12} \rightarrow \Delta_{12}$ \hfill (3) inversion of (1) \\
-   \end{itemize}
-\end{proof}
-
-\end{comment}
-
-\subsubsection{Flatten Conjunction Theorem}
-
-If $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$ and\\
-$\flatten \Omega_n \otimes ... \otimes \Omega_1; X$ and \\
-$\flatten \Omega; X$ then:\\
-$\mz \Delta_1, ..., \Delta_n; \Omega \rightarrow \Delta_1, ..., \Delta_n$.
-
-\subsubsection{Flatten Switch Theorem}
-
-If $\flatten A \otimes B; X$ and $\flatten B \otimes A; Y$ then $X = Y$.
-
-\subsubsection{Flatten Associative Theorem}
-
-If $\flatten A \otimes (B \otimes C); X$ and $\flatten (A \otimes B) \otimes C; Y$ then $X = Y$.
-
-\subsubsection{Flat Equivalence}
-
 \newcommand{\feq}[2]{#1 \equiv #2}
 
-$\feq{A}{B}$ is equivalent to $\flatten A; X$, $\flatten B; Y$ where $X = Y$.
+\[
+\infer[\equiv p]
+{\feq{p, A}{p, B}}
+{\feq{A}{B}}
+\]
+
+\[
+\infer[\equiv 1 \; left]
+{\feq{1, A}{B}}
+{\feq{A}{B}}
+\tab
+\infer[\equiv 1 \; right]
+{\feq{A}{1, B}}
+{\feq{A}{B}}
+\]
+
+\[
+\infer[\equiv \cdot]
+{\feq{\cdot}{\cdot}}
+{}
+\]
+
+\[
+\infer[\equiv left]
+{\feq{A \otimes B, C}{D}}
+{\feq{A, B, C}{D}}
+\tab
+\infer[\equiv right]
+{\feq{A}{B \otimes C, D}}
+{\feq{A}{B, C, D}}
+\]
+
+\subsubsection{Equivalence commutativity}
+
+If $\feq{A}{B}$ then $\feq{B}{A}$.
+
+\begin{proof}
+   By induction on the structure of the assumption.
+   
+   \begin{itemize}
+      \item $p$
+      
+      $\feq{p, A}{p, B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) inversion of (1) \\
+      $\feq{B}{A}$ \hfill (3) i.h. on (2) \\
+      $\feq{p, B}{p, A}$ \hfill (4) rule on (3) \\
+      
+      \item $1 \; left$
+      
+      $\feq{1, A}{B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) assumption \\
+      $\feq{B}{A}$ \hfill (3) i.h. on (2) \\
+      $\feq{B}{1, A}$ \hfill (4) apply right rule on (3) \\
+      
+      \item $1 \; right$
+      
+      Same thing as before.
+      
+      \item $\cdot$
+      
+      Immediate.
+      
+      \item $left$
+      
+      $\feq{A \otimes B, C}{D}$ \hfill (1) assumption \\
+      $\feq{A, B, C}{D}$ \hfill (2) inversion of (1) \\
+      $\feq{D}{A, B, C}$ \hfill (3) i.h. on (2) \\
+      $\feq{D}{A \otimes B, C}$ \hfill (4) right rule on (3) \\
+      
+      \item $right$
+      
+      Same thing as the last case.
+   \end{itemize}
+\end{proof}
+
+\subsubsection{Match Equivalence Theorem}
+
+If $\feq{A_1, ..., A_n}{B_1, ..., B_m}$ and $\mz \Delta; A_1 \otimes ... \otimes A_n \rightarrow \Delta$ then $\mz \Delta; B_1 \otimes ... \otimes B_m \rightarrow \Delta$.
+
+\begin{proof}
+   By induction on the structure of the assumption.
+   
+   \begin{itemize}
+      \item $p$
+      
+      $\feq{p, A}{p, B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) assumption \\
+      $\mz p; p \rightarrow p$ \hfill (3) axiom \\
+      $\mz p, \Delta; p \otimes A \rightarrow p, \Delta$ \hfill (4) assumption \\
+      $\mz \Delta; A \rightarrow \Delta$ \hfill (5) inversion of (4) \\
+      $\mz \Delta; B \rightarrow \Delta$ \hfill (6) i.h. on (5) and (2) \\
+      $\mz p, \Delta; p \otimes B \rightarrow p, \Delta$ \hfill (7) rule application on (6) and (3) \\
+      
+      \item $1 \; left$
+      
+      $\feq{1, A}{B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) assumption \\
+      $\mz \Delta; 1 \otimes A \rightarrow \Delta$ \hfill (3) assumption \\
+      $\mz \Delta; A \rightarrow \Delta$ \hfill (4) inversion of (4) \\
+      $\mz \cdot; 1 \rightarrow \cdot$ \hfill (5) axiom \\
+      $\mz \Delta; B \rightarrow \Delta$ \hfill (6) i.h. on (2) and (4) \\
+      $\mz \Delta; 1 \otimes B \rightarrow \Delta$ \hfill (7) rule application on (6) and (5) \\
+      
+      \item $1 \; right$
+      
+      Same thing as before.
+      
+      \item $\cdot$
+      
+      Immediate since $\mz$ fails.
+      
+      \item $\otimes \; left$
+      
+      $\feq{A \otimes B, C}{D}$ \hfill (1) assumption \\
+      $\feq{A, B, C}{D}$ \hfill (2) inversion of (1) \\
+      $\mz \Delta_1, \Delta_2, \Delta_3; (A \otimes B) \otimes C \rightarrow \Delta_1, \Delta_2, \Delta_3$ \hfill (3) assumption \\
+      $\mz \Delta_1, \Delta_2; A \otimes B \rightarrow \Delta_1, \Delta_2$ \hfill (4) inversion of (3) \\
+      $\mz \Delta_3; C \rightarrow \Delta_3$ \hfill (5) inversion of (3) \\
+      $\mz \Delta_1; A \rightarrow \Delta_1$ and $\mz \Delta_2; B \rightarrow \Delta_2$ \hfill (6) inversion of (4) \\
+      $\mz \Delta_1, \Delta_2, \Delta_3; A \otimes B \otimes C \rightarrow \Delta_1, \Delta_2, \Delta_3$ \hfill (7) apply (5) with (6) \\
+      $\mz \Delta_1, \Delta_2, \Delta_3; D \rightarrow \Delta_1, \Delta_2, \Delta_3$ \hfill (8) i.h. on (7) and (2)\\
+      
+      \item $\otimes \; right$
+      
+      Apply equivalence commutativity theorem and follow the previous case.
+   \end{itemize}
+\end{proof}
+
+\subsection{Continuation frame and stack properties}
 
 \subsubsection{Flat Property}
 
-Given a frame $f = (\Delta; \Delta''; \Xi; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ and a body term $A$, we say that $f$ follows the flat property if $\feq{p \otimes \Omega_1 \otimes ... \otimes \Omega_n \otimes \Lambda_1 \otimes ... \otimes \Lambda_m}{A}$.
+Given a frame $f = (\Delta; \Delta''; \Xi; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ and a body term $A$, we say that $f$ follows the flat property if $\feq{p, \Omega_1, ..., \Omega_n, \Lambda_1, ..., \Lambda_m}{A}$.
 
 \subsubsection{Flat well-formed}
 
 A continuation stack $C$ is "flat" well-formed if every frame follows the flat property.
+
+\subsubsection{Resource Invariant}
+
+A frame $f = (\Delta'; \Delta''; \Xi; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ is resource invariant in relation to a $\Delta$ context if $\Delta', \Delta'', \Xi = \Delta$.
+
+A continuation stack $C$ is resource invariant in relation to a $\Delta$ context if $\forall f \in C. f$ is resource invariant in relation to $\Delta$.
 
 \subsection{Theorems}
 
@@ -356,31 +358,36 @@ Proved in Section~\ref{thm:match_soundness_basic}.
 \begin{itemize}
    \item Match sub-theorem
 
-If $\mc \Delta, \Delta_1, ..., \Delta_n; \Xi_N; \Delta_{N1}; \Xi; \Omega_1, ..., \Omega_n; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$  and $C$ is flat well-formed in respect to $A$:\\
+If $\mc \Delta, \Delta_1, ..., \Delta_n; \Xi_N; \Delta_{N1}; \Xi; \Omega_1, ..., \Omega_n; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$  and $C$ is flat well-formed in respect to $A$ and $C$ is resource invariant in relation to $\Delta, \Delta_1, ..., \Delta_n, \Xi$ and $\Delta, \Delta_1, ..., \Delta_n, \Xi = \Delta_N$:\\
 
 The matching will fail (1), succeed without using any continuation frame in $C$ (2) or it needs to backtrack to a frame in $C$ (3):\\
-1. \hspace{1cm} $\done \Delta_N; \Xi_N; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'$ and $C'$ is flat well-formed; \\
+1. \hspace{1cm} $\done \Delta_N; \Xi_N; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'$; \\
 2. \hspace{1cm} $\mc \Delta; \Xi_N; \Delta_{N1}; \Xi, \Delta_1, ..., \Delta_n; \cdot; C', C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ and\\
-2.1 \hspace{2cm} $\forall f = (\Delta_a; \Delta_b; \Xi_a, \Xi; p; \Omega; \Lambda) \in C'. \Delta_a, \Delta_b, \Xi = \Delta, \Delta_1, ..., \Delta_n$ and\\
-2.2 \hspace{2cm} $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$\\
-3. \hspace{1cm} $C = C_1, f, C_2$ and $f = (\Delta_a; \Delta_{b_1}, \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ turns into $f' = (\Delta_a, \Delta_{b_1}; \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ and\\
-3.1 \hspace{2cm} $\Delta_a, \Delta_{b1}, \Delta_{b2} = \Delta_c, \Delta_1, ..., \Delta_n$ and \\
-3.2 \hspace{2cm} $\mc \Delta_c; \Xi_N; \Delta_{N1}; \Xi_1, ..., \Xi_m, \Delta_1, ..., \Delta_n; \cdot; C'_1, f', C_2; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ and $C'_1, f'$ are flat well-formed. \\
-3.3 \hspace{2cm} $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$ and $\mz \Xi_1; \Lambda_1 \rightarrow \Xi_1$ ... $\mz \Xi_m; \Lambda_m \rightarrow \Xi_m$\\
+2.1 \hspace{2cm} $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$\\
+2.2 \hspace{2cm} $C'$ is flat well-formed in relation to $A$. \\
+2.3 \hspace{2cm} $C'$ is resource invariant in relation to $\Delta, \Delta_1, ..., \Delta_n, \Xi$.\\
+3. \hspace{1cm} $C = C_1, f, C_2$ and $f = (\Delta_a; \Delta_{b_1}, \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega'_1, ..., \Omega'_k; \Lambda_1, ..., \Lambda_m)$ turns into $f' = (\Delta_a, \Delta_{b_1}; \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega'_1, ..., \Omega'_k; \Lambda_1, ..., \Lambda_m)$ and\\
+3.1 \hspace{2cm} $\Delta_a, \Delta_{b1}, \Delta_{b2} = \Delta_c, p, \Delta_1, ..., \Delta_k$ \\
+3.2 \hspace{2cm} $\mc \Delta_c; \Xi_N; \Delta_{N1}; \Xi_1, ..., \Xi_m, \Delta_1, ..., \Delta_k; \cdot; C'_1, f', C_2; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$.\\
+3.3 \hspace{2cm} $C'_1, f'$ are flat well-formed in relation to $A$. \\
+3.4 \hspace{2cm} $C'_1, f'$ are resource invariant in relation to $\Delta, \Delta_1, ..., \Delta_n, \Xi$ \\
+3.5 \hspace{2cm} $\mz p; p \rightarrow p$, $\mz \Delta_1; \Omega'_1 \rightarrow \Delta_1$ ... $\mz \Delta_k; \Omega'_k \rightarrow \Delta_k$ and $\mz \Xi_1; \Lambda_1 \rightarrow \Xi_1$ ... $\mz \Xi_m; \Lambda_m \rightarrow \Xi_m$\\
 
 We assume the following "context constraint" to be true:\\
 
-1. If $C = \cdot$ then $\feq{A}{\Omega_1 \otimes ... \otimes \Omega_n}$.\\
-2. If $C = (\Delta_a; \Delta_b; \Xi; p; \Omega; \Lambda_1, ..., \Lambda_m), C'$ then $\feq{A}{p \otimes \Omega_1 \otimes ... \otimes \Omega_n \otimes \Lambda_1 \otimes ... \otimes \Lambda_m}$ and $\feq{\Omega_1 \otimes ... \otimes \Omega_n}{\Omega}$.
+1. If $C = \cdot$ then $\feq{A}{\Omega_1, ..., \Omega_n}$.\\
+2. If $C = (\Delta_a; \Delta_b; \Xi; p; \Omega; \Lambda_1, ..., \Lambda_m), C'$ then $\feq{A}{p, \Omega_1, ..., \Omega_n, \Lambda_1, ..., \Lambda_m}$ and $\feq{\Omega_1, ..., \Omega_n}{\Omega}$.
 
 \item Continuation sub-theorem
 
-If $\contc \Delta_N; \Xi_N; \Delta_{N1}; C; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'$ and $C$ is flat well-formed in respect to $A$: \\
+If $\contc \Delta_N; \Xi_N; \Delta_{N1}; C; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'$ and $C$ is flat well-formed in respect to $A$ and resource invariant in relation to $\Delta_N$: \\
 1. \hspace{1cm} $\done \Delta_N; \Xi_N; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'$ or \\
-2. \hspace{1cm} $C = C_1, f, C_2$ and $f = (\Delta_a; \Delta_{b_1}, \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ turns into $f' = (\Delta_a, \Delta_{b_1}; \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ and\\
-2.1 \hspace{2cm} $\Delta_a, \Delta_{b1}, \Delta_{b2} = \Delta_c, \Delta_1, ..., \Delta_n$ and \\
-2.2 \hspace{2cm} $\mc \Delta_c; \Xi_N; \Delta_{N1}; \Xi_1, ..., \Xi_m, \Delta_1, ..., \Delta_n; \cdot; C'_1, f', C_2; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ and \\
-2.3 \hspace{2cm} $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$ and $\mz \Xi_1; \Lambda_1 \rightarrow \Xi_1$ ... $\mz \Xi_m; \Lambda_m \rightarrow \Xi_m$\\
+2. \hspace{1cm} $C = C_1, f, C_2$ and $f = (\Delta_a; \Delta_{b_1}, \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega'_1, ..., \Omega'_k; \Lambda_1, ..., \Lambda_m)$ turns into $f' = (\Delta_a, \Delta_{b_1}; \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega'_1, ..., \Omega'_k; \Lambda_1, ..., \Lambda_m)$ and\\
+2.1 \hspace{2cm} $\Delta_a, \Delta_{b1}, \Delta_{b2} = \Delta_c, p, \Delta_1, ..., \Delta_k$. \\
+2.2 \hspace{2cm} $\mc \Delta_c; \Xi_N; \Delta_{N1}; \Xi_1, ..., \Xi_m, \Delta_1, ..., \Delta_k; \cdot; C'_1, f', C_2; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$. \\
+2.3 \hspace{2cm} $C'_1, f'$ are flat well-formed in relation to $A$. \\
+2.4 \hspace{2cm} $C'_1, f'$ are resource invariant in relation to $\Delta, \Delta_1, ..., \Delta_n, \Xi$ \\
+2.5 \hspace{2cm} $\mz p; p \rightarrow p$, $\mz \Delta_1; \Omega'_1 \rightarrow \Delta_1$ ... $\mz \Delta_k; \Omega'_k \rightarrow \Delta_k$ and $\mz \Xi_1; \Lambda_1 \rightarrow \Xi_1$ ... $\mz \Xi_m; \Lambda_m \rightarrow \Xi_m$\\
 
 \end{itemize}
 
@@ -392,13 +399,11 @@ If $\contc \Delta_N; \Xi_N; \Delta_{N1}; C; \comp A \lolli B; \Omega_N \rightarr
       
       By induction on $\Omega$.\\
       Stack frame $(\Delta, p_1; \Delta''; \Xi; p; \Omega; \cdot)$ is flat well-formed. \\
-      "Context constraints" proved using commutative theorem.\\
       
       \item $\mc p \; ok \; other$
       
       By induction on $\Omega$.\\
-      Context constraint is solved by using commutative and associative theorem. \\
-      Stack frame $(\Delta, p_1; \Delta''; \Xi; p; \Omega; q, \Lambda)$ is flat well-formed using commutative and associative. \\
+      Stack frame $(\Delta, p_1; \Delta''; \Xi; p; \Omega; q, \Lambda)$ is flat well-formed.
       
       \item $\mc p \; fail$
       
@@ -407,7 +412,6 @@ If $\contc \Delta_N; \Xi_N; \Delta_{N1}; C; \comp A \lolli B; \Omega_N \rightarr
       \item $\mc \otimes$
       
       By induction on $\Omega$. \\
-      Context constraint is solved by using the flat commutative and associative theorem.\\
       
       \item $\mc end$
       
@@ -420,7 +424,6 @@ If $\contc \Delta_N; \Xi_N; \Delta_{N1}; C; \comp A \lolli B; \Omega_N \rightarr
       \item $\contc next$
       
       By induction on $\Delta''$.\\
-      "Context constraints" are true by application of the commutative theorem and the fact that the stack is well-formed.\\
       
       \item $\contc next \; empty$
       
@@ -431,11 +434,12 @@ If $\contc \Delta_N; \Xi_N; \Delta_{N1}; C; \comp A \lolli B; \Omega_N \rightarr
 
 \subsubsection{Comprehension soundness lemma}
 
-If $\mc \Delta, \Xi; \Xi_N; \Delta_{N1}; \cdot; A; B; \cdot; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ where $\Delta, \Xi = \Delta_N$ then either:\\
+If $\mc \Delta, \Xi; \Xi_N; \Delta_{N1}; \cdot; A; \cdot; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ where $\Delta, \Xi = \Delta_N$ then either:\\
 1. \hspace{1cm} $\done \Delta_N; \Xi_N; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'$ or \\
-2. \hspace{1cm} $\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \cdot; B; C'; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ and \\
-2.1 \hspace{2cm} $\forall f = (\Delta_a; \Delta_b; \Xi_a; \Omega; B) \in C'. \Delta_a, \Delta_b, \Xi = \Delta_N$ and \\
-2.2 \hspace{2cm} $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$\\
+2. \hspace{1cm} $\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \cdot; C'; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ and \\
+2.1 \hspace{2cm} $\mz \Delta_1; A \rightarrow \Delta_1$ \\
+2.2 \hspace{2cm} $C'$ is flat well-formed in relation to $A$. \\
+2.3 \hspace{2cm} $C'$ is resource invariant in relation to $\Delta, \Xi$ \\
 
 \begin{proof}
 Direct application of the previous theorem.
@@ -443,8 +447,8 @@ Direct application of the previous theorem.
 
 \subsubsection{Dall transformation theorem}
 
-If $\dall \Xi_N; \Delta_{N1}; \Xi; B; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then\\
-$\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega; B); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$.
+If $\dall \Xi_N; \Delta_{N1}; \Xi; C, (\Delta_a; \Delta_b; \cdot; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then\\
+$\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$.
 
 \begin{proof}
    By induction on the size of the continuation stack $C$.
@@ -452,21 +456,21 @@ $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega;
    \begin{itemize}
       \item $C = \_, X, C'$
       
-      $\dall \Xi_N; \Delta_{N1}; \Xi; B; \_, X, C'; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
-      $\dall \Xi_N; \Delta_{N1}; \Xi; B; X, C'; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
-      $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega; B); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$ \hfill (3) i.h. on (2) \\
+      $\dall \Xi_N; \Delta_{N1}; \Xi; \_, X, C'; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+      $\dall \Xi_N; \Delta_{N1}; \Xi; X, C'; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+      $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$ \hfill (3) i.h. on (2) \\
       
       \item $C = (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega; B)$
       
-      $\dall \Xi_N; \Delta_{N1}; \Xi; B; (\Delta_a; \Delta_b; \cdot; \Omega; B); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
+      $\dall \Xi_N; \Delta_{N1}; \Xi; (\Delta_a; \Delta_b; \cdot; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
       $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega; B); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
    \end{itemize}
 \end{proof}
 
 \subsubsection{Successful comprehension match gives derivation}
 
-If $\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \cdot; B; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then:\\
-\hspace{1cm} $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega; B); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$.
+If $\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \cdot; B; C, (\Delta_a; \Delta_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then:\\
+\hspace{1cm} $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$.
 
 \begin{proof}
    Invert the assumption and then apply dall transformation theorem.
@@ -513,7 +517,108 @@ If $\dc \Xi_N; \Delta_{N1}; \Omega_x; C; \comp A \lolli B; \Omega_N; \Delta_N \r
    By direct application of the continuation derivation theorem.
 \end{proof}
 
-\subsubsection{Match}
+\subsubsection{Comprehension Theorem}
+
+If $\mc \Delta_a, \Delta'_b; \Xi_N; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ and $\Delta_a, \Delta_b = \Delta, \Xi_1, ..., \Xi_n$ and $\feq{p, \Omega}{A}$ then $\exists n \geq 0$ such that: \\
+1. \hspace{1cm} $\done \Delta; \Xi_N, \Xi_1, ..., \Xi_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'$\\
+2. \hspace{1cm} $\mz \Xi_1; A \rightarrow \Xi_1$ ... $\mz \Xi_n; A \rightarrow \Xi_n$ \\
+3. \hspace{1cm} $n$ implications from $1 ... i ... n$ such that: $\forall \Omega_x, \Delta_x.$ if $\dz \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_x \rightarrow \Xi'; \Delta'$.
+
+\begin{proof}
+   By induction on the size of $\Delta_b$.\\
+
+   $\Delta_b = p_1, \Delta'_b$ \hfill (1) from assumption \\
+   $\Delta_a, p_1, \Delta'_b = \Delta, p, \Xi'_1, ..., \Xi_n$ \hfill (2) from assumption \\
+   By applying the comprehension soundness theorem on the assumption:\\
+      
+   \begin{itemize}
+      \item Failure:
+         
+      $\done \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill (3) assumption (so $n = 0$)\\
+         
+      \item Success:
+         
+      $\mc \Delta, \Xi_2, ..., \Xi_n; \Xi_N; \Delta_{N1}; p, \Xi'_1; \cdot; C', (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (3) assumption \\
+      $\mz p_1; p \rightarrow p_1$ and $\mz \Xi'_1; \Omega \rightarrow \Xi'_1$ \hfill (4) assumption \\
+      $C'$ is flat well-formed \hfill (5) assumption \\
+      $\mz p_1, \Xi'_1; p \otimes \Omega \rightarrow p_1, \Xi'_1$ \hfill (6) from (4) \\
+      $\feq{p, \Omega}{A}$ \hfill (7) assumption about the original continuation stack \\
+      $\mz p_1, \Xi'_1; A \rightarrow p_1, \Xi'_1$ \hfill (8) from match equivalence theorem on (6) and (7) \\
+      $\dc \Xi_N, p, \Xi'_1; \Delta_{N1}; B; (\Delta_a, p_1 - (p_1, \Xi'_1); \Delta'_b - (p_1, \Xi'_1); \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta, \Xi_1, ..., \Xi_n) - \Xi_1 \rightarrow \Xi'; \Delta'$ \hfill (9) apply successful comprehension matches gives derivation lemma to (3) \\
+      $\dc \Xi_N, p, \Xi'_1; \Delta_{N1}; B; (\Delta_a - \Xi'_1; \Delta'_b - \Xi'_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (10) simplification of (9) \\
+      $\dc \Xi_N, p, \Xi'_1; \Delta_{N1}, \Delta_1; \cdot; (\Delta_a - \Xi'_1; \Delta'_b - \Xi'_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (11) from continuation derivation lemma on (10)\\
+      if $\forall \Omega_x, \Delta_x. \dz \Delta_x; \Xi_N, p, \Xi'_1; \Delta_{N1}, \Delta_1; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, p, \Xi'_1; \Delta_{N1}; B, \Omega_x \rightarrow \Xi'; \Delta'$ \hfill (12) using the same lemma \\
+      $\contc \Delta, \Xi_2, ..., \Xi_n; \Xi_N, p, \Xi'_1; \Delta_{N1}, \Delta_1; (\Delta_a - \Xi'_1; \Delta'_b - \Xi'_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill (13) inversion of (11) \\   
+      
+      When inverting (11), we have two subcases:
+      
+      $\Delta_a - \Xi'_1 = \Delta''_a$ \hfill (12) \\
+      $\Delta'_b - \Xi'_1 = \Delta''_b$ \hfill (13) \\
+      $\Delta''_a, \Delta''_b = \Delta, \Xi_2, ..., \Xi_n$ \hfill (14) \\
+      
+      \begin{itemize}
+         \item End ($n = 1$):
+         
+         $\contc \Delta, \Xi_2, ..., \Xi_n; \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; \cdot; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill (15) \hfill inversion of (11) \\
+         $\done \Delta, \Xi_2, ..., \Xi_n; \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill (16) inverting (15), which is what we want \\
+         
+         \item Next ($n = n' + 1$):
+         
+         $\Delta'''_b = \Delta''_b, p_2$ \hfill (15) from inversion \\
+         $\mc \Delta''_a, \Delta'''_b; \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; \cdot; \Omega; (\Delta''_a, p_2; \Delta'''_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (16) inversion of (11) \\
+         Apply induction hypotheses to (16) to get results from $n'$.\\ 
+      \end{itemize}
+      
+      \item Backtrack:
+      
+      $f = (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot)$ \hfill (3) from theorem \\
+      turns into $f' = (\Delta_a, p_1, \Delta'''_b, p_2; \Delta''_b; \cdot; p; \Omega; \cdot)$ \hfill (4) from theorem (3) \\
+      $\mc \Delta, \Xi_2, ..., \Xi_n; \Xi_N; \Delta_{N1}; p_2, \Xi'_1; \cdot; C', f'; \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (5) from theorem (3) \\
+      $\mz p_2; p \rightarrow p_2$ \hfill (6) from theorem (3) \\
+      $\mz \Xi'_1; \Omega \rightarrow \Xi'_1$ \hfill (7) from theorem (3) \\
+      $\mz p_2, \Xi'_1; \Omega \otimes p \rightarrow p_2, \Xi'_1$ \hfill (8) rule application on (6) and (7) \\
+      $\feq{p, \Omega}{A}$ \hfill (9) from assumptions \\
+      $\mz p_2, \Xi'_1 ; A \rightarrow p_2, \Xi'_1$ \hfill (10) using match equivalence theorem \\
+      
+      Use the same approach as the last subcase, but using $p_2$ instead of $p_1$ and using the fact that $\Delta_b$ was already reduced because we had to backtrack.
+   \end{itemize}
+   
+   
+\end{proof}
+
+\subsubsection{Comprehension Lemma}
+
+If $\mc \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Delta_{N1}; \cdot; A; \cdot; \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ then we can apply the comprehension $n >= 0$ times: \\
+1. \hspace{1cm} $\done \Delta; \Xi_N, \Xi_1, ..., \Xi_n; \Delta_{N1}, \Delta_1, .., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'$ for $\exists n \geq 0$\\
+2. \hspace{1cm} $\mz \Xi_1; A \rightarrow \Xi_1$ ... $\mz \Xi_n; A \rightarrow \Xi_n$.\\
+3. \hspace{1cm} $n$ implications from $1 ... i ... n$ such that: $\forall \Omega_x, \Delta_x.$ if $\dz \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_x \rightarrow \Xi'; \Delta'$.
+
+\begin{proof}
+   Applying the comprehension soundness lemma, we get two cases:
+   
+   \begin{itemize}
+      \item Failure:
+      
+      $\done \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill no comprehension application was possible.
+      
+      \item Success:
+      
+      $\mc \Delta, \Xi_2, ..., \Xi_n; \Xi_N; \Delta_{N1}; \Xi_1; \cdot; C'; \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (1) result from theorem \\
+      $\mz \Xi_1; A \rightarrow \Xi_1$ \hfill (2) from theorem \\
+      $C$ is flat well-formed in relation to $A$. \hfill (3) from theorem \\
+      $C$ is resource invariant in relation to $\Delta, \Xi_1, ..., \Xi_n$ \hfill (4) from theorem \\
+      
+      $\dc \Xi_N, \Xi_1; \Delta_{N1}; B; (\Delta_a - \Xi_1; \Delta_b - \Xi_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta, \Xi_1, ..., \Xi_n - \Xi_1) \rightarrow \Xi'; \Delta'$ \hfill (5) applying successful comprehension match gives derivation \\
+      $\dc \Xi_N, \Xi_1; \Delta_{N1}; B; (\Delta_a - \Xi_1; \Delta_b - \Xi_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (6) simplifying (5) \\
+      $\Delta_a, \Delta_b = \Delta, \Xi_1, ..., \Xi_n$ \hfill (7) from (4) \\
+      $(\Delta_a - \Xi_1), (\Delta_b - \Xi_1) = (\Delta_a, \Delta_b) - \Xi_1 = \Delta_, \Xi_2, .., \Xi_n$ and $\Delta'_a = \Delta_a - \Xi_1$ and $\Delta'_b = \Delta_b - \Xi_1$ \hfill (8) from (7) and (6) \\
+      $\feq{p, \Omega}{A}$ \hfill (9) from (3) and (6) \\
+      $\dc \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; (\Delta'_a; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (10) using continuation derivation lemma \\
+      if $\forall \Omega_x, \Delta_x. \dz \Delta_x; \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, \Xi_1; \Delta_{N1}; B, \Omega_x \rightarrow \Xi'; \Delta'$ \hfill (11) using the same lemma \\ 
+      $\contc \Delta, \Xi_2, ..., \Xi_n; \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; (\Delta'_a; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill (12) inversion of (10) \\
+      Apply continuation theorem to (12) to get the remaining $n-1$.
+   \end{itemize}
+\end{proof}
 
 \subsubsection{Body Derive Soundness}
 
@@ -540,5 +645,22 @@ If $\done \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta$ then $\dz \Del
       Use axiom.
       
       \item $\comp A \lolli B, \Omega$
+      
+      By using the comprehension lemma, we get $n$ applications of the comprehension.\\
+      $\Delta = \Delta, \Xi_1, ..., \Xi_n$ \hfill (1)\\
+      $\done \Delta; \Xi, \Xi_1, ..., \Xi_n; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_n}; \Omega \rightarrow \Xi'; \Delta'$ \hfill (2) from lemma \\
+      $\dz \Delta; \Xi, \Xi_1, ..., \Xi_n; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_n}; \Omega \rightarrow \Xi'; \Delta'$ \hfill (3) i.h. on (2) \\
+      $\dz \Delta; \Xi, \Xi_1, ..., \Xi_n; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_n}; 1, \Omega \rightarrow \Xi'; \Delta'$ \hfill (4) apply $\dz 1$ on (3) \\
+      $\dz \Delta; \Xi, \Xi_1, ..., \Xi_n; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_n}; 1 \with (A \lolli B \otimes \comp A \lolli B), \Omega \rightarrow \Xi'; \Delta'$ \hfill (5) apply $\dz \with L$ on (4) \\
+      $\dz \Delta; \Xi, \Xi_1, ..., \Xi_n; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_n}; \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (6) apply $\dz comp$ on (5) \\
+      Using the $n^{th}$ implication of the comprehension theorem:\\
+      $\dz \Delta; \Xi, \Xi_1, ..., \Xi_n; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_{n-1}}; B, \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (7) \\
+      Using the $\mz \Xi_n; A \rightarrow \Xi_n$ result: \\
+      $\dz \Delta, \Xi_n; \Xi_1, ..., \Xi_{n-1}; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_{n-1}}; A \lolli B, \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (8) using $\mz$ on (7) \\
+      $\dz \Delta, \Xi_n; \Xi_1, ..., \Xi_{n-1}; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_{n-1}}; A \lolli B \otimes \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (9) applying rule $\dz \otimes$ on (8) \\
+      $\dz \Delta, \Xi_n; \Xi_1, ..., \Xi_{n-1}; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_{n-1}}; 1 \with (A \lolli B \otimes \comp A \lolli B), \Omega \rightarrow \Xi'; \Delta'$ \hfill (10) applying rule $\dz \with R$ on (9) \\
+      $\dz \Delta, \Xi_n; \Xi_1, ..., \Xi_{n-1}; \Delta_1, \Delta_{c_1}, ..., \Delta_{c_{n-1}}; \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (11) applying rule $\dz comp$ on (10) \\
+      By applying the other $n-1$ comprehensions we will get: \\
+      $\dz \Delta, \Xi_1, ..., \Xi_n; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ \hfill (12)
    \end{itemize}
 \end{proof}

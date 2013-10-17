@@ -37,8 +37,12 @@
 
 \[
 \infer[\m{struct}]
-{\val{:(v_1, ..., v_n)}{\m{struct \; \tau_1; ...; \tau_n}}}
-{\val{v_1}{\tau_1} & ... & \val{v_n}{\tau_n}}
+{\val{\m{struct \; \cdot}}{\m{struct \; \cdot}}}
+{}
+\tab
+\infer[\m{struct}]
+{\val{v_1 \times v_2}{\m{struct \; \tau_1 \times \tau_2}}}
+{\val{v_1}{\tau_1} & \val{v_2}{\tau_2}}
 \]
 
 \subsection{Expression Evaluation}
@@ -84,15 +88,29 @@
 \]
 
 \[
-\infer[\m{make \; struct}]
-{\eval{\m{struct \; e_1; ...; e_n}}{:(v_1; ...; v_n)}}
-{\eval{e_1}{v_1} & ... & \eval{e_n}{v_n}}
+\infer[\m{struct}]
+{\eval{\m{struct \; \cdot}}{\m{struct \; \cdot}}}
+{}
+\tab
+\infer[\m{struct}]
+{\eval{v_1 \times v_2}{v_1 \times v_2}}
+{}
 \]
 
 \[
-\infer[\m{get \; struct}]
-{\eval{\m{\#i(e)}}{v_i}}
-{\eval{e}{:(v_1; ...; v_i ; ... ; v_n)}}
+\infer[\m{make \; struct}]
+{\eval{\m{struct \; e_1 \times e_2}}{v_1 \times v_2}}
+{\eval{e_1}{v_1} & \eval{e_2}{v_2}}
+\]
+
+\[
+\infer[\m{struct \; fst}]
+{\eval{\m{fst(e)}}{v_1}}
+{\eval{e}{v_1 \times v_2}}
+\tab
+\infer[\m{struct \; snd}]
+{\eval{\m{snd(e)}}{v_2}}
+{\eval{e}{v_1 \times v_2}}
 \]
 
 \[
@@ -207,23 +225,22 @@
 
 \[
 \infer[\m{external}]
-{\eval{\callexternal{name}{[e_1, ..., e_n]}}{v}}
+{\eval{\callexternal{name}{e}}{v}}
 {\begin{array}{ccc}
-   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\eexpr{\external{name}{[arg_1, ..., arg_n]}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi} \\
-   \multicolumn{3}{c}{v = \callexternal{name}{[v_1, ..., v_n]}} \\
+   \eval{e_1}{v} \\
+   \multicolumn{3}{c}{\eexpr{\external{name}{arg : \m{struct \; \tau}}}{\tau_r} \in \Psi} \\
+   \multicolumn{3}{c}{v = \callexternal{name}{v}} \\
  \end{array}
 }
 \]
 
 \[
 \infer[\m{fun}]
-{\eval{\callfun{name}{[e_1, ..., e_n]}}{v}}
+{\eval{\callfun{name}{e}}{v}}
 {\begin{array}{ccc}
-   \eval{e_1}{v_1} & ... & \eval{e_n}{v_n} \\
-   \multicolumn{3}{c}{\eexpr{\fun{name}{[arg_1, ..., arg_n]}{e}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi} \\
-   \multicolumn{3}{c}{\eval{[v_1/\m{arg}_1]...[v_n/\m{arg}_n]e}{v}} \\
-   \multicolumn{3}{c}{v = \callfun{name}{v_1, ..., v_n}} \\
+   \eval{e}{v'} \\
+   \multicolumn{3}{c}{\eexpr{\fun{name}{arg : \m{struct \; \tau}}{e}}{\tau_r} \in \Psi} \\
+   \multicolumn{3}{c}{\eval{[v'/\m{arg}]e}{v}} \\
  \end{array}
 }
 \]

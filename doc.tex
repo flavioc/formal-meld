@@ -8,6 +8,7 @@
 \usepackage{url}
 \usepackage{amsmath}
 \usepackage{turnstile}
+\usepackage{amsthm}
 \usepackage[in]{fullpage}
 
 \input{fp-macros}
@@ -21,7 +22,7 @@
 \newcommand{\trnstile}{\sststile{}{}}
 \newcommand{\typ}[1]{\m{#1} \; \m{typ}}
 \newcommand{\typelist}[1]{\m{#1} \; \m{type \; list}}
-\newcommand{\eexpr}[2]{\m{#1}:\m{#2}}
+\newcommand{\eexpr}[2]{#1:\m{#2}}
 \newcommand{\aexp}[4]{#1;#2 \sststile{}{} \eexpr{#3}{#4}}
 \newcommand{\expr}[3]{\aexp{\Psi}{#1}{#2}{#3}}
 \newcommand{\tab}[0]{\;\;\;\;}
@@ -35,7 +36,7 @@
 \newcommand{\decl}[2]{\m{decl} \; #1 \; [#2]}
 \newcommand{\val}[2]{\m{val} \; #1 : \m{#2}}
 \newcommand{\declconst}[3]{\const{#1}{#2} \; \m{of} \; #3}
-\newcommand{\declfun}[4]{\fun{#1}{(#2)}{#3} \; \m{of} \; #4}
+\newcommand{\declfun}[4]{\fun{#1}{#2}{#3} \; \m{of} \; #4}
 \newcommand{\eval}[2]{\Psi \; ; \; #1 \rightarrow #2}
 \newcommand{\constraint}[1]{\m{constraint} \; #1}
 \newcommand{\fact}[3]{#1[@#2](#3)}
@@ -44,7 +45,7 @@
 \newcommand{\mrulebody}[4]{\Psi ; #1 ; #2 ; #3 \vdash #4 \; \m{body}}
 \newcommand{\mrulehead}[4]{\Psi ; #1 ; #2 \vdash_{#4} #3 \; \m{head}}
 \newcommand{\mrulestart}[1]{\m{rule} \; \Psi \; / \; #1}
-\newcommand{\comp}[0]{\m{comp} \; }
+\newcommand{\comp}[0]{\m{comp} \;}
 \newcommand{\aggregate}[4]{[\m{#1} ; #2 ; #3 \Rightarrow #4]}
 \newcommand{\aggregatetype}[3]{[\m{#1}] \; / \; #2 \rightsquigarrow #3}
 \newcommand{\aggregatestart}[2]{[\m{#1}] \hookrightarrow #2}

@@ -6,23 +6,23 @@ For this system, we include only linear facts but we use a continuation stack to
 \subsubsection{Match}
 
 \[
-\infer[ok]
+\infer[\mo ok]
 {\mo \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'}
 {\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'}
 \tab
-\infer[fail]
+\infer[\mo fail]
 {\mo \Delta; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'}
 {p \notin \Delta & \cont C ; R; \Xi'; \Delta'}
 \]
 
 \[
-\infer[match \; \otimes]
+\infer[\mo \otimes]
 {\mo \Delta; \Xi; A \otimes B, \Omega ; H ; C; R \rightarrow \Xi'; \Delta'}
 {\mo \Delta; \Xi; A, B, \Omega; H; C; R \rightarrow \Xi';\Delta'}
 \]
 
 \[
-\infer[end]
+\infer[\mo end]
 {\mo \Delta; \Xi; \cdot ; H; C; R \rightarrow \Xi'; \Delta'}
 {\done \Delta; \Xi; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'}
 \]
@@ -30,23 +30,23 @@ For this system, we include only linear facts but we use a continuation stack to
 \subsubsection{Derive}
 
 \[
-\infer[derive \; p]
+\infer[\done p]
 {\done \Delta; \Xi; \Delta_1; p, \Omega; C \rightarrow \Xi'; \Delta'}
 {\done \Delta; \Xi; p, \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
 \tab
-\infer[derive \; 1]
+\infer[\done 1]
 {\done \Delta; \Xi; \Delta_1; 1, \Omega; C \rightarrow \Xi';\Delta'}
 {\done \Delta; \Xi; \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[derive \; \otimes]
+\infer[\done \otimes]
 {\done \Delta; \Xi; \Delta_1; A \otimes B, \Omega; C \rightarrow \Xi'; \Delta'}
 {\done \Delta; \Xi; \Delta_1; A, B, \Omega; C \rightarrow \Xi';\Delta'}
 \]
 
 \[
-\infer[derive \; end]
+\infer[\done end]
 {\done \Delta; \Xi; \Delta_1; \cdot \rightarrow \Xi; \Delta_1}
 {}
 \]
@@ -54,19 +54,19 @@ For this system, we include only linear facts but we use a continuation stack to
 \subsubsection{Continuation}
 
 \[
-\infer[next \; rule]
+\infer[\cont next \; rule]
 {\cont \cdot; (\Phi; \Delta); \Xi'; \Delta'}
 {\doo \Delta; \Phi \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[cont \; next]
+\infer[\cont next]
 {\cont (\Delta; p_1, \Delta''; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'}
 {\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[cont \; no \; more]
+\infer[\cont no \; more]
 {\cont (\Delta; \cdot; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'}
 {\cont C; R; \Xi'; \Delta'}
 \]
@@ -74,13 +74,13 @@ For this system, we include only linear facts but we use a continuation stack to
 \subsubsection{Apply}
 
 \[
-\infer[start \; matching]
+\infer[\ao start]
 {\ao \Delta; A \lolli B; R \rightarrow \Xi'; \Delta'}
 {\mo \Delta; \cdot; A; B; \cdot; R \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[do \; rule]
+\infer[\doo rule]
 {\doo \Delta; R, \Phi \rightarrow \Xi'; \Delta'}
 {\ao \Delta; R; (\Phi; \Delta) \rightarrow \Xi';\Delta'}
 \]
@@ -89,7 +89,7 @@ For this system, we include only linear facts but we use a continuation stack to
 
 \subsection{Theorems}
 
-\subsubsection{Match soundness theorem}
+\subsubsection{Match soundness theorem}\label{thm:match_soundness_basic}
 
 If $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; \Omega_1, ..., \Omega_n; H; C; R \rightarrow \Xi'; \Delta'$ then either:\\
 1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
@@ -109,29 +109,29 @@ If $\cont C; R; \Xi'; \Delta'$ then either:\\
 Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$ on the size of $C$ and $\Delta''$.
 
 \begin{itemize}
-   \item $ok$
+   \item $\mo ok$
    
    By induction.
    
-   \item $fail$
+   \item $\mo fail$
    
    $\mo \Delta; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
    $\cont C; R; \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
    Apply i.h. on (2) to get $\cont \cdot; R; \Xi'; \Delta'$ or the $\exists f.$.
    
-   \item $match \; \otimes$
+   \item $\mo \otimes$
    
    By induction.
    
-   \item $end$
+   \item $\mo end$
    
-   $\mz \Delta; \Xi; \cdot; H; C; R \rightarrow \Xi'; \Delta'$ \hfill (1) assumption.\\
+   $\mo \Delta; \Xi; \cdot; H; C; R \rightarrow \Xi'; \Delta'$ \hfill (1) assumption.\\
    
-   \item $next \; rule$
+   \item $\cont next \; rule$
    
    $\cont \cdot; (\Phi; \Delta); \Xi'; \Delta'$ \hfill (1) assumption \\
    
-   \item $cont \; next$ -- some doubts about this one.
+   \item $\cont next$ -- some doubts about this one.
    
    $\cont (\Delta; p_1, \Delta''; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'$ \hfill (1) assumption \\
    $\mo \Delta, \Delta''; \Xi, p_1;  \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1)\\
@@ -153,7 +153,7 @@ Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$ on th
       
    \end{itemize}
    
-   \item $cont \; no \; more$
+   \item $\cont no \; more$
    
    $\cont (\Delta; \cdot; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'$ \hfill (1) assumption \\
    $\cont C; R; \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
@@ -186,19 +186,19 @@ If $\done \Delta; \Xi; \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'$ then $\dz 
 By simple induction on $\Omega$.
 
 \begin{itemize}
-   \item $derive \; p$
+   \item $\done p$
    
    By induction.
    
-   \item $derive \; 1$
+   \item $\done 1$
    
    By induction.
    
-   \item $derive \; \otimes$
+   \item $\done \otimes$
    
    By induction.
    
-   \item $derive \; end$
+   \item $\done end$
    
    Use axioms.
    

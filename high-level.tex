@@ -42,14 +42,14 @@
 
 \[
 \infer[\dz comp]
-{\dz \Delta ; \Xi; \Delta_1; \m{comp} A \lolli B, \Omega \rightarrow \Xi';\Delta'}
-{\dz \Delta; \Xi; \Delta_1; 1 \with (A \lolli B \otimes \m{comp} A \lolli B), \Omega \rightarrow \Xi';\Delta'}
+{\dz \Delta ; \Xi; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi';\Delta'}
+{\dz \Delta; \Xi; \Delta_1; 1 \with (A \lolli B \otimes \comp A \lolli B), \Omega \rightarrow \Xi';\Delta'}
 \]
 
 \[
 \infer[\dz \lolli]
 {\dz \Delta_a, \Delta_b; \Xi; \Delta_1; A \lolli B, \Omega \rightarrow \Xi';\Delta'}
-{\mz \Delta_a; A \rightarrow \Delta_a & \dz \Delta_b ; \Xi; \Delta_a; \Delta_1; B, \Omega \rightarrow \Xi'; \Delta'}
+{\mz \Delta_a; A \rightarrow \Delta_a & \dz \Delta_b ; \Xi, \Delta_a; \Delta_1; B, \Omega \rightarrow \Xi'; \Delta'}
 \]
 
 \[

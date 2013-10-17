@@ -4,17 +4,17 @@
 \subsubsection{Match}
 
 \[
-\infer[match \; 1]
+\infer[\mz 1]
 {\mz \cdot ; 1 \rightarrow 1}
 {}
 \tab
-\infer[match \; p]
+\infer[\mz p]
 {\mz p ; p \rightarrow p}
 {}
 \]
 
 \[
-\infer[match \; \otimes]
+\infer[\mz \otimes]
 {\mz \Delta_1, \Delta_2 ; A \otimes B \rightarrow \Xi_1, \Xi_2}
 {\mz \Delta_1 ; A \rightarrow \Xi_1 & \mz \Delta_2 ; B \rightarrow \Xi_2}
 \]
@@ -22,20 +22,20 @@
 \subsubsection{Derive}
 
 \[
-\infer[derive \; p]
+\infer[\dz p]
 {\dz \Delta ; \Xi ; \Delta_1 ; p, \Omega \rightarrow \Xi' ; \Delta'}
 {\dz \Delta ; \Xi ; p, \Delta_1 ; \Omega \rightarrow \Xi' ; \Delta'}
 \]
 
 \[
-\infer[derive \; \otimes]
+\infer[\dz \otimes]
 {\dz \Delta; \Xi; \Delta_1; A \otimes B, \Omega \rightarrow \Xi'; \Delta'}
 {\dz \Delta; \Xi; \Delta_1; A, B, \Omega \rightarrow \Xi'; \Delta'}
 \tab
 \]
 
 \[
-\infer[derive \; end]
+\infer[\dz end]
 {\dz \Delta; \Xi'; \Delta'; \cdot \rightarrow \Xi';\Delta'}
 {}
 \]
@@ -43,13 +43,13 @@
 \subsubsection{Apply}
 
 \[
-\infer[apply]
+\infer[\az]
 {\az \Delta, \Delta''; A \lolli B \rightarrow \Xi'; \Delta'}
 {\mz \Delta; A \rightarrow \Delta & \dz \Delta''; \Delta; \cdot ; B \rightarrow \Xi'; \Delta'}
 \]
 
 \[
-\infer[do \; rule]
+\infer[\doz rule]
 {\doz \Delta; R, \Phi \rightarrow \Xi';\Delta'}
 {\doz \Delta; R \rightarrow \Xi';\Delta'}
 \]

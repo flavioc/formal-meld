@@ -24,15 +24,12 @@
 {\typ{list \; \tau}}{\typ{\tau}}
 \tab
 \infer[\m{struct}]
-{\typ{struct \; T}}{\typelist{T}}
-\]
-
-\[
-\infer[\m{type \; list \; end}]
-{\typelist{\cdot}}
+{\typ{struct \; A \times B}}
+{\typ{A} & \typ{B}}
 \tab
-\infer[\m{type \; list}]
-{\typelist{\tau ; T}}{\typelist{T}}
+\infer[\m{struct}]
+{\typ{struct \; \cdot}}
+{}
 \]
 
 \subsection{Expressions}
@@ -71,12 +68,18 @@
 
 \[
 \infer[\m{make \; struct}]
-{\expr{\Gamma}{\m{struct} \; e_1; ...; e_n}{\m{struct \; \tau_1; ...; \tau_n}}}
-{\expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n}}
+{\expr{\Gamma}{\m{struct} \; e_1 \times e_2}{\m{struct \; \tau_1 \times \tau_2}}}
+{\expr{\Gamma}{e_1}{\tau_1} & \expr{\Gamma}{e_2}{\tau_2}}
+\]
+
+\[
+\infer[\m{struct \; fst}]
+{\expr{\Gamma}{fst(e)}{\tau_1}}
+{\expr{\Gamma}{e}{\m{struct \; \tau_1 \times \tau_2}}}
 \tab
-\infer[\m{get \; struct}]
-{\expr{\Gamma}{\#i(e)}{\tau_i}}
-{\expr{\Gamma}{e}{\m{struct \; \tau_1; ...; \tau_n}}}
+\infer[\m{struct \; snd}]
+{\expr{\Gamma}{snd(e)}{\tau_2}}
+{\expr{\Gamma}{e}{\m{struct \; \tau_1 \times \tau_2}}}
 \]
 
 \[
@@ -159,17 +162,17 @@
 
 \[
 \infer[\m{external}]
-{\expr{\Gamma}{\callexternal{name}{[e_1, ..., e_n]}}{\tau}}
-{\expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
-   \eexpr{\external{name}{[arg_1, ..., arg_n]}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi
+{\expr{\Gamma}{\callexternal{name}{e}}{\tau_r}}
+{\expr{\Gamma}{e}{\m{struct \; \tau}} &
+   \eexpr{\external{name}{arg : \m{struct \; \tau}}}{\tau_r} \in \Psi
 }
 \]
 
 \[
 \infer[\m{fun}]
-{\expr{\Gamma}{\callfun{name}{[e_1, ..., e_n]}}{\tau}}
-{\expr{\Gamma}{e_1}{\tau_1} & ... & \expr{\Gamma}{e_n}{\tau_n} &
-   \eexpr{\fun{name}{[arg_1, ..., arg_n]}{e}}{(\tau_1, ..., \tau_n)\overrightarrow{\tau}} \in \Psi
+{\expr{\Gamma}{\callfun{name}{e}}{\tau_r}}
+{\expr{\Gamma}{e}{\m{struct \; \tau}} &
+   \eexpr{\fun{name}{arg : \m{struct \; \tau}}{b}}{\tau_r} \in \Psi
 }
 \]
 
@@ -203,8 +206,8 @@
 
 \[
 \infer[\m{fun}]
-{\declfun{name}{arg_1 : \tau_1, ..., arg_n : \tau_n}{e}{\tau}}
-{\expr{arg_1 : \tau_1, ..., arg_n : \tau_n}{e}{\tau}}
+{\declfun{name}{arg : \m{struct \; \tau}}{\m{b} : \tau_r}{\tau_r}}
+{\expr{arg : \m{struct \; \tau}}{b}{\tau_r}}
 \]
 
 \subsection{Rules}

@@ -326,76 +326,9 @@ do_aggregate(A, CommVar1, ..., CommVarN, Sum) -o total(A, Sum).
 
 \section{Low Level System With Persistent Facts}
 
+\input{matching-continuations-persistent}
+
 \section{Low Level System With Aggregates}
-
-
-\begin{comment}
-\section{Soundness}
-
-If $\Psi; \Theta ; \Phi ; \Gamma ; \Delta \hookrightarrow \Gamma' ; \Delta'; \Xi'$ then $\Psi; \Theta, \Phi ; \Gamma; \Delta \Rightarrow \Gamma' ; \Delta' ; \Xi'$.
-
-
-If $\m{apply1} \; \Psi; \Gamma ; \Delta; [R]; (\m{rule}; \cdot; \cdot; \Delta) \rightarrow \Gamma'; \Delta'; \Xi'$ then $\m{apply} \; \Psi; \Gamma; \Delta, [R] \rightarrow \Gamma'; \Delta'; \Xi'$.
-
-Induction on the first judgment:
-
-\begin{description}
-
-\item[Forall Case:]
-
-$\m{apply1} \; \Psi; \Gamma; \Delta; [\forall X : \tau. A]; (\m{rule}; ...) \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (1) assumption \\
-$\m{apply1} \; \Psi; \Gamma; \Delta; [A\{M/X\}]; (\m{rule}; ...) \rightarrow \Gamma'; \Delta' ; \Xi' $ \hfill (2) inversion of (1) \\
-$\val{M}{\tau}$   \hfill (3) inversion of (1) \\
-$\m{apply} \; \Psi; \Gamma; \Delta, [A\{M/X\}] \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (4) i.h. on (2) \\
-$\m{apply} \; \Psi ; \Gamma; \Delta, [\forall X: \tau. A] \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (5) rule on (4) and (3) \\
-
-\item[Lolli Case:]
-
-$\m{apply1} \; \Psi ; \Gamma; \Delta; [A \lolli B]; (\m{rule} ; ...) \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (1) assumption \\
-$\m{matchbody} \; \Psi; \Gamma; \Delta; \cdot ; A ; \cdot ; B ; (\cdot, (\m{rule}; ...)) \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (2) inversion of (1) \\
-$\m{derive1} \; \Psi; \Gamma; \Delta_2; \cdot; \cdot; B; (\cdot, (\m{rule}; ...)) \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (3) some theorem on (2) \\
-$\m{derive} \; \Psi; \Gamma; \Delta_2; B; \cdot; \cdot \rightarrow \Gamma'; \Delta'; (\Xi' - \cdot)$ \hfill (4) derive theorem on (3) \\
-$\m{match} \; \Psi; \Gamma; \Delta_1 \rightarrow [A]; \Delta_1$ \hfill (5) theorem on (2), $\Delta_1 \subset \Xi'$ \\
-$\m{apply} \; \Psi; \Gamma; \Delta_1, \Delta_2 ; [A \lolli B] \rightarrow \Gamma'; \Delta'; \Xi'$ \hfill (6) using (4) and (5) \\
-\end{description}
-
-
-\subsection{Derive theorem}
-
-If $\m{derive1} \; \Psi; \Gamma; \Delta; \Xi; \Gamma_1 ; \Delta_1; \Omega ; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'$ then $\m{derive} \; \Psi ; \Gamma ; \Delta; \Omega; \Delta_1; \Gamma_1 \rightarrow \Gamma'; \Delta'; (\Xi' - \Xi)$. \\
-
-Induction on the first judgment.
-
-\begin{description}
-\item[Case:] $\m{derive1} \; \Psi ; \Gamma; \Delta; \Xi; \Gamma_1 ; \Delta_1 ; A \otimes B, \Omega ; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'$
-
-$\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1; \Delta_1 ; A, B, \Omega ; \cdot \rightarrow \Gamma' ; \Delta' ; \Xi'$ \hfill (1) inversion \\
-$\m{derive} \; \Psi ; \Gamma ; \Delta ; A, B, \Omega ; \Delta_1 ; \Gamma_1 \rightarrow \Gamma'; \Delta'; (\Xi' - \Xi)$ \hfill (2) i.h. on (1) \\
-$\m{derive} \; \Psi ; \Gamma ; \Delta ; A \otimes B, \Omega ; \Delta_1 ; \Gamma_1 \rightarrow \Gamma'; \Delta' ; (\Xi' - \Xi)$ \hfill rule applied to (2) \\
-
-\item[Case:] $\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1 ; \Delta_1; \exists X:\m{addr}, \Omega; \cdot \rightarrow \Gamma'; \Delta' ; \Xi'$
-
-Same as the previous case.
-
-\item[Case:] $\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1 ; \Delta_1; 1, \Omega; \cdot \rightarrow \Gamma'; \Delta' ; \Xi'$
-
-Same as the previous case.
-
-\item[Case:] $\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1 ; \Delta_1; \fact{name}{e_1}{e_2, ..., e_n}, \Omega; \cdot \rightarrow \Gamma'; \Delta' ; \Xi'$
-
-Same as the previous case.
-
-\item[Case:] $\m{derive1} \; \Psi ; \Gamma ; \Delta; \Xi; \Gamma_1 ; \Delta_1; \bang\fact{name}{e_1}{e_2, ..., e_n}, \Omega; \cdot \rightarrow \Gamma'; \Delta' ; \Xi'$
-
-Same as the previous case.
-
-\item[Case:] $\m{derive1} \; \Psi ; \Gamma; \Delta ; \Xi; \Gamma_1; \Delta_1 ; \cdot ; \cdot \rightarrow \Gamma_1; \Delta_1; \Xi$
-
-$\m{derive} \; \Psi; \Gamma; \Delta; \cdot ; \Delta_1; \Gamma_1 \rightarrow \Gamma_1; \Delta_1; (\Xi - \Xi)$ \hfill using axiom \\
-
-
-\end{description}
-\end{comment}
 
 
 \end{document}

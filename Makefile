@@ -8,7 +8,9 @@ doc.pdf: doc.tex high-level.tex high-level-simple.tex \
 		matching-continuations-compr.tex \
 		low-level-semantics.tex \
 		global-semantics.tex local-semantics.tex \
-		linear-logic.tex ideas.tex
+		linear-logic.tex ideas.tex \
+		matching-continuations-persistent.tex \
+		high-level-persistent.tex
 	pdflatex doc.tex
 
 clean:

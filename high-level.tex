@@ -4,18 +4,18 @@
 
 \[
 \infer[\mz 1]
-{\mz \cdot ; 1 \rightarrow 1}
+{\mz \cdot \rightarrow 1}
 {}
 \tab
 \infer[\mz p]
-{\mz p ; p \rightarrow p}
+{\mz p \rightarrow p}
 {}
 \]
 
 \[
 \infer[\mz \otimes]
-{\mz \Delta_1, \Delta_2 ; A \otimes B \rightarrow \Xi_1, \Xi_2}
-{\mz \Delta_1 ; A \rightarrow \Xi_1 & \mz \Delta_2 ; B \rightarrow \Xi_2}
+{\mz \Delta_1, \Delta_2 \rightarrow A \otimes B}
+{\mz \Delta_1 \rightarrow A & \mz \Delta_2 \rightarrow B}
 \]
 
 \subsubsection{Derive}
@@ -55,7 +55,7 @@
 \[
 \infer[\dz \lolli]
 {\dz \Delta_a, \Delta_b; \Xi; \Delta_1; A \lolli B, \Omega \rightarrow \Xi';\Delta'}
-{\mz \Delta_a; A \rightarrow \Delta_a & \dz \Delta_b ; \Xi, \Delta_a; \Delta_1; B, \Omega \rightarrow \Xi'; \Delta'}
+{\mz \Delta_a \rightarrow A & \dz \Delta_b ; \Xi, \Delta_a; \Delta_1; B, \Omega \rightarrow \Xi'; \Delta'}
 \]
 
 \[
@@ -73,7 +73,7 @@
 \[
 \infer[\az rule]
 {\az \Delta, \Delta''; A \lolli B \rightarrow \Xi'; \Delta'}
-{\mz \Delta; A \rightarrow \Delta & \dz \Delta''; \Delta; \cdot ; B \rightarrow \Xi'; \Delta'}
+{\mz \Delta \rightarrow A & \dz \Delta''; \Delta; \cdot ; B \rightarrow \Xi'; \Delta'}
 \]
 
 \[

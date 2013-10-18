@@ -93,20 +93,20 @@ For this system, we include only linear facts but we use a continuation stack to
 
 If $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; \Omega_1, ..., \Omega_n; H; C; R \rightarrow \Xi'; \Delta'$ then either:\\
 1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
-2. \hspace{1cm} $\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ and $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$ or \\
-3. \hspace{1cm} $\exists f = (\Delta_a; \Delta_b; \Omega_1, ..., \Omega_n; H; \Xi_a) \in C$ such that:\\
-3.1 \hspace{2cm} $\Delta_a, \Delta_b = \Delta_c, \Delta_1, ..., \Delta_n$ and \\
-3.2 \hspace{2cm} $\mo \Delta_c; \Xi_a, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ and \\
-3.3 \hspace{2cm} $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$.\\
+2. \hspace{1cm} $\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ and $\mz \Delta_1 \rightarrow \Omega_1$ ... $\mz \Delta_n \rightarrow \Omega_n$ or \\
+3. \hspace{1cm} $\exists f = (\Delta_a; \Delta_b; \Omega_1, ..., \Omega_k; H; \Xi_1, ..., \Xi_m) \in C$ where $C = C', f, C''$ such that:\\
+3.1 \hspace{2cm} $\Delta_a, \Delta_b = \Delta_c, \Delta_1, ..., \Delta_k$ and \\
+3.2 \hspace{2cm} $\mo \Delta_c; \Xi_1, ..., \Xi_m, \Delta_1, ..., \Delta_k; \cdot; H; f', C''; R \rightarrow \Xi'; \Delta'$ and \\
+3.3 \hspace{2cm} $\mz \Delta_1 \rightarrow \Omega_1$ ... $\mz \Delta_k \rightarrow \Omega_k$.\\
 
 If $\cont C; R; \Xi'; \Delta'$ then either:\\
 1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
-2. \hspace{1cm} $\exists f = (\Delta_a; \Delta_b; \Omega_1, ..., \Omega_n; H; \Xi_a) \in C$ such that:\\
-2.1 \hspace{2cm} $\Delta_a, \Delta_b = \Delta_c, \Delta_1, ..., \Delta_n$ and \\
-2.2 \hspace{2cm} $\mo \Delta_c; \Xi_a, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ and \\
-2.3 \hspace{2cm} $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$ ... $\mz \Delta_n; \Omega_n \rightarrow \Delta_n$.\\
+2. \hspace{1cm} $\exists f = (\Delta_a; \Delta_b; \Omega_1, ..., \Omega_k; H; \Xi_1, ..., \Xi_m) \in C$ and $C = C', f, C''$ such that:\\
+2.1 \hspace{2cm} $\Delta_a, \Delta_b = \Delta_c, \Delta_1, ..., \Delta_k$ and \\
+2.2 \hspace{2cm} $\mo \Delta_c; \Xi_1, ..., \Xi_m, \Delta_1, ..., \Delta_k; \cdot; H; f', C''; R \rightarrow \Xi'; \Delta'$ and \\
+2.3 \hspace{2cm} $\mz \Delta_1 \rightarrow \Omega_1$ ... $\mz \Delta_k \rightarrow \Omega_k$.\\
 
-Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$ on the size of $C$ and $\Delta''$.
+Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$, first on the size of $\Delta''$ and then on the size of $C$.
 
 \begin{itemize}
    \item $\mo ok$
@@ -131,7 +131,7 @@ Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$ on th
    
    $\cont \cdot; (\Phi; \Delta); \Xi'; \Delta'$ \hfill (1) assumption \\
    
-   \item $\cont next$ -- some doubts about this one.
+   \item $\cont next$
    
    $\cont (\Delta; p_1, \Delta''; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'$ \hfill (1) assumption \\
    $\mo \Delta, \Delta''; \Xi, p_1;  \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1)\\
@@ -140,9 +140,9 @@ Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$ on th
    \begin{itemize}
       \item $\cont \cdot; R; \Xi'; \Delta'$
       
-      \item $\mo \Delta_a; \Xi, p_1, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ 
+      \item $\mo \Delta_a; \Xi, p_1, \Delta_1, ..., \Delta_k; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ 
       
-      where $\Delta_a, \Delta_1, ..., \Delta_n = \Delta, \Delta'$ \\
+      where $\Delta_a, \Delta_1, ..., \Delta_k = \Delta, \Delta'$ \\
       
       $\exists f = (\Delta; p_1; \Delta''; p, \Omega; H; \Xi)$
       
@@ -175,7 +175,7 @@ Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$ on th
 If $\mo \Delta, \Delta''; \cdot; \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'$ then either:\\
 1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
 2. \hspace{1cm} $\mo \Delta; \Delta''; \cdot; H; C'; R \rightarrow \Xi'; \Delta'$ and\\
-2.1 \hspace{2cm} $\mz \Delta''; \Omega \rightarrow \Delta''$\\
+2.1 \hspace{2cm} $\mz \Delta'' \rightarrow \Omega$\\
 
 Proof: By direct use of the match soundness theorem.
 

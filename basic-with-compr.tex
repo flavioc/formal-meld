@@ -103,7 +103,7 @@ If $\mo \Delta'', \Delta_1, ..., \Delta_n; \Xi; \Omega; H; (\done \Delta'''; \Xi
 
 \begin{itemize}
 \item $\cont (\done \Delta'''; \Xi''; \Delta_1; \m{comp} \; A \lolli B, \Omega'); \Xi'; \Delta'$ or
-\item $\mo \Delta''; \Xi, \Delta_1, ..., \Delta_n' \cdot ; H ; (\done ...) \rightarrow \Xi'; \Delta'$ and $\Omega = \Omega_1, ..., \Omega_n$ where $\mz \Delta_1; \Omega_1 \rightarrow \Delta_1$, ..., $\mz \Delta_n ; \Omega_n \rightarrow \Delta_n$ and $\Delta_1, ..., \Delta_n$ is not empty.
+\item $\mo \Delta''; \Xi, \Delta_1, ..., \Delta_n' \cdot ; H ; (\done ...) \rightarrow \Xi'; \Delta'$ and $\Omega = \Omega_1, ..., \Omega_n$ where $\mz \Delta_1 \rightarrow \Omega_1$, ..., $\mz \Delta_n \rightarrow \Omega_n$ and $\Delta_1, ..., \Delta_n$ is not empty.
 \end{itemize}
 
 It's trivial by induction on the assumption, except the case $p, \Omega$ and $A \otimes B, \Omega$.
@@ -114,7 +114,7 @@ If $\mo \Delta'', \Xi''; \cdot; A ; H; (\done \Delta'''; \Xi; \Delta_1; \m{comp}
 
 \begin{itemize}
 \item $\cont (\done \Delta'''; \Xi; \Delta_1; \m{comp} \; A \lolli B, \Omega'); \Xi'; \Delta'$ or
-\item $\mo \Delta'' ; \Xi''; \cdot; H; (\done \Delta'''; \Xi; \Delta_1; \m{comp} \; A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ and $\mz \Xi''; A \rightarrow \Xi''$, where $\Xi''$ is not empty
+\item $\mo \Delta'' ; \Xi''; \cdot; H; (\done \Delta'''; \Xi; \Delta_1; \m{comp} \; A \lolli B, \Omega') \rightarrow \Xi'; \Delta'$ and $\mz \Xi'' \rightarrow A$, where $\Xi''$ is not empty
 \end{itemize}
 
 This follows trivially from the previous theorem.
@@ -149,7 +149,7 @@ $\done \Delta; \Xi, \Xi''; \Delta_1, \Delta'_1; \m{comp} \; A \lolli B, \Omega; 
 If \\
 $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A_1, ..., A_n; H; \cdot \rightarrow \Xi'; \Delta'$ \\
 then \\
-$\mz \Delta_1; A_1 \rightarrow \Delta_1$ through $\mz \Delta_n; A_n \rightarrow \Delta_n$ and \\
+$\mz \Delta_1 \rightarrow A_1$ through $\mz \Delta_n \rightarrow A_n$ and \\
 $\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot; H; \cdot \rightarrow \Xi'; \Delta'$ and \\
 $\Delta_1, ..., \Delta_n$ is not empty if $A_1, ..., A_n$ is not $\cdot$.
 
@@ -164,9 +164,9 @@ Not applicable.
 
 $\mo \Delta, \Delta_1, ..., \Delta_n, p; \Xi; p, A_1, ..., A_n; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
 $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi, p; A_1, ..., A_n; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
-$\mz \Delta_1 ; A_1 \rightarrow \Delta_1$ ... $\mz \Delta_n ; A_n \rightarrow \Delta_n$ \hfill (3) induction on (2) \\
+$\mz \Delta_1 \rightarrow A_1$ ... $\mz \Delta_n \rightarrow A_n$ \hfill (3) induction on (2) \\
 $\mo \Delta; \Xi, p, \Delta_1, ..., \Delta_n; \cdot ; H ; \cdot \rightarrow \Xi'; \Delta'$ \hfill (4) induction on (2) \\
-$\mz p; p \rightarrow p$ \hfill (5) axiom \\
+$\mz p \rightarrow p$ \hfill (5) axiom \\
 $p, \Delta_1, ..., \Delta_n$ is not empty\\
 
 \item $A \otimes B, \Omega$
@@ -174,9 +174,9 @@ $p, \Delta_1, ..., \Delta_n$ is not empty\\
 $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A \otimes B, A_1, ..., A_{n-2}; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
 $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; A, B, A_1, ..., A_{n-2}; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
 $\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'$ \hfill (3) induction on (2) \\
-$\mz \Delta_1 ; A \rightarrow \Delta_1$, \; $\mz \Delta_2; B \rightarrow \Delta_2$, \; ... \; $\mz \Delta_n; A_{n-2} \rightarrow \Delta_n$ \hfill (4) induction on (2) \\
-$\mz \Delta_1, \Delta_2; A \otimes B \rightarrow \Delta_1, \Delta_2$ \hfill (5) rule on (4) \\
-$\mz \Delta_1, \Delta_2; A \otimes B \rightarrow \Delta_1, \Delta_2$ \; ... \; $\mz \Delta_n; A_{n-2} \rightarrow \Delta_n$ \hfill (6) from (5) \\
+$\mz \Delta_1 \rightarrow A$, \; $\mz \Delta_2 \rightarrow B$, \; ... \; $\mz \Delta_n \rightarrow A_{n-2}$ \hfill (4) induction on (2) \\
+$\mz \Delta_1, \Delta_2 \rightarrow A \otimes B$ \hfill (5) rule on (4) \\
+$\mz \Delta_1, \Delta_2 \rightarrow A \otimes B$ \; ... \; $\mz \Delta_n \rightarrow A_{n-2}$ \hfill (6) from (5) \\
 $\Delta_1, ..., \Delta_n$ is not empty \hfill (7) from induction on (2) \\
 
 \item $\cdot$
@@ -228,7 +228,7 @@ $\dz \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi'; \Delta'$ 
 \item Comprehension succeeds:
 $\Delta = \Delta'', \Xi''$ \hfill (4) from theorem \\
 $\mo \Delta''; \Xi''; \cdot ; B; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (5) from theorem "Low level comprehension gives one match" \\
-$\mz \Xi''; A \rightarrow \Xi''$ \hfill (6) from the same theorem \\
+$\mz \Xi'' \rightarrow A$ \hfill (6) from the same theorem \\
 $\Delta''$ is smaller than $\Delta$ \hfill (7) from the same theorem \\
 $\done \Delta''; \Xi''; \cdot; B; (\done \Delta; \Xi; \Delta_1; \comp A \lolli B, \Omega) \rightarrow \Xi'; \Delta'$ \hfill (8) inversion of (5) \\
 $\done \Delta''; \Xi'', \Xi; \Delta_1; B, \comp A \lolli B, \Omega; \cdot \rightarrow \Xi'; \Delta'$ \hfill (9) using theorem "Comprehension head is another derivation theorem" on (8) \\
@@ -254,7 +254,7 @@ Case by case analysis:
 $\ao \Delta; A \lolli B ; (\cdot ; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
 $\mo \Delta_1, \Delta_2; \cdot; A ; B ; (\cdot ; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
 $\mo \Delta_2; \Delta_1; \cdot ; B ; (\cdot ; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (3) using theorem "Low level matching gives high level matching theorem" on (2) \\
-$\mz \Delta_1 ; A \rightarrow \Delta_1$ \hfill (4) from same theorem on (2) \\
+$\mz \Delta_1 \rightarrow A$ \hfill (4) from same theorem on (2) \\
 $\do \Delta_2; \Delta_1; \cdot ; B ; (\cdot ; \Delta) \rightarrow \Xi'; \Delta'$ \hfill (5) inversion of (3) \\
 $\dz \Delta_2; \Delta_1; \cdot ; B \rightarrow \Xi'; \Delta'$ \hfill (6) derive soundness on (5) \\
 $\az \Delta_1, \Delta_2; A \lolli B \rightarrow \Xi'; \Delta'$ \hfill (7) using rule on (6) and (4) \\

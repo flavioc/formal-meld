@@ -10,7 +10,9 @@ doc.pdf: doc.tex high-level.tex high-level-simple.tex \
 		global-semantics.tex local-semantics.tex \
 		linear-logic.tex ideas.tex \
 		matching-continuations-persistent.tex \
-		high-level-persistent.tex
+		high-level-persistent.tex \
+		term-equivalence.tex
+	pdflatex doc.tex
 	pdflatex doc.tex
 
 clean:

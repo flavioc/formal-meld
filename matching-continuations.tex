@@ -6,13 +6,21 @@ For this system, we include only linear facts but we use a continuation stack to
 \subsubsection{Match}
 
 \[
-\infer[\mo ok]
-{\mo \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'}
-{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'}
-\tab
+\infer[\mo ok \; first]
+{\mo \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'}
+{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p; \Omega; \Xi; \cdot); R \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\mo ok \; other]
+{\mo \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; C_1, C; R \rightarrow \Xi'; \Delta'}
+{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p ; \Omega; \Xi; q, \Lambda), C_1, C; R \rightarrow \Xi'; \Delta' & C_1 = (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda)}
+\]
+
+\[
 \infer[\mo fail]
 {\mo \Delta; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'}
-{p \notin \Delta & \cont C ; R; \Xi'; \Delta'}
+{p \notin \Delta & \cont C ; H; R; \Xi'; \Delta'}
 \]
 
 \[
@@ -55,20 +63,20 @@ For this system, we include only linear facts but we use a continuation stack to
 
 \[
 \infer[\cont next \; rule]
-{\cont \cdot; (\Phi; \Delta); \Xi'; \Delta'}
+{\cont \cdot; H; (\Phi; \Delta); \Xi'; \Delta'}
 {\doo \Delta; \Phi \rightarrow \Xi'; \Delta'}
 \]
 
 \[
 \infer[\cont next]
-{\cont (\Delta; p_1, \Delta''; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'}
-{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'}
+{\cont (\Delta; p_1, \Delta''; p; \Omega; \Xi; \Lambda), C; H; R; \Xi'; \Delta'}
+{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p ; \Omega; \Xi; \Lambda), C; R \rightarrow \Xi'; \Delta'}
 \]
 
 \[
 \infer[\cont no \; more]
-{\cont (\Delta; \cdot; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'}
-{\cont C; R; \Xi'; \Delta'}
+{\cont (\Delta; \cdot; p; \Omega; \Xi; \Lambda), C; H; R; \Xi'; \Delta'}
+{\cont C; H; R; \Xi'; \Delta'}
 \]
 
 \subsubsection{Apply}
@@ -87,37 +95,92 @@ For this system, we include only linear facts but we use a continuation stack to
 
 \input{high-level-simple}
 
+\subsection{Definitions}
+
+\subsubsection{Well Formed Frame}
+
+Given a frame $f = (\Delta; \Delta'; \Xi; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ and a body term $A$ and a context $\Delta_{inv}$, we say that $f$ is well formed iff:
+
+\begin{enumerate}
+   \item $\Lambda_1, ..., \Lambda_m$ are atomic terms $p_i$.
+   \item $\Xi = \Xi_1, ..., \Xi_m$
+   \item $\feq{p, \Omega_1, ..., \Omega_n, \Lambda_1, ..., \Lambda_m}{A}$
+   \item $\mz \Xi \rightarrow \Lambda_1 \otimes ... \otimes \Lambda_m$.
+   \item $\Delta, \Delta', \Xi = \Delta_{inv}$.
+\end{enumerate}
+
+\subsubsection{Well Formed Stack}
+
+A continuation stack $C$ is well formed iff every frame is well formed.
+
+\subsubsection{Related Match}\label{sec:related_match}
+
+$\mo \Delta; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$ is related to a term $A$ and a context $\Delta_{inv}$ iff:
+
+\begin{itemize}
+   \item $C$ is well formed in relation to $A$ and $\Delta_{inv}$;
+   \item $\Delta, \Xi = \Delta_{inv}$
+   \item Either:
+   \begin{itemize}
+      \item $C = \cdot$
+   
+      $\feq{\Omega}{A}$
+   
+      \item $C = (\Delta_a; \Delta_b; \Xi''; p; \Omega'; \Lambda_1, ..., \Lambda_m), C'$
+   
+      $\feq{A}{\Omega, p, \Omega', \Lambda_1, ..., \Lambda_n}$ \\
+      $\feq{\Omega'}{\Omega}$ \\ 
+      $p_1 \in \Xi$ and $\mz p_1 \rightarrow p$ \\
+      $\Xi = \Xi'', p_1$ \\
+   \end{itemize}
+\end{itemize}
+
 \subsection{Theorems}
 
 \subsubsection{Match soundness theorem}\label{thm:match_soundness_basic}
 
-If $\mo \Delta, \Delta_1, ..., \Delta_n; \Xi; \Omega_1, ..., \Omega_n; H; C; R \rightarrow \Xi'; \Delta'$ then either:\\
-1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
-2. \hspace{1cm} $\mo \Delta; \Xi, \Delta_1, ..., \Delta_n; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ and $\mz \Delta_1 \rightarrow \Omega_1$ ... $\mz \Delta_n \rightarrow \Omega_n$ or \\
-3. \hspace{1cm} $\exists f = (\Delta_a; \Delta_b; \Omega_1, ..., \Omega_k; H; \Xi_1, ..., \Xi_m) \in C$ where $C = C', f, C''$ such that:\\
-3.1 \hspace{2cm} $\Delta_a, \Delta_b = \Delta_c, \Delta_1, ..., \Delta_k$ and \\
-3.2 \hspace{2cm} $\mo \Delta_c; \Xi_1, ..., \Xi_m, \Delta_1, ..., \Delta_k; \cdot; H; f', C''; R \rightarrow \Xi'; \Delta'$ and \\
-3.3 \hspace{2cm} $\mz \Delta_1 \rightarrow \Omega_1$ ... $\mz \Delta_k \rightarrow \Omega_k$.\\
+If a match $\mo \Delta_1, \Delta_2; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$ is related to term $A$ and context $\Delta_1, \Delta_2, \Xi$ then either:\\
+\begin{enumerate}
+   \item $\cont \cdot; H; R; \Xi'; \Delta'$ or
+   \item $\mz \Delta_x \rightarrow A$ (where $\Delta_x$ is a subset of $\Delta_1, \Delta_2, \Xi$) and one of the two subcases are true:
+      \begin{enumerate}
+         \item $\mo \Delta_1; \Xi, \Delta_2; \cdot; H; C'', C; R \rightarrow \Xi'; \Delta'$ (related) and $\Delta_x = \Xi, \Delta_2$
+         \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m) \in C$ where $C = C', f, C''$ and $f$ turns into some $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; p; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m)$ such that:
+            \begin{itemize}
+               \item $\mo \Delta_c; \Xi_1, ..., \Xi_m, p_2, \Xi_c; \cdot; H; C''', f', C''; R \rightarrow \Xi'; \Delta'$ (related)
+            \end{itemize}
+      \end{enumerate}
+\end{enumerate}
 
-If $\cont C; R; \Xi'; \Delta'$ then either:\\
-1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
-2. \hspace{1cm} $\exists f = (\Delta_a; \Delta_b; \Omega_1, ..., \Omega_k; H; \Xi_1, ..., \Xi_m) \in C$ and $C = C', f, C''$ such that:\\
-2.1 \hspace{2cm} $\Delta_a, \Delta_b = \Delta_c, \Delta_1, ..., \Delta_k$ and \\
-2.2 \hspace{2cm} $\mo \Delta_c; \Xi_1, ..., \Xi_m, \Delta_1, ..., \Delta_k; \cdot; H; f', C''; R \rightarrow \Xi'; \Delta'$ and \\
-2.3 \hspace{2cm} $\mz \Delta_1 \rightarrow \Omega_1$ ... $\mz \Delta_k \rightarrow \Omega_k$.\\
+If $\cont C; H; R; \Xi'; \Delta'$ and $C$ is well formed in relation to $A$ and $\Delta_1, \Delta_2, \Xi$ then either:\\
+\begin{enumerate}
+   \item $\cont \cdot; H; R; \Xi'; \Delta'$
+   \item $\mz \Delta_x \rightarrow A$ (where $\Delta_x$ is a subset of $\Delta_1, \Delta_2, \Xi$) where:
+   \begin{enumerate}
+      \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m) \in C$ where $C = C', f, C''$ and $f$ turns into some $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; p; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m)$ such that:
+         \begin{itemize}
+            \item $\mo \Delta_c; \Xi_1, ..., \Xi_m, p_2, \Xi_c; \cdot; H; C''', f', C''; R \rightarrow \Xi'; \Delta'$ (related)
+         \end{itemize}
+   \end{enumerate}
+\end{enumerate}
 
-Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$, first on the size of $\Delta''$ and then on the size of $C$.
+Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$, first on the size of $\Delta''$ and then on the size of $C$. Use the stack constraints and the Match Equivalence Theorem to prove $\mz \Delta_x \rightarrow A$.
 
 \begin{itemize}
-   \item $\mo ok$
+   \item $\mo ok \; first$
    
-   By induction.
+   First prove that the inverted match is related and then use induction.
+   
+   \item $\mo ok \; other$
+   
+   First we prove that the inverted match is related. We know that $q \in \Xi$ due to our assumption, so that proves $\mz q \rightarrow q$. \\
+   Second, we prove that the new stack frame is related and then apply induction.
    
    \item $\mo fail$
    
    $\mo \Delta; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'$ \hfill (1) assumption \\
-   $\cont C; R; \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
-   Apply i.h. on (2) to get $\cont \cdot; R; \Xi'; \Delta'$ or the $\exists f.$.
+   $\cont C; H; R; \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+   Apply i.h. on (2) to get $\cont \cdot; H; R; \Xi'; \Delta'$ or the $\mz \Delta_x \rightarrow A$.
    
    \item $\mo \otimes$
    
@@ -126,58 +189,55 @@ Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$, firs
    \item $\mo end$
    
    $\mo \Delta; \Xi; \cdot; H; C; R \rightarrow \Xi'; \Delta'$ \hfill (1) assumption.\\
+   Our stack must have some frames, thus $\feq{p, \Lambda_c}{A}$ ($p$ and $\Lambda_c$ both arguments of the last frame). We also know that $p \in \Xi$ due to our assumption and that $\mz \Xi_c, p \rightarrow \Lambda \otimes p$ is true. Therefore $\Xi = \Xi_c, p$ and thus $\mz \Xi \rightarrow A$.
    
    \item $\cont next \; rule$
    
-   $\cont \cdot; (\Phi; \Delta); \Xi'; \Delta'$ \hfill (1) assumption \\
+   $\cont \cdot; H; (\Phi; \Delta); \Xi'; \Delta'$ \hfill (1) assumption \\
    
    \item $\cont next$
    
-   $\cont (\Delta; p_1, \Delta''; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'$ \hfill (1) assumption \\
-   $\mo \Delta, \Delta''; \Xi, p_1;  \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1)\\
-   Induction on (2):
+   $\cont (\Delta; p_1, \Delta''; p, \Omega; \Xi; \Lambda), C; H; R; \Xi'; \Delta'$ \hfill (1) assumption \\
+   $\mo \Delta, \Delta''; \Xi, p_1;  \Omega; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi; \Lambda), C; R \rightarrow \Xi'; \Delta'$ \hfill (2) inversion of (1)\\
+   Since the frame we push into the match makes the match related, we can use induction (2):
    
-   \begin{itemize}
-      \item $\cont \cdot; R; \Xi'; \Delta'$
+   \begin{enumerate}
+      \item $\cont \cdot; H; R; \Xi'; \Delta'$
       
-      \item $\mo \Delta_a; \Xi, p_1, \Delta_1, ..., \Delta_k; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ 
+      \item $\mz \Delta_x \rightarrow A$
+      \begin{itemize}
+         \item $\mo \Delta_a; \Xi, p_1, \Delta_1, ..., \Delta_k; \cdot; H; C''; R \rightarrow \Xi'; \Delta'$ 
       
-      where $\Delta_a, \Delta_1, ..., \Delta_k = \Delta, \Delta'$ \\
+         where $\Delta_a, \Delta_1, ..., \Delta_k = \Delta, \Delta'$ \\
       
-      $\exists f = (\Delta; p_1; \Delta''; p, \Omega; H; \Xi)$
+         $\exists f = (\Delta; p_1; \Delta''; p, \Omega; H; \Xi; \Lambda)$
       
-      \item $\exists f \in (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C$
+         \item $\exists f \in (\Delta, p_1; \Delta''; p, \Omega; H; \Xi; \Lambda), C$
       
-      $f$ can be $(\Delta, p_1; \Delta''; p, \Omega; H; \Xi)$ (which is contained in the original $\cont$)\\
-      or $f \in C$\\
-      
-   \end{itemize}
+         $f$ can be $(\Delta, p_1; \Delta''; p, \Omega; H; \Xi; \Lambda)$ (which is contained in the original $\cont$)\\
+         or $f \in C$\\
+      \end{itemize}
+   \end{enumerate}
    
    \item $\cont no \; more$
    
-   $\cont (\Delta; \cdot; p, \Omega; H; \Xi), C; R; \Xi'; \Delta'$ \hfill (1) assumption \\
-   $\cont C; R; \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
+   $\cont (\Delta; \cdot; p, \Omega; \Xi), C; H; R; \Xi'; \Delta'$ \hfill (1) assumption \\
+   $\cont C; H; R; \Xi'; \Delta'$ \hfill (2) inversion of (1) \\
    
-   By induction:
-   
-   \begin{itemize}
-      \item $\cont \cdot; R; \Xi'; \Delta'$
-      
-      \item $\exists f \in C$
-      
-      Then $\exists f \in (\Delta; \cdot; p, \Omega; H; \Xi), C$ \\
-   \end{itemize}
-   
+   Apply induction.
 \end{itemize}
 
 \subsection{Match Soundness Lemma}
 
 If $\mo \Delta, \Delta''; \cdot; \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'$ then either:\\
-1. \hspace{1cm} $\cont \cdot; R; \Xi'; \Delta'$ or \\
-2. \hspace{1cm} $\mo \Delta; \Delta''; \cdot; H; C'; R \rightarrow \Xi'; \Delta'$ and\\
-2.1 \hspace{2cm} $\mz \Delta'' \rightarrow \Omega$\\
+\begin{enumerate}
+   \item $\cont \cdot; R; \Xi'; \Delta'$ or;
+   \item $\mo \Delta; \Delta''; \cdot; H; C'; R \rightarrow \Xi'; \Delta'$ and $\mz \Delta'' \rightarrow \Omega$
+\end{enumerate}
 
-Proof: By direct use of the match soundness theorem.
+\begin{proof}
+By direct use of the match soundness theorem.
+\end{proof}
 
 \subsection{Derive Soundness Theorem}
 

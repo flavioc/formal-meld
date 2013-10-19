@@ -1,0 +1,156 @@
+\section{Term Equivalence}
+
+\newcommand{\feq}[2]{#1 \equiv #2}
+
+The judgment $\feq{A}{B}$ tests if two multisets of terms $A, B$ are equal. Two multisets are equal if, when deconstructed, they have the same atoms.
+
+\[
+\infer[\equiv p]
+{\feq{p, A}{p, B}}
+{\feq{A}{B}}
+\]
+
+\[
+\infer[\equiv \bang p]
+{\feq{\bang p, A}{\bang, B}}
+{\feq{A}{B}}
+\]
+
+\[
+\infer[\equiv 1 \; left]
+{\feq{1, A}{B}}
+{\feq{A}{B}}
+\tab
+\infer[\equiv 1 \; right]
+{\feq{A}{1, B}}
+{\feq{A}{B}}
+\]
+
+\[
+\infer[\equiv \cdot]
+{\feq{\cdot}{\cdot}}
+{}
+\]
+
+\[
+\infer[\equiv left]
+{\feq{A \otimes B, C}{D}}
+{\feq{A, B, C}{D}}
+\tab
+\infer[\equiv right]
+{\feq{A}{B \otimes C, D}}
+{\feq{A}{B, C, D}}
+\]
+
+\subsection{Equivalence commutativity}
+
+If $\feq{A}{B}$ then $\feq{B}{A}$.
+
+\begin{proof}
+   By induction on the structure of the assumption.
+   
+   \begin{itemize}
+      \item $p$
+      
+      $\feq{p, A}{p, B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) inversion of (1) \\
+      $\feq{B}{A}$ \hfill (3) i.h. on (2) \\
+      $\feq{p, B}{p, A}$ \hfill (4) rule on (3) \\
+      
+      \item $\bang p$
+      
+      $\feq{\bang p, A}{\bang p, B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) inversion of (1) \\
+      $\feq{B}{A}$ \hfill (3) i.h. on (2) \\
+      $\feq{\bang p, B}{\bang p, A}$ \hfill (4) rule on (3) \\
+      
+      \item $1 \; left$
+      
+      $\feq{1, A}{B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) assumption \\
+      $\feq{B}{A}$ \hfill (3) i.h. on (2) \\
+      $\feq{B}{1, A}$ \hfill (4) apply right rule on (3) \\
+      
+      \item $1 \; right$
+      
+      Same thing as before.
+      
+      \item $\cdot$
+
+      Immediate.
+
+      \item $left$
+
+      $\feq{A \otimes B, C}{D}$ \hfill (1) assumption \\
+      $\feq{A, B, C}{D}$ \hfill (2) inversion of (1) \\
+      $\feq{D}{A, B, C}$ \hfill (3) i.h. on (2) \\
+      $\feq{D}{A \otimes B, C}$ \hfill (4) right rule on (3) \\
+
+      \item $right$
+
+      Same thing as the last case.
+   \end{itemize}
+\end{proof}
+
+\subsection{Match Equivalence Theorem}
+
+If $\feq{A_1, ..., A_n}{B_1, ..., B_m}$ and $\mz \Gamma ; \Delta \rightarrow A_1 \otimes ... \otimes A_n$ then $\mz \Gamma; \Delta \rightarrow B_1 \otimes ... \otimes B_m$.
+
+\begin{proof}
+   By induction on the structure of the assumption.
+   
+   \begin{itemize}
+      \item $p$
+      
+      $\feq{p, A}{p, B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) inversion of (1) \\
+      $\mz p \rightarrow p$ \hfill (3) axiom \\
+      $\mz p, \Delta \rightarrow p \otimes A$ \hfill (4) assumption \\
+      $\mz \Delta \rightarrow A$ \hfill (5) inversion of (4) \\
+      $\mz \Delta \rightarrow B$ \hfill (6) i.h. on (5) and (2) \\
+      $\mz p, \Delta \rightarrow p \otimes B$ \hfill (7) rule application on (6) and (3) \\
+      
+      \item $\bang p$
+      
+      $\feq{\bang p, A}{\bang p, B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) inversion of (1) \\
+      $\mz \Gamma', p; \Delta \rightarrow \bang p \otimes A$ \hfill (3) assumption \\
+      $\mz \Gamma', p; \cdot \rightarrow \bang p$ \hfill (4) inversion of (4) \\
+      $\mz \Gamma', p; \Delta \rightarrow A$ \hfill (5) inversion of (3) \\
+      $\mz \Gamma', p; \Delta \rightarrow B$ \hfill (6) i.h. on (5) and (2) \\
+      $\mz \Gamma', p; \Delta \rightarrow p \otimes B$ \hfill (7) merge (6) with (4) \\
+      
+      \item $1 \; left$
+      
+      $\feq{1, A}{B}$ \hfill (1) assumption \\
+      $\feq{A}{B}$ \hfill (2) inversion of (1) \\
+      $\mz \Delta \rightarrow 1 \otimes A$ \hfill (3) assumption \\
+      $\mz \Delta \rightarrow A$ \hfill (4) inversion of (4) \\
+      $\mz \cdot \rightarrow 1$ \hfill (5) axiom \\
+      $\mz \Delta \rightarrow B$ \hfill (6) i.h. on (2) and (4) \\
+      $\mz \Delta \rightarrow 1 \otimes B$ \hfill (7) rule application on (6) and (5) \\
+      
+      \item $1 \; right$
+      
+      Same thing as before.
+      
+      \item $\cdot$
+      
+      Immediate since $\mz$ fails.
+      
+      \item $\otimes \; left$
+      
+      $\feq{A \otimes B, C}{D}$ \hfill (1) assumption \\
+      $\feq{A, B, C}{D}$ \hfill (2) inversion of (1) \\
+      $\mz \Delta_1, \Delta_2, \Delta_3 \rightarrow (A \otimes B) \otimes C$ \hfill (3) assumption \\
+      $\mz \Delta_1, \Delta_2 \rightarrow A \otimes B$ \hfill (4) inversion of (3) \\
+      $\mz \Delta_3 \rightarrow C$ \hfill (5) inversion of (3) \\
+      $\mz \Delta_1 \rightarrow A$ and $\mz \Delta_2 \rightarrow B$ \hfill (6) inversion of (4) \\
+      $\mz \Delta_1, \Delta_2, \Delta_3 \rightarrow A \otimes B \otimes C$ \hfill (7) apply (5) with (6) \\
+      $\mz \Delta_1, \Delta_2, \Delta_3 \rightarrow D$ \hfill (8) i.h. on (7) and (2)\\
+      
+      \item $\otimes \; right$
+      
+      Apply equivalence commutativity theorem and follow the previous case.
+   \end{itemize}
+\end{proof}

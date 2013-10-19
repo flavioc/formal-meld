@@ -7,27 +7,53 @@ We extend the previous system with persistent facts.
 \subsubsection{Match}
 
 \[
-\infer[\mo p \; ok]
+\infer[\mo p \; ok \; first]
 {\mo \Gamma ; \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'; \Gamma'}
-{\mo \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p; \Omega; \Xi; \cdot; \cdot); R \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\mo p \; ok \; other \; q]
+{\mo \Gamma ; \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; C_1, C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p; \Omega; \Xi; q, \Lambda; \Upsilon), C_1, C; R \rightarrow \Xi'; \Delta'; \Gamma' & C_1 = (\Delta_{old}; \Delta'_{old}; q; \Omega_{old}; \Xi_{old}; \Lambda; \Upsilon)}
+\]
+
+
+\[
+\infer[\mo p \; ok \; other \; \bang q]
+{\mo \Gamma ; \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; C_1, C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p; \Omega; \Xi; \Lambda; q, \Upsilon), C_1, C; R \rightarrow \Xi'; \Delta'; \Gamma' & C_1 = [\Gamma_{old}; \Delta_{old}; \bang q; \Omega_{old}; \Xi_{old}; \Lambda; \Upsilon]}
 \]
 
 \[
 \infer[\mo p \; fail]
 {\mo \Gamma ; \Delta; \Xi; p, \Omega; H; C; R \rightarrow \Xi'; \Delta'; \Gamma'}
-{p \notin \Delta & \cont C ; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{p \notin \Delta & \cont C ; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
-\infer[\mo \bang p \; ok]
-{\mo \Gamma, p, \Gamma' ; \Delta; \Xi; \bang p, \Omega; H; C; R \rightarrow \Xi'; \Delta'; \Gamma'}
-{\mo \Gamma, p, \Gamma' ; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p, \Omega; H; \Xi], C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+\infer[\mo \bang p \; ok \; first]
+{\mo \Gamma, p, \Gamma' ; \Delta; \Xi; \bang p, \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma, p, \Gamma' ; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p ; \Omega; \Xi; \Lambda; \cdot]; R \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\mo \bang p \; ok \; other \; q]
+{\mo \Gamma, p, \Gamma' ; \Delta; \Xi; \bang p, \Omega; H; C_1, C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma, p, \Gamma' ; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p ; \Omega; \Xi; q, \Lambda; \Upsilon], C_1, C; R \rightarrow \Xi'; \Delta'; \Gamma' & C_1 = (\Delta_{old}; \Delta'_{old}; q; \Omega_{old}; \Xi_{old}; \Lambda; \Upsilon)}
+\]
+
+
+\[
+\infer[\mo \bang p \; ok \; other \; \bang q]
+{\mo \Gamma, p, \Gamma' ; \Delta; \Xi; \bang p, \Omega; H; C_1, C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma, p, \Gamma' ; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p ; \Omega; \Xi; \Lambda; q, \Upsilon], C_1, C; R \rightarrow \Xi'; \Delta'; \Gamma' & C_1 = [\Gamma_{old}; \Delta_{old}; \bang q; \Omega_{old}; \Xi_{old}; \Lambda; \Upsilon]}
 \]
 
 \[
 \infer[\mo \bang p \; fail]
 {\mo \Gamma ; \Delta; \Xi; \bang p, \Omega; H; C; R \rightarrow \Xi'; \Delta'; \Gamma'}
-{p \notin \Gamma & \cont C; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{p \notin \Gamma & \cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
@@ -82,32 +108,32 @@ We extend the previous system with persistent facts.
 
 \[
 \infer[\cont next \; rule]
-{\cont \cdot; (\Phi, \Delta); \Gamma ; \Xi'; \Delta'; \Gamma'}
+{\cont \cdot; H; (\Phi, \Delta); \Gamma ; \Xi'; \Delta'; \Gamma'}
 {\doo \Gamma; \Delta; \Phi \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
 \infer[\cont p \; next]
-{\cont (\Delta; p_1, \Delta''; p, \Omega; H; \Xi), C; R; \Gamma; \Xi'; \Delta'; \Gamma'}
-{\mo \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi), C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+{\cont (\Delta; p_1, \Delta''; p, \Omega; \Xi; \Lambda; \Upsilon), C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi; \Lambda; \Upsilon), C; R \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
 \infer[\cont p \; no \; more]
-{\cont (\Delta; \cdot; p, \Omega; H; \Xi), C; R; \Gamma; \Xi'; \Delta'; \Gamma'}
-{\cont C; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\cont (\Delta; \cdot; p, \Omega; \Xi; \Lambda; \Upsilon), C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
 \infer[\cont \bang p \; next]
-{\cont [p_1, \Gamma'; \Delta; \bang p, \Omega; H; \Xi], C; R; \Gamma; \Xi'; \Delta'; \Gamma'}
-{\mo \Gamma; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p, \Omega; H; \Xi], C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+{\cont [p_1, \Gamma'; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; R \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
 \infer[\cont \bang p \; no \; more]
-{\cont [\cdot; \Delta; \bang p, \Omega; H; \Xi], C; R; \Gamma; \Xi'; \Delta'; \Gamma'}
-{\cont C; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\cont [\cdot; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
 \]
 
 \subsubsection{Match Comprehension}

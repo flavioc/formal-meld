@@ -1,10 +1,33 @@
 \input{high-level-persistent}
 
+\newcommand{\strans}[0]{\m{strans} \;}
+
 \subsection{Low Level System}
 
-We extend the previous system with persistent facts.
+We extend the previous system with persistent facts. Most judgments are extended $\Gamma$ context for persistent facts. While the matching mechanism has new frames for persistent facts, everything else remains the same. Because persistent facts are never consumed, we only need to make sure that the frames read the facts from the $\Gamma$ context.
+
+All the judgments in this system have been extended with $\Gamma'$, the context that contains the persistent resources created during the application of some rule.
+
+\subsubsection{Continuation Frames}
+
+The system adds a new continuation frame for persistent facts with the form $[\Gamma'; \Delta; \bang p; \Omega; \Xi; \Lambda; \Upsilon]$:
+
+\begin{enumerate}
+   \item[$\Gamma'$]: A multi-set of persistent resources that can be used if the current one fails.
+   \item[$\Delta$]: The multi-set of linear resources at this point of the matching process.
+   \item[$\bang p$]: The persistent atomic term that created this frame.
+   \item[$\Omega$]: The remaining terms we need to match past this choice point. This is an ordered list.
+   \item[$\Xi$]: A multi-set of linear resources we have consumed to reach this point.
+   \item[$\Lambda$]: A multi-set of linear atomic terms that we have matched to reach this choice point. All the linear resources that match these terms are located in $\Xi$.
+   \item[$\Upsilon$]: A multi-set of persistent atomic terms that we have matched to reach this point. All the persistent resources used for matching must be located in the $\Gamma$ of the matching judgment.
+\end{enumerate}
+
+Please note that the old continuation frame is also extended with $\Upsilon$.
 
 \subsubsection{Match}
+
+The $\mo$ judgments is simply extended with arguments $\Gamma$ and $\Gamma'$.
+However, the number of inference rules has duplicated due to the presence of persistent frames and persistent terms.
 
 \[
 \infer[\mo p \; ok \; first]
@@ -68,7 +91,43 @@ We extend the previous system with persistent facts.
 {\done \Gamma ; \Delta; \Xi; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
 
+\subsubsection{Continuation}
+
+The $\cont$ judgment has been extended with the $\Gamma$ context. We also need to handle the case where the top of the stack contains persistent frames.
+
+\[
+\infer[\cont next \; rule]
+{\cont \cdot; H; (\Phi, \Delta); \Gamma ; \Xi'; \Delta'; \Gamma'}
+{\doo \Gamma; \Delta; \Phi \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\cont p \; next]
+{\cont (\Delta; p_1, \Delta''; p, \Omega; \Xi; \Lambda; \Upsilon), C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi; \Lambda; \Upsilon), C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\cont p \; no \; more]
+{\cont (\Delta; \cdot; p, \Omega; \Xi; \Lambda; \Upsilon), C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\cont \bang p \; next]
+{\cont [p_1, \Gamma'; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\cont \bang p \; no \; more]
+{\cont [\cdot; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+\]
+
 \subsubsection{Derive}
+
+We extended with $\done$ judgment with $\Gamma$ and $\Gamma_1$. $\Gamma_1$ contains the derived persistent resources.
 
 \[
 \infer[\done p]
@@ -101,125 +160,216 @@ We extend the previous system with persistent facts.
 \[
 \infer[\done comp]
 {\done \Gamma; \Delta ; \Xi; \Gamma_1; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi';\Delta';\Gamma'}
-{\mc \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \cdot; A ; B ; \cdot; \comp A \lolli B; \Omega; \Delta \rightarrow \Xi';\Delta';\Gamma'}
-\]
-
-\subsubsection{Continuation}
-
-\[
-\infer[\cont next \; rule]
-{\cont \cdot; H; (\Phi, \Delta); \Gamma ; \Xi'; \Delta'; \Gamma'}
-{\doo \Gamma; \Delta; \Phi \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
-
-\[
-\infer[\cont p \; next]
-{\cont (\Delta; p_1, \Delta''; p, \Omega; \Xi; \Lambda; \Upsilon), C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
-{\mo \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi; \Lambda; \Upsilon), C; R \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
-
-\[
-\infer[\cont p \; no \; more]
-{\cont (\Delta; \cdot; p, \Omega; \Xi; \Lambda; \Upsilon), C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
-{\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
-\]
-
-\[
-\infer[\cont \bang p \; next]
-{\cont [p_1, \Gamma'; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
-{\mo \Gamma; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; R \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
-
-\[
-\infer[\cont \bang p \; no \; more]
-{\cont [\cdot; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
-{\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \cdot; A ; B ; \cdot; \cdot; \comp A \lolli B; \Omega; \Delta \rightarrow \Xi';\Delta';\Gamma'}
 \]
 
 \subsubsection{Match Comprehension}
 
+For the matching process of the comprehensions, we use two stacks, $C$ and $P$. In $P$, we put all the initial persistent frames and in $C$ we put the first linear frame and then everything else. With this we can easily find out the first linear frame and remove everything that was pushed on top of such frame.
+The match comprehension judgment $\mc$ has been extended with persistent frames and a few other arguments:
+
+\begin{enumerate}
+   \item[$\Gamma$]: The multi-set of persistent resources.
+   \item[$\Gamma_{N1}$]: Multi-set of persistent resources derived up to this point in the head of the rule.
+   \item[$C$]: The continuation stack that contains both linear and persistent frames. The first frame must be linear.
+   \item[$P$]: The second part of the continuation stack with only persistent frames.
+   \item[$\Gamma'$]: Multi-set of derived persistent resources.
+\end{enumerate}
+
+Like the $\mo$ judgment, we can see a duplication of inference rules due to the presence of persistent frames.
+
 \[
 \infer[\mc p \; ok \; first]
-{\mc \Delta, p_1, \Delta''; \Xi_N; \Delta_{N1}; \Xi; p, \Omega; \cdot; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\mc \Delta, \Delta''; \Xi_N; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; \cdot); AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\mc \Gamma; \Delta, p_1, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; p, \Omega; \cdot; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \cdot; p; \Omega; \cdot; \cdot); P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
-\infer[\mc p \; ok \; other]
-{\mc \Delta, p_1, \Delta''; \Xi_N; \Delta_{N1}; \Xi; p, \Omega; C_1, C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\mc \Delta, \Delta''; \Xi_N; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; q, \Lambda), C_1, C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta' & C1 = (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda)}
+\infer[\mc p \; ok \; other \; q]
+{\mc \Gamma; \Delta, p_1, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; p, \Omega; C_1, C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; q, \Lambda; \Upsilon), C_1, C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma' & C_1 = (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda; \Upsilon)}
+\]
+
+
+\[
+\infer[\mc p \; ok \; other \; \bang qC]
+{\mc \Gamma; \Delta, p_1, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; p, \Omega; C_1, C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; \Lambda; q, \Upsilon), C_1, C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma' & C_1 = [\Gamma_{old}; \Delta_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda; \Upsilon]}
+\]
+
+
+\[
+\infer[\mc p \; ok \; other \; \bang qP]
+{\mc \Gamma; \Delta, p_1, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; p, \Omega; \cdot; P_1, P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; \Lambda; q, \Upsilon); P_1, P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma' & P_1 = [\Gamma_{old}; \Delta_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda; \Upsilon]}
 \]
 
 
 \[
 \infer[\mc p \; fail]
-{\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; p, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\contc \Delta_N; \Xi_N; \Delta_{N1}; C; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'}
+{\mc \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; C; P; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\mc \bang p \; first]
+{\mc \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \bang p, \Omega; \cdot; \cdot; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; \cdot; [\Gamma'; \Delta; \Xi; \bang p; \cdot; \Omega; \cdot; \cdot]; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\mc \bang p \; other \; \bang qP]
+{\mc \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \bang p, \Omega; \cdot; P_1, P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; [\Gamma'; \Delta; \Xi; \bang p; \cdot; \Omega; \Lambda; q, \Upsilon], P_1, P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma' & P_1 = [\Gamma_{old}; \Delta_{old}; \Xi_{old}; \bang q; \Omega_{old}; \Lambda; \Upsilon]}
+\]
+
+
+\[
+\infer[\mc \bang p \; other \; \bang qC]
+{\mc \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \bang p, \Omega; C_1, C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; [\Gamma'; \Delta; \Xi; \bang p; \cdot; \Omega; \Lambda; q, \Upsilon], C_1, C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma' & C_1 = [\Gamma_{old}; \Delta_{old}; \Xi_{old}; \bang q; \Omega_{old}; \Lambda; \Upsilon]}
+\]
+
+
+\[
+\infer[\mc \bang p \; other \; qC]
+{\mc \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \bang p, \Omega; C_1, C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; [\Gamma'; \Delta; \Xi; \bang p; \cdot; \Omega; \Lambda, q; \Upsilon], C_1, C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma' & C_1 = (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda; \Upsilon)}
 \]
 
 \[
 \infer[\mc \otimes]
-{\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; X \otimes Y, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; X, Y, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; X \otimes Y, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; X, Y, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
 \]
 
 \[
 \infer[\mc end]
-{\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \cdot; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\dall \Xi_N; \Delta_{N1}; \Xi; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\mc \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+
+\subsubsection{Match Comprehension Continuation}
+
+When backtracking to a previous frame, we need to be carefully when using the stacks $C$ and $P$.
+
+\[
+\infer[\contc end]
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \cdot; \comp A \lolli B; \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
-\infer[\dall end]
-{\dall \Xi_N; \Delta_{N1}; \Xi; (\Delta_x; \Delta''; \cdot; p, \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\dc \Xi_N, \Xi; \Delta_{N1}; (\Delta_x - \Xi; \Delta'' - \Xi; \cdot; p; \Omega; \cdot) ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'}
+\infer[\contc nextC \; p]
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\Delta; p_1, \Delta''; \Xi; p; \Omega; \Lambda; \Upsilon), C; P; AB; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; \Lambda; \Upsilon), C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\contc nextC \; \bang p]
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; [p_1, \Gamma'; \Delta; \Xi; \bang p; \Omega; \Lambda; \Upsilon], C; P; AB; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; [\Gamma'; \Delta; \Xi; \bang p; \Omega; \Lambda; \Upsilon], C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\contc nextC \; empty \; p]
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\Delta; \cdot; \Xi; p; \Omega; \Lambda; \Upsilon), C; P; AB; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; C; P; AB; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\contc nextC \; empty \; \bang p]
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; [\cdot; \Delta; \Xi; \bang p; \Omega; \Lambda; \Upsilon], C; P; AB; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; C; P; AB; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\contc nextP \; \bang p]
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; [p_1, \Gamma'; \Delta; \Xi; \bang p; \Omega; \Lambda; \Upsilon], P; AB; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\mc \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; \cdot; [\Gamma'; \Delta; \Xi; \bang p; \Omega; \Lambda; \Upsilon], P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\contc nextP \; empty \; \bang p]
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; [\cdot; \Delta; \Xi; \bang p; \Omega; \Lambda; \Upsilon], P; AB; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; P; AB; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+
+\subsubsection{Stack Transformation}
+
+Like the previous system, we need to transform continuation stack to be able to used again. First, we remove everything except the first frame in the $C$ stack. Next, we transform the $\Delta$ argument in the first frame of $C$ and in every frame of $P$ to remove recently consumed facts.
+
+The $\strans \Xi; P; P'$ judgments transforms the $P$ stack and has the following meaning:
+\begin{enumerate}
+   \item[$\Xi$]: Consumed linear resources during the last application of the comprehension.
+   \item[$P$]: The $P$ stack.
+   \item[$P'$]: The transform $P$ stack.
+\end{enumerate}
+
+\[
+\infer[\strans]
+{\strans \Xi; [\Gamma'; \Delta; \cdot; \bang p; \Omega; \Lambda; \Upsilon], P; [\Gamma'; \Delta - \Xi; \cdot; \bang p, \Omega; \Lambda; \Upsilon], P'}
+{\strans \Xi; P; P'}
+\]
+
+\[
+\infer[\strans end]
+{\strans \Xi; \cdot; \cdot}
+{\strans \Xi; \cdot; \cdot}
+\]
+
+\[
+\infer[\dall end \; linear]
+{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; (\Delta_x; \Delta''; \cdot; p, \Omega; \cdot; \Upsilon); P;  \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\strans \Xi; P; P' & \dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; (\Delta_x - \Xi; \Delta'' - \Xi; \cdot; p; \Omega; \cdot; \Upsilon) ; P' ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+
+\[
+\infer[\dall end \; empty]
+{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; P;  \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\strans \Xi; P; P' & \dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; \cdot ; P' ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
 \infer[\dall more]
-{\dall \Xi_N; \Delta_{N1}; \Xi; \_, X, C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\dall \Xi_N; \Delta_{N1}; \Xi; X, C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \_, X, C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; X, C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
+
+\subsubsection{Comprehension Derivation}
+
+The $\dc$ is identical to the previous system, however it has been extended with $\Gamma$, $\Gamma_1$, $C$, $P$ and $\Gamma'$.
 
 \[
 \infer[\dc p]
-{\dc \Xi; \Delta_1; p, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\dc \Xi; \Delta_1, p; \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1, p; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\dc \bang p]
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; \bang p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dc \Gamma; \Xi; \Gamma_1, p; \Delta_1; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
 
 \[
 \infer[\dc \otimes]
-{\dc \Xi; \Delta_1; A \otimes B, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\dc \Xi; \Delta_1; A, B, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; A \otimes B, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta';\Gamma'}
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; A, B, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta';\Gamma'}
 \]
 
 \[
 \infer[\dc end]
-{\dc \Xi; \Delta_1; \cdot; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\contc \Delta_N; \Xi; \Delta_1; C; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'}
-\]
-
-\subsubsection{Match Comprehension Continuation}
-
-\[
-\infer[\contc end]
-{\contc \Delta_N; \Xi_N; \Delta_{N1}; \cdot; \comp A \lolli B; \Omega \rightarrow \Xi'; \Delta'}
-{\done \Delta_N; \Xi_N; \Delta_{N1}; \Omega \rightarrow \Xi'; \Delta'}
-\]
-
-\[
-\infer[\contc next]
-{\contc \Delta_N; \Xi_N; \Delta_{N1}; (\Delta; p_1, \Delta''; \Xi; p; \Omega; \Lambda), C; AB; \Omega_N \rightarrow \Xi'; \Delta'}
-{\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; \Lambda), C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-\]
-
-\[
-\infer[\contc next \; empty]
-{\contc \Delta_N; \Xi_N; \Delta_{N1}; (\Delta; \cdot; \Xi; p; \Omega; \Lambda), C; AB; \Omega_N \rightarrow \Xi'; \Delta'}
-{\contc \Delta_N; \Xi_N; \Delta_{N1}; C; AB; \Omega_N \rightarrow \Xi'; \Delta'}
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; \cdot; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta_N; \Xi; \Gamma_1; \Delta_1; C; P; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
 \]
 
 \subsubsection{Apply}
+
+Finally, we add $\Gamma$ and $\Gamma'$ to the main inference rules to complete the system.
 
 \[
 \infer[\ao start \; matching]

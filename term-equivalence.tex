@@ -33,11 +33,11 @@ The judgment $\feq{A}{B}$ tests if two multisets of terms $A, B$ are equal. Two 
 \]
 
 \[
-\infer[\equiv left]
+\infer[\equiv \otimes \; left]
 {\feq{A \otimes B, C}{D}}
 {\feq{A, B, C}{D}}
 \tab
-\infer[\equiv right]
+\infer[\equiv \otimes \; right]
 {\feq{A}{B \otimes C, D}}
 {\feq{A}{B, C, D}}
 \]
@@ -79,14 +79,14 @@ If $\feq{A}{B}$ then $\feq{B}{A}$.
 
       Immediate.
 
-      \item $left$
+      \item $\otimes \; left$
 
       $\feq{A \otimes B, C}{D}$ \hfill (1) assumption \\
       $\feq{A, B, C}{D}$ \hfill (2) inversion of (1) \\
       $\feq{D}{A, B, C}$ \hfill (3) i.h. on (2) \\
       $\feq{D}{A \otimes B, C}$ \hfill (4) right rule on (3) \\
 
-      \item $right$
+      \item $\otimes \; right$
 
       Same thing as the last case.
    \end{itemize}

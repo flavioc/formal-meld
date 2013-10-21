@@ -1,13 +1,36 @@
-
-
 \input{high-level}
 
 \subsection{Low Level System}
 
-We extend the previous system with comprehensions.
+We extend the previous system with comprehensions. Like the previous system, we use a stack of continuation frames to match the body of rule. For comprehensions, we use the same mechanism but reuse the stack to apply the comprehension several times. Since we use only linear resources, we remove all frames except the first since their state no longer makes sense because the first linear resource used is no longer available due to the application of the comprehension. The last frame is modified in order to remove the facts consumed.
+
+\subsubsection{Continuation Frames}
+
+The continuation stack is an ordered list of continuation frames. Each frame has the structure $(\Delta_a; \Delta_b; p; \Omega; \Xi; \Lambda)$:
+
+\begin{enumerate}
+   \item[$\Delta_a$]: A multi-set of linear resources that are not of type $p$ plus all the other $p$'s we have already tried, including the current $p$.
+   \item[$\Delta_b$]: All the other $p$'s we haven't tried yet. It is a multi-set of linear resources.
+   \item[$p$]: The current term that originated this choice point.
+   \item[$\Omega$]: The remaining terms we need to match past this choice point. This is an ordered list.
+   \item[$\Xi$]: A multi-set of linear resources we have consumed to reach this point.
+   \item[$\Lambda$]: A multi-set of atomic terms that we have matched to reach this choice point. All the linear resources that match these terms are located in $\Xi$. 
+\end{enumerate}
 
 \subsubsection{Match}
 
+The matching judgment uses the form $\mo \Delta; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$:
+
+\begin{enumerate}
+   \item[$\Delta$]: The multi-set of linear resources still available to complete the matching process.
+   \item[$\Xi$]: The multi-set of linear resources consumed up to this point.
+   \item[$\Omega$]: Ordered list of terms we want to match.
+   \item[$H$]: The head of the rule.
+   \item[$C$]: The continuation stack is an ordered list of frames.
+   \item[$R$]: The rule continuation. If the matching process fails, we try another rule.
+   \item[$\Xi'$]: The linear resources consumed to apply some rule of the system.
+   \item[$\Delta'$]: The linear resources created during the application of some rule of the system.
+\end{enumerate}
 
 \[
 \infer[\mo ok \; first]
@@ -39,7 +62,50 @@ We extend the previous system with comprehensions.
 {\done \Delta; \Xi; \cdot ; H; \cdot \rightarrow \Xi'; \Delta'}
 \]
 
+\subsubsection{Continuation}
+
+If the previous matching process fails, we pick the top frame of the stack $C$ and restore the matching process using another fact and/or context. The continuation judgment $\cont C; H; R; \Xi'; \Delta'$ deals with the backtracking process where the meaning of each argument is as follows:
+
+\begin{enumerate}
+   \item[$C$]: The continuation stack as an ordered list of frames.
+   \item[$H$]: The head of the current rule we are trying to match.
+   \item[$R$]: The next available rules if the current one does not match.
+   \item[$\Xi'$]: The linear resources consumed to apply some rule of the system.
+   \item[$\Delta'$]: The linear resources created during the application of some rule of the system.
+\end{enumerate}
+
+\[
+\infer[\cont next \; rule]
+{\cont \cdot; H; (\Phi; \Delta); \Xi'; \Delta'}
+{\doo \Delta; \Phi \rightarrow \Xi'; \Delta'}
+\]
+
+
+\[
+\infer[\cont next]
+{\cont (\Delta; p_1, \Delta''; p; \Omega; \Xi; \Lambda), C; H; R; \Xi'; \Delta'}
+{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p ; \Omega; \Xi; \Lambda), C; R \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\cont no \; more]
+{\cont (\Delta; \cdot; p; \Omega; H; \Xi; \Lambda), C; H; R; \Xi'; \Delta'}
+{\cont C; H; R; \Xi'; \Delta'}
+\]
+
 \subsubsection{Derive}
+
+Once the list of terms $\Omega$ is exhausted, we derive the terms of the head of rule represented as $R$.
+The derivation judgment uses the form $\done \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta'$:
+
+\begin{enumerate}
+   \item[$\Delta$]: The multi-set of linear resources we started with minus the linear resources consumed during the matching of the body of the rule.
+   \item[$\Xi$]: A multi-set of linear resources consumed during the matching process of the body of the rule.
+   \item[$\Delta_1$]: A multi-set of linear resources derived up to this point in the derivation process.
+   \item[$\Omega$]: The remaining terms to derive as an ordered list. We started with $R$.
+   \item[$\Xi'$]: A multi-set of facts consumed during the whole process.
+   \item[$\Delta'$]: A multi-set of linear facts derived.
+\end{enumerate}
 
 \newcommand{\mc}[0]{\m{mc} \; }
 \newcommand{\dall}[0]{\m{dall} \; }
@@ -72,28 +138,24 @@ We extend the previous system with comprehensions.
 {\mc \Delta; \Xi; \Delta_1; \cdot; A ; B ; \cdot; \comp A \lolli B; \Omega; \Delta \rightarrow \Xi';\Delta'}
 \]
 
-\subsubsection{Continuation}
-
-\[
-\infer[\cont next \; rule]
-{\cont \cdot; H; (\Phi; \Delta); \Xi'; \Delta'}
-{\doo \Delta; \Phi \rightarrow \Xi'; \Delta'}
-\]
-
-
-\[
-\infer[\cont next]
-{\cont (\Delta; p_1, \Delta''; p; \Omega; \Xi; \Lambda), C; H; R; \Xi'; \Delta'}
-{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p ; \Omega; \Xi; \Lambda), C; R \rightarrow \Xi'; \Delta'}
-\]
-
-\[
-\infer[\cont no \; more]
-{\cont (\Delta; \cdot; p; \Omega; H; \Xi; \Lambda), C; H; R; \Xi'; \Delta'}
-{\cont C; H; R; \Xi'; \Delta'}
-\]
-
 \subsubsection{Match Comprehension}
+
+The matching process for comprehensions is similar to the process used for matching the body of the rule. Note that the structure of the continuation frames is the same. The full judgment as the form
+$\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \Omega; C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$:
+
+\begin{enumerate}
+   \item[$\Delta$]: The multi-set of linear resources remaining up to this point in the matching process.
+   \item[$\Xi_N$]: The multi-set of linear resources used during the matching process of the body of the rule.
+   \item[$\Delta_{N1}$]: The multi-set of linear resources derived by the head of the rule.
+   \item[$\Xi$]: The multi-set of linear resources consumed up to this point.
+   \item[$\Omega$]: The ordered list of terms that need to be matched for the comprehension to be applied.
+   \item[$C$]: The continuation stack for the comprehension.
+   \item[$AB$]: The comprehension $\comp A \lolli B$ that is being matched.
+   \item[$\Omega_N$]: The ordered list of remaining terms of the head of the rule to be derived.
+   \item[$\Delta_N$]: The multi-set of linear resources that were still available after matching the body of the rule. Note that $\Delta, \Xi = \Delta_N$.
+   \item[$\Xi'$]: A multi-set of facts consumed during the whole process.
+   \item[$\Delta'$]: A multi-set of linear facts derived.
+\end{enumerate}
 
 \[
 \infer[\mc p \; ok \; first]
@@ -126,37 +188,21 @@ We extend the previous system with comprehensions.
 {\dall \Xi_N; \Delta_{N1}; \Xi; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
 \]
 
-\[
-\infer[\dall end]
-{\dall \Xi_N; \Delta_{N1}; \Xi; (\Delta_x; \Delta''; \cdot; p, \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\dc \Xi_N, \Xi; \Delta_{N1}; (\Delta_x - \Xi; \Delta'' - \Xi; \cdot; p; \Omega; \cdot) ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'}
-\]
-
-\[
-\infer[\dall more]
-{\dall \Xi_N; \Delta_{N1}; \Xi; \_, X, C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\dall \Xi_N; \Delta_{N1}; \Xi; X, C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-\]
-
-\[
-\infer[\dc p]
-{\dc \Xi; \Delta_1; p, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\dc \Xi; \Delta_1, p; \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-\]
-
-\[
-\infer[\dc \otimes]
-{\dc \Xi; \Delta_1; A \otimes B, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\dc \Xi; \Delta_1; A, B, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-\]
-
-\[
-\infer[\dc end]
-{\dc \Xi; \Delta_1; \cdot; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\contc \Delta_N; \Xi; \Delta_1; C; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'}
-\]
 
 \subsubsection{Match Comprehension Continuation}
+
+If the matching process fails, we need to backtrack to the previous frame and restore the matching process at that point. The judgment that backtracks has the form $\contc \Delta_N; \Xi_N; \Delta_{N1}; C; AB; \Omega_N \rightarrow \Xi'; \Delta'$:
+
+\begin{enumerate}
+   \item[$\Delta_N$]: The multi-set of linear resources that were still available after matching the body of the rule.
+   \item[$\Xi_N$]: The multi-set of linear resources used during the matching process of the body of the rule.
+   \item[$\Delta_{N1}$]: The multi-set of linear resources derived by the head of the rule.
+   \item[$C$]: The continuation stack.
+   \item[$AB$]: The comprehension $\comp A \lolli B$ that is being matched.
+   \item[$\Omega_N$]: The ordered list of remaining terms of the head of the rule to be derived.
+   \item[$\Xi'$]: A multi-set of facts consumed during the whole process.
+   \item[$\Delta'$]: A multi-set of linear facts derived.
+\end{enumerate}
 
 \[
 \infer[\contc end]
@@ -176,7 +222,72 @@ We extend the previous system with comprehensions.
 {\contc \Delta_N; \Xi_N; \Delta_{N1}; C; AB; \Omega_N \rightarrow \Xi'; \Delta'}
 \]
 
+\subsubsection{Comprehension Stack Fixing}
+
+After a comprehension is matched and before we derive the head of such comprehension, we need to "fix" the comprehension stack. In a nutshell, we remove all the frames except the first frame and remove the consumed linear resources from this first frame so that the frame is still valid for the next application of the comprehension.
+The judgment that fixes the stack has the form $\dall \Xi_N; \Delta_{N1}; \Xi; C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$:
+
+\begin{enumerate}
+   \item[$\Xi_N$]: The multi-set of linear resources used during the matching process of the body of the rule.
+   \item[$\Delta_{N1}$]: The multi-set of linear resources derived by the head of the rule.
+   \item[$\Xi$]: The multi-set of linear resources consumed by the previous application of the comprehension.
+   \item[$C$]: The continuation stack for the comprehension.
+   \item[$AB$]: The comprehension $\comp A \lolli B$ that is being matched.
+   \item[$\Omega_N$]: The ordered list of remaining terms of the head of the rule to be derived.
+   \item[$\Delta_N$]: The multi-set of linear resources that were still available after matching the body of the rule.
+   \item[$\Xi'$]: A multi-set of facts consumed during the whole process.
+   \item[$\Delta'$]: A multi-set of linear facts derived.
+\end{enumerate}
+
+\[
+\infer[\dall end]
+{\dall \Xi_N; \Delta_{N1}; \Xi; (\Delta_x; \Delta''; \cdot; p, \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\dc \Xi_N, \Xi; \Delta_{N1}; (\Delta_x - \Xi; \Delta'' - \Xi; \cdot; p; \Omega; \cdot) ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\dall more]
+{\dall \Xi_N; \Delta_{N1}; \Xi; \_, X, C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\dall \Xi_N; \Delta_{N1}; \Xi; X, C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+\]
+
+\subsubsection{Comprehension Derivation}
+
+After the fixing process, we commit to the facts consumed during the matching process by adding them to $\Xi_N$ (see rule $\dall more$) and start deriving the head of the comprehension. All the facts derived go directly to $\Delta_{N1}$. The judgment has the form $\dc \Xi; \Delta_1; \Omega; C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$:
+
+\begin{enumerate}
+   \item[$\Xi$]: The multi-set of linear resources consumed both by the body of the rule and all the comprehension applications.
+   \item[$\Delta_1$]: The multi-set of linear resources derived by the head of the rule and the all the comprehension applications.
+   \item[$\Omega$]: Ordered list of terms to derive.
+   \item[$C$]: The fixed continuation stack.
+   \item[$AB$]: The comprehension $\comp A \lolli B$ that is being derived.
+   \item[$\Omega_N$]: The ordered list of remaining terms of the head of the rule to be derived.
+   \item[$\Delta_N$]: The multi-set of remaining linear resources that can be used for the next comprehension applications.
+   \item[$\Xi'$]: A multi-set of facts consumed during the whole process.
+   \item[$\Delta'$]: A multi-set of linear facts derived.
+\end{enumerate}
+
+\[
+\infer[\dc p]
+{\dc \Xi; \Delta_1; p, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\dc \Xi; \Delta_1, p; \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\dc \otimes]
+{\dc \Xi; \Delta_1; A \otimes B, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\dc \Xi; \Delta_1; A, B, \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\dc end]
+{\dc \Xi; \Delta_1; \cdot; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
+{\contc \Delta_N; \Xi; \Delta_1; C; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'}
+\]
+
 \subsubsection{Apply}
+
+This whole process is started by the $\doo$ and $\ao$ judgments. The $\doo \Delta; \Phi \rightarrow \Xi'; \Delta'$ judgment starts with a multi-set of linear resources $\Delta$ and an ordered list of rules that can be applied $\Phi$. The $\ao \Delta; A \lolli B; R \rightarrow \Xi'; \Delta'$ tries to apply the rule $A \lolli B$ and stores the rule continuation $R$ so that if the current rule fails, we can try another one (in order).
 
 \[
 \infer[\ao start \; matching]
@@ -200,7 +311,7 @@ A match $\mc \Delta_1, \Delta_2; \Xi_N; \Delta_{N1}; \Xi; \Omega; C; \comp A \lo
 
 \subsubsection{Body Match Soundness}
 
-If $\mo \Delta, \Delta''; \cdot; \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'$ then either:\\
+If $\mo \Delta, \Delta''; \cdot; \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'$ then either:
 \begin{enumerate}
    \item $\cont \cdot; R; \Xi'; \Delta'$ or;
    \item $\mo \Delta; \Delta''; \cdot; H; C'; R \rightarrow \Xi'; \Delta'$ and $\mz \Delta'' \rightarrow \Omega$
@@ -211,6 +322,8 @@ Proved in Section~\ref{thm:match_soundness_basic}.
 \end{proof}
 
 \subsubsection{Comprehension soundness theorem}
+
+With this theorem, we want to prove that when trying to match a giving comprehension $A \lolli B$ we either fail to apply it or we are able to apply it and get the corresponding match derivation at the high level.
 
 \begin{itemize}
    \item Match sub-theorem
@@ -304,6 +417,8 @@ Direct application of the previous theorem.
 
 \subsubsection{Dall transformation theorem}
 
+Now, we want to prove that by applying the $\dall$ judgment, our continuation stack will only have the first frame and that such frame will be fixed.
+
 If $\dall \Xi_N; \Delta_{N1}; \Xi; C, (\Delta_a; \Delta_b; \cdot; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then 
 $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$.
 
@@ -326,6 +441,8 @@ $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega;
 
 \subsubsection{Successful comprehension match gives derivation}
 
+We can apply the previous theorem to know that after a successful matching we will start the derivation process.
+
 If $\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \cdot; B; C, (\Delta_a; \Delta_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then
 $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$.
 
@@ -333,7 +450,10 @@ $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; p; \Ome
    Invert the assumption and then apply dall transformation theorem.
 \end{proof}
 
-\subsubsection{Continuation derivation theorem}
+\subsubsection{Comprehension derivation theorem}
+
+We now prove that if we need to derive the head of the comprehension, we will finish this process and that
+giving a derivation at the high level with the same results, we can restore the terms we have derived. This second result will be used to prove the soundness of the comprehension mechanism. 
 
 If $\dc \Xi_N; \Delta_{N1}; \Omega_1, ..., \Omega_n; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then:
 \begin{enumerate}
@@ -366,7 +486,7 @@ If $\dc \Xi_N; \Delta_{N1}; \Omega_1, ..., \Omega_n; C; \comp A \lolli B; \Omega
    \end{itemize}
 \end{proof}
 
-\subsubsection{Continuation derivation lemma}
+\subsubsection{Comprehension derivation lemma}
 
 If $\dc \Xi_N; \Delta_{N1}; \Omega_x; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then:
 \begin{enumerate}
@@ -375,10 +495,13 @@ If $\dc \Xi_N; \Delta_{N1}; \Omega_x; C; \comp A \lolli B; \Omega_N; \Delta_N \r
 \end{enumerate}
 
 \begin{proof}
-   By direct application of the continuation derivation theorem.
+   By direct application of the comprehension derivation theorem.
 \end{proof}
 
 \subsubsection{Comprehension Theorem}
+
+This is the main theorem of the system. If we have a matching process with a single continuation frame we can derive $n \geq 0$ comprehensions and have $n$ valid matching processes and $n$ derivations at the high level.
+Since the second argument of the continuation frame will be reduced after each application, we have a valid induction hypotheses.
 
 If $\mc \Delta_a, \Delta'_b; \Xi_N; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ and $\Delta_a, \Delta_b = \Delta, \Xi_1, ..., \Xi_n$ and $\feq{p, \Omega}{A}$ then $\exists n \geq 0$ such that:
 \begin{enumerate}
@@ -409,7 +532,7 @@ If $\mc \Delta_a, \Delta'_b; \Xi_N; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \D
          $\mz p_1, \Xi'_1 \rightarrow A$ \hfill (4) from theorem\\
          $\dc \Xi_N, p, \Xi'_1; \Delta_{N1}; B; (\Delta_a, p_1 - (p_1, \Xi'_1); \Delta'_b - (p_1, \Xi'_1); \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta, \Xi_1, ..., \Xi_n) - \Xi_1 \rightarrow \Xi'; \Delta'$ \hfill (5) apply successful comprehension matches gives derivation lemma to (3) \\
          $\dc \Xi_N, p, \Xi'_1; \Delta_{N1}; B; (\Delta_a - \Xi'_1; \Delta'_b - \Xi'_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (6) simplification of (5) \\
-         $\dc \Xi_N, p, \Xi'_1; \Delta_{N1}, \Delta_1; \cdot; (\Delta_a - \Xi'_1; \Delta'_b - \Xi'_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (7) from continuation derivation lemma on (6)\\
+         $\dc \Xi_N, p, \Xi'_1; \Delta_{N1}, \Delta_1; \cdot; (\Delta_a - \Xi'_1; \Delta'_b - \Xi'_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (7) from comprehension derivation lemma on (6)\\
          if $\forall \Omega_x, \Delta_x. \dz \Delta_x; \Xi_N, p, \Xi'_1; \Delta_{N1}, \Delta_1; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, p, \Xi'_1; \Delta_{N1}; B, \Omega_x \rightarrow \Xi'; \Delta'$ \hfill (8) using the same lemma \\
          $\contc \Delta, \Xi_2, ..., \Xi_n; \Xi_N, p, \Xi'_1; \Delta_{N1}, \Delta_1; (\Delta_a - \Xi'_1; \Delta'_b - \Xi'_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill (9) inversion of (7) \\   
       
@@ -450,6 +573,8 @@ If $\mc \Delta_a, \Delta'_b; \Xi_N; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \D
 
 \subsubsection{Comprehension Lemma}
 
+For this lemma, we start the matching process with an empty continuation stack. If the first application of the comprehension succeeds we get a continuation with a single frame that can be used to prove the other $n$ applications of the comprehension by using the main theorem.
+
 If $\mc \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Delta_{N1}; \cdot; A; \cdot; \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ then we can apply the comprehension $n >= 0$ times:
 \begin{enumerate}
    \item $\done \Delta; \Xi_N, \Xi_1, ..., \Xi_n; \Delta_{N1}, \Delta_1, .., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'$ for $\exists n \geq 0$
@@ -477,14 +602,16 @@ If $\mc \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Delta_{N1}; \cdot; A; \cdot; \comp A 
       $\Delta_a, \Delta_b = \Delta, \Xi_1, ..., \Xi_n$ \hfill (7) from (4) \\
       $(\Delta_a - \Xi_1), (\Delta_b - \Xi_1) = (\Delta_a, \Delta_b) - \Xi_1 = \Delta_, \Xi_2, .., \Xi_n$ and $\Delta'_a = \Delta_a - \Xi_1$ and $\Delta'_b = \Delta_b - \Xi_1$ \hfill (8) from (7) and (6) \\
       $\feq{p, \Omega}{A}$ \hfill (9) from (4) and (6) \\
-      $\dc \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; (\Delta'_a; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (10) using continuation derivation lemma \\
+      $\dc \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; (\Delta'_a; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (10) using comprehension derivation lemma \\
       if $\forall \Omega_x, \Delta_x. \dz \Delta_x; \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, \Xi_1; \Delta_{N1}; B, \Omega_x \rightarrow \Xi'; \Delta'$ \hfill (11) using the same lemma \\ 
       $\contc \Delta, \Xi_2, ..., \Xi_n; \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; (\Delta'_a; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill (12) inversion of (10) \\
       Apply continuation theorem to the inversion of (12) to get either $0$ applications of the comprehension or the remaining $n-1$.
    \end{itemize}
 \end{proof}
 
-\subsubsection{Body Derive Soundness}
+\subsubsection{Derivation Soundness}
+
+Finally, we can prove that the derivation of the head of the rule is sound. The only complicated case is the comprehension. Since we know that applying the comprehension will result in $n$ applications, we can use the results of the main lemma to reconstruct the derivation tree at the high level by using the $n$ applications and the induction hypothesis.
 
 If $\done \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta$ then $\dz \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta'$.
 

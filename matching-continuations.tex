@@ -137,6 +137,17 @@ $\mo \Delta; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$ is related to a ter
 
 \subsection{Theorems}
 
+\subsubsection{Lexicographical Ordering}
+
+\begin{enumerate}
+   \item $\cont C; H; R; \Xi'; \Delta' \prec \cont C', C; H; R; \Xi'; \Delta'$
+   \item $\cont C', (\Delta, \Delta_1; \Delta_2), C; H; R; \Xi'; \Delta' \prec \cont C'', (\Delta; \Delta_1, \Delta_2), C; H; R; \Xi'; \Delta'$
+   \item $\cont C'', C; H; R; \Xi'; \Delta' \prec \mo \Delta; \Xi; \Omega; H; C', C; R \rightarrow \Xi'; \Delta'$ as long as $C'' \prec C$
+   \item $\mo \Delta''; \Xi''; \Omega'; H; C', C; R \rightarrow \Xi'; \Delta' \prec \mo \Delta; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$ as long as $\Omega' \prec \Omega$
+   \item $\mo \Delta; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta' \prec \cont C', C; H; R; \Xi'; \Delta'$
+   \item $\mo \Delta; \Xi; \Omega; H; C'', (\Delta, \Delta_1; \Delta_2), C; R \rightarrow \Xi'; \Delta' \prec \mo \Delta''; \Xi''; \Omega'; C', (\Delta; \Delta_1, \Delta_2), C; R \rightarrow \Xi'; \Delta'$
+\end{enumerate}
+
 \subsubsection{Match soundness theorem}\label{thm:match_soundness_basic}
 
 If a match $\mo \Delta_1, \Delta_2; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$ is related to term $A$ and context $\Delta_1, \Delta_2, \Xi$ then either:\\

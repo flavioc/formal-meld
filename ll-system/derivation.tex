@@ -1,0 +1,34 @@
+
+\[
+\infer[\done p]
+{\done \Gamma ; \Delta; \Xi; \Gamma_1 ; \Delta_1; p, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\done \Gamma ; \Delta; \Xi; \Gamma_1 ; p, \Delta_1; \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+\tab
+\infer[\done 1]
+{\done \Gamma; \Delta; \Xi; \Gamma_1 ; \Delta_1; 1, \Omega \rightarrow \Xi';\Delta';\Gamma'}
+{\done \Gamma; \Delta; \Xi; \Gamma_1 ; \Delta_1; \Omega \rightarrow \Xi'; \Delta';\Gamma'}
+\]
+
+\[
+\infer[\done \bang p]
+{\done \Gamma ; \Delta ; \Xi; \Gamma_1 ; \Delta_1; \bang p, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\done \Gamma ; \Delta ; \Xi; \Gamma_1, p; \Delta_1; \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\done \otimes]
+{\done \Gamma ; \Delta; \Xi; \Gamma_1; \Delta_1; A \otimes B, \Omega \rightarrow \Xi'; \Delta';\Gamma'}
+{\done \Gamma ; \Delta; \Xi; \Gamma_1; \Delta_1; A, B, \Omega \rightarrow \Xi';\Delta';\Gamma'}
+\]
+
+\[
+\infer[\done end]
+{\done \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \cdot \rightarrow \Xi; \Delta_1; \Gamma_1}
+{}
+\]
+
+\[
+\infer[\done comp]
+{\done \Gamma; \Delta ; \Xi; \Gamma_1; \Delta_1; \comp A \lolli B, \Omega \rightarrow \Xi';\Delta';\Gamma'}
+{\mc \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \cdot; A ; B ; \cdot; \cdot; \comp A \lolli B; \Omega; \Delta \rightarrow \Xi';\Delta';\Gamma'}
+\]

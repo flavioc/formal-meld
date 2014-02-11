@@ -2,7 +2,7 @@
 
 \newcommand{\feq}[2]{#1 \equiv #2}
 
-The judgment $\feq{A}{B}$ tests if two multisets of terms $A, B$ are equal. Two multisets are equal if, when deconstructed, they have the same atoms.
+The judgment $\feq{A}{B}$ tests if two multi-sets of terms $A, B$ are equal. Two multisets are equal if, when deconstructed, they have the same atoms.
 
 \[
 \infer[\equiv p]
@@ -44,7 +44,9 @@ The judgment $\feq{A}{B}$ tests if two multisets of terms $A, B$ are equal. Two 
 
 \subsection{Equivalence commutativity}
 
+\begin{theorem}
 If $\feq{A}{B}$ then $\feq{B}{A}$.
+\end{theorem}
 
 \begin{proof}
    By induction on the structure of the assumption.
@@ -94,7 +96,9 @@ If $\feq{A}{B}$ then $\feq{B}{A}$.
 
 \subsection{Match Equivalence Theorem}
 
+\begin{theorem}
 If $\feq{A_1, ..., A_n}{B_1, ..., B_m}$ and $\mz \Gamma ; \Delta \rightarrow A_1 \otimes ... \otimes A_n$ then $\mz \Gamma; \Delta \rightarrow B_1 \otimes ... \otimes B_m$.
+\end{theorem}
 
 \begin{proof}
    By induction on the structure of the assumption.

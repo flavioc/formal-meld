@@ -181,7 +181,7 @@ Meaning of variables:
 \[
 \infer[\m{derive \; aggregate \; unfold}]
 {\derive{\Gamma}{\Delta}{\aggdef{Op}{V'}{(x. A(x))}{(y. B(y))}, \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi}}
-{\derive{\Gamma}{\Delta}{B(V) \with (\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}), \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi} & \aggregateop{Op}{V'}{X'}{E}
+{\begin{split}\derive{\Gamma}{\Delta}{B(V) \with (\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}), \Omega}{\Delta_1}{\Gamma_1}{\Gamma'}{\Delta'}{\Xi} & \\ \aggregateop{Op}{V'}{X'}{E}& \end{split}
 }
 \]
 

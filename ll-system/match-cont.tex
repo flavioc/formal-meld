@@ -1,0 +1,29 @@
+\[
+\infer[\cont next \; rule]
+{\cont \cdot; H; (\Phi, \Delta); \Gamma ; \Xi'; \Delta'; \Gamma'}
+{\doo \Gamma; \Delta; \Phi \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\cont p \; next]
+{\cont (\Delta; p_1, \Delta''; p, \Omega; \Xi; \Lambda; \Upsilon), C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma ; \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p, \Omega; H; \Xi; \Lambda; \Upsilon), C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\cont p \; no \; more]
+{\cont (\Delta; \cdot; p, \Omega; \Xi; \Lambda; \Upsilon), C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\cont \bang p \; next]
+{\cont [p_1, \Gamma'; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\mo \Gamma; \Delta; \Xi; \Omega; H; [\Gamma'; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; R \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\cont \bang p \; no \; more]
+{\cont [\cdot; \Delta; \bang p, \Omega; \Xi; \Lambda; \Upsilon], C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+{\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'}
+\]

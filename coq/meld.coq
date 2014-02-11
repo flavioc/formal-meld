@@ -44,14 +44,20 @@ Inductive match1 : list nat -> list nat -> (list body_tm) -> cont -> head_tm -> 
    | Match1_Fact : forall delta delta' xi p xi' ls c h, In p delta -> delta = p :: delta' -> match1 delta' (p :: xi) ls c h xi' -> match1 delta xi (btm_fact p :: ls) c h xi'
    | Match1_FactFail : forall delta xi p xi' ls nr nrs orig h, ~ In p delta -> cont1 (continuation (nr :: nrs) orig) xi' -> match1 delta xi (btm_fact p :: ls) (continuation (nr :: nrs) orig) h xi'
    | Match1_Constraint : forall delta bexp xi ls xi' c h, eval_bool bexp true -> match1 delta xi ls c h xi' -> match1 delta xi (btm_constraint bexp :: ls) c h xi'
-   | Match1_End : forall delta xi c h, match1 delta xi nil c h xi
+   | Match1_End : forall delta xi c h, derive1 (h :: nil) delta xi delta (empty_continuation) xi delta -> match1 delta xi nil c h xi
 with do1 : list nat -> list rule_tm -> list nat -> Prop :=
    | Do1_Rule : forall delta rules xi rule, apply1 delta rule (continuation rules delta) xi -> do1 delta (rule :: rules) xi
 with cont1 : cont -> list nat -> Prop :=
    | Cont1_Next : forall r rs xi' delta, do1 delta (r ::rs) xi' -> cont1 (continuation (r :: rs) delta) xi'
 with apply1 : list nat -> rule_tm -> cont -> list nat -> Prop :=
 (** apply1 delta rule cont xi *)
-   | Apply1_Rule : forall delta body head c xi, match1 delta nil (body :: nil) c head xi -> apply1 delta (rtm_lolli body head) c xi.
+   | Apply1_Rule : forall delta body head c xi, match1 delta nil (body :: nil) c head xi -> apply1 delta (rtm_lolli body head) c xi
+(* derive1 head delta xi new cont xi' finalnew *)
+with derive1 : list head_tm -> list nat -> list nat -> list nat -> cont -> list nat -> list nat -> Prop :=
+   | Derive1_One : forall delta new ls xi c xi' final, derive1 ls delta xi new c xi' final -> derive1 (head_one :: ls) delta xi new c xi' final
+   | Derive1_Fact : forall ls delta p xi c new xi' final, derive1 ls delta xi (p :: new) c xi' final -> derive1 (head_fact p :: ls) delta xi new c xi' final
+   | Derive1_Tensor : forall ls delta a b xi c new xi' final, derive1 (a :: b :: ls) delta xi new c xi' final -> derive1 (head_tensor a b :: ls) delta xi new c xi' final
+   | Derive1_End : forall delta xi c new , derive1 nil delta xi new c xi new.
 
 (* derive0 head delta new xi final *)
 Inductive derive0 : list head_tm -> list nat -> list nat -> list nat -> list nat -> Prop :=
@@ -60,12 +66,6 @@ Inductive derive0 : list head_tm -> list nat -> list nat -> list nat -> list nat
    | Derive_Tensor : forall delta ls a b xi new final, derive0 (a :: b :: ls) delta new xi final -> derive0 (head_tensor a b :: ls) delta new xi final
    | Derive_End : forall delta new xi, derive0 nil delta new xi new.
 
-(* derive1 head delta xi new cont xi' finalnew *)
-Inductive derive1 : list head_tm -> list nat -> list nat -> list nat -> cont -> list nat -> list nat -> Prop :=
-   | Derive1_One : forall delta new ls xi c xi' final, derive1 ls delta xi new c xi' final -> derive1 (head_one :: ls) delta xi new c xi' final
-   | Derive1_Fact : forall ls delta p xi c new xi' final, derive1 ls delta xi (p :: new) c xi' final -> derive1 (head_fact p :: ls) delta xi new c xi' final
-   | Derive1_Tensor : forall ls delta a b xi c new xi' final, derive1 (a :: b :: ls) delta xi new c xi' final -> derive1 (head_tensor a b :: ls) delta xi new c xi' final
-   | Derive1_End : forall delta xi c new , derive1 nil delta xi new c xi new.
 
 (* apply0 delta rule delta' xi *)
 Inductive apply0 : list nat -> rule_tm -> list nat -> list nat -> Prop :=
@@ -179,6 +179,7 @@ Proof.
               auto.
 Qed.
 
+   (*
 Theorem match1_add:
    forall delta1 xi1 ls xi' h, match1 delta1 xi1 ls empty_continuation h xi' -> forall delta2 xi2, match1 (delta1 ++ delta2) (xi1 ++ xi2) ls empty_continuation h (xi' ++ xi2).
 Proof.
@@ -336,6 +337,7 @@ Proof.
    auto.
    apply Match1_End.
 Qed.
+*)
 
 Theorem match_cont_theorem:
    forall delta xi a c xi' deltany h, match1 delta xi a c h xi' -> match1 delta xi a (continuation nil deltany) h xi' \/ cont1 c xi'.
@@ -385,6 +387,7 @@ auto.
 
 left.
 apply Match1_End.
+auto.
 Qed.
 
 Theorem apply1_cont_theorem:

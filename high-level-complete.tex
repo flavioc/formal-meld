@@ -1,0 +1,110 @@
+\subsection{High Level System}
+
+\subsubsection{Match}
+
+\[
+\infer[\mz 1]
+{\mz \Gamma; \cdot \rightarrow 1}
+{}
+\tab
+\infer[\mz p]
+{\mz \Gamma; p \rightarrow p }
+{}
+\tab
+\infer[\mz \bang p]
+{\mz \Gamma, p; \cdot \rightarrow \bang p}
+{}
+\]
+
+\[
+\infer[\mz \otimes]
+{\mz \Gamma; \Delta_1, \Delta_2 \rightarrow A \otimes B}
+{\mz \Gamma; \Delta_1 \rightarrow A & \mz \Delta_2 \rightarrow B}
+\]
+
+\subsubsection{Derive}
+
+\[
+\infer[\dz p]
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; p, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; p, \Delta_1 ; \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+\]
+
+\[
+\infer[\dz \bang p]
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \bang p, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1, p ; \Delta_1 ; \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+\]
+
+\[
+\infer[\dz \otimes]
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; A \otimes B, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; A, B, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+\]
+
+\[
+\infer[\dz 1]
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1; \Delta_1 ; 1, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1; \Delta_1 ; \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+\]
+
+\[
+\infer[\dz end]
+{\dz \Gamma ; \Delta ; \Xi' ; \Gamma' ; \Delta' ; \cdot \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{}
+\]
+
+\[
+\infer[\dz agg]
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggregate{Op}{X}{A}{B}, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))}, \Omega \rightarrow \Xi'; \Delta'; \Gamma' & \aggregatestart{Op}{V}}
+\]
+
+\[
+\infer[\dz unfold \; agg]
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggdef{Op}{V'}{(x. A(x))}{(y. B(y))}, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\dz \Gamma ; \Delta ; \Gamma_1 ; \Delta_1 ; B(V) \with (\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}), \Omega \rightarrow \Xi'; \Delta'; \Gamma' & \\ \aggregateop{Op}{V'}{X'}{E}& \end{split}
+}
+\]
+
+\[
+\infer[\dz \forall]
+{\dz \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \forall X:\tau. A, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dz \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; [M/X]A, \Omega; \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\dz comp]
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \comp A \lolli B, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; 1 \with (A \lolli B \otimes \comp A \lolli B), \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+\]
+
+\[
+\infer[\dz \lolli]
+{\dz \Gamma ; \Delta_a, \Delta_b ; \Xi ; \Gamma_1 ; \Delta_1 ; A \lolli B, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\mz \Gamma ; \Delta_a \rightarrow A & \dz \Gamma ; \Delta_b ; \Xi, \Delta_a ; \Gamma_1 ; \Delta_1 ; B, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+\]
+
+\[
+\infer[\dz \with L]
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; A \with B, \Omega \rightarrow \Xi' ; \Delta'; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; A, \Omega \rightarrow \Xi' ; \Delta'; \Gamma'}
+\tab
+\infer[\dz \with R]
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; A \with B, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; B, \Omega \rightarrow \Xi' ; \Delta' ; \Gamma'}
+\]
+
+\subsubsection{Apply}
+
+\[
+\infer[\az rule]
+{\az \Gamma ; \Delta, \Delta'' ; A \lolli B \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\mz \Gamma ; \Delta ; A \rightarrow \Delta & \dz \Gamma ; \Delta''; \Delta; \cdot ; \cdot ; B \rightarrow \Xi' ; \Delta' ; \Gamma'}
+\]
+
+\[
+\infer[\doz rule]
+{\doz \Gamma ; \Delta ; R, \Phi \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\doz \Gamma ; \Delta ; R \rightarrow \Xi' ; \Delta' ; \Gamma'}
+\]

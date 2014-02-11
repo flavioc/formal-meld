@@ -41,7 +41,7 @@ The matching judgment uses the form $\mo \Delta; \Xi; \Omega; H; C; R \rightarro
 \[
 \infer[\mo ok \; other]
 {\mo \Delta, p_1, \Delta'' ; \Xi; p, \Omega; H; C_1, C; R \rightarrow \Xi'; \Delta'}
-{\mo \Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p ; \Omega; \Xi; q, \Lambda), C_1, C; R \rightarrow \Xi'; \Delta' & C_1 = (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda)}
+{\begin{split}\mo &\Delta, \Delta''; \Xi, p_1; \Omega; H; (\Delta, p_1; \Delta''; p ; \Omega; \Xi; q, \Lambda), C_1, C; R \rightarrow \Xi'; \Delta' \\ C_1 &= (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda)\end{split}}
 \]
 
 \[
@@ -166,7 +166,7 @@ $\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \Omega; C; AB; \Omega_N; \Delta_N \rightar
 \[
 \infer[\mc p \; ok \; other]
 {\mc \Delta, p_1, \Delta''; \Xi_N; \Delta_{N1}; \Xi; p, \Omega; C_1, C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'}
-{\mc \Delta, \Delta''; \Xi_N; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; q, \Lambda), C_1, C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta' & C1 = (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda)}
+{\begin{split}\mc &\Delta, \Delta''; \Xi_N; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; q, \Lambda), C_1, C; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta' \\ C_1 &= (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda)\end{split}}
 \]
 
 
@@ -305,26 +305,32 @@ This whole process is started by the $\doo$ and $\ao$ judgments. The $\doo \Delt
 
 \subsubsection{Related Comprehension Match}
 
+\begin{definition}
 A match $\mc \Delta_1, \Delta_2; \Xi_N; \Delta_{N1}; \Xi; \Omega; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ is related to a term $A$ and a context $\Delta_{inv}$ if it follows the same conditions described in \ref{sec:related_match}.
+\end{definition}
 
 \subsection{Theorems}
 
-\subsubsection{Body Match Soundness}
+\subsubsection{Body Match Soundness Theorem}
 
+\begin{theorem}
 If $\mo \Delta, \Delta''; \cdot; \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'$ then either:
 \begin{enumerate}
    \item $\cont \cdot; R; \Xi'; \Delta'$ or;
    \item $\mo \Delta; \Delta''; \cdot; H; C'; R \rightarrow \Xi'; \Delta'$ and $\mz \Delta'' \rightarrow \Omega$
 \end{enumerate}
+\end{theorem}
 
 \begin{proof}
 Proved in Section~\ref{thm:match_soundness_basic}.
 \end{proof}
 
-\subsubsection{Comprehension soundness theorem}
+\subsubsection{Comprehension Match Soundness Theorem}\label{sec:comprehension_match_soundness}
 
 With this theorem, we want to prove that when trying to match a giving comprehension $A \lolli B$ we either fail to apply it or we are able to apply it and get the corresponding match derivation at the high level.
 
+\begin{theorem}
+   
 \begin{itemize}
    \item Match sub-theorem
 
@@ -336,7 +342,7 @@ If a match $\mc \Delta_1, \Delta_2; \Xi_N; \Delta_{N1}; \Xi; \Omega; C; \comp A 
    
       \begin{enumerate}
          \item $\mc \Delta_1; \Xi_N; \Delta_{N1}, \Xi, \Delta_2; \cdot; C', C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ (related) and $\Delta_x = \Delta_2$.
-         \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; p; \Omega_1, .., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m) \in C$ where $C= C', f, C''$ that turns into $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; p; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m)$ such that:
+         \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, .., \Omega_k; \Lambda_1, ..., \Lambda_m) \in C$ where $C= C', f, C''$ that turns into $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_m)$ such that:
          \begin{itemize}
             \item $\mc \Delta_c; \Xi_N; \Delta_{N1}; \Xi_1, ..., \Xi_m, p_2, \Xi_c; \cdot; C''', f', C''; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ (related)
          \end{itemize}
@@ -349,13 +355,13 @@ If $\contc \Delta_N; \Xi_N; \Delta_{N1}; C; \comp A \lolli B; \Omega_N \rightarr
 
 \begin{enumerate}
    \item $\done \Delta_N; \Xi_N; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'$;
-   \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; p; \Omega_1, .., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m) \in C$ where $C= C', f, C''$ that turns into $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; p; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m)$ such that:
+   \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, .., \Omega_k; \Lambda_1, ..., \Lambda_m) \in C$ where $C= C', f, C''$ that turns into $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_m)$ such that:
    \begin{itemize}
       \item $\mc \Delta_c; \Xi_N; \Delta_{N1}; \Xi_1, ..., \Xi_m, p_2, \Xi_c; \cdot; C''', f', C''; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ (related)
    \end{itemize}
 \end{enumerate}
-
 \end{itemize}
+\end{theorem}
 
 \begin{proof}
    By nested induction. In $\mc$ on the size of $\Omega$. In $\contc$, first on the size of $\Delta''$ of the continuation frame and then on the continuation stack $C$. Use the stack constraints and the Match Equivalence Theorem to prove $\mz \Delta_x \rightarrow A$.
@@ -399,28 +405,33 @@ If $\contc \Delta_N; \Xi_N; \Delta_{N1}; C; \comp A \lolli B; \Omega_N \rightarr
    \end{itemize}
 \end{proof}
 
-\subsubsection{Comprehension soundness lemma}
+\subsubsection{Comprehension Soundness Lemma}
 
-If $\mc \Delta, \Xi; \Xi_N; \Delta_{N1}; \cdot; A; \cdot; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ where $\Delta, \Xi = \Delta_N$ and the match is related to both $\Delta_N$ and $A$ then either:\\
+\begin{lemma}
+If $\mc \Delta, \Xi; \Xi_N; \Delta_{N1}; \cdot; A; \cdot; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ where $\Delta, \Xi = \Delta_N$ and the match is related to both $\Delta_N$ and $A$ then either:
+
 \begin{enumerate}
    \item $\done \Delta_N; \Xi_N; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'$ or
    \item $\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \cdot; C'; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ and
       \begin{enumerate}
-         \item $\mz \Delta_1 \rightarrow A$
+         \item $\mz \Xi \rightarrow A$
          \item $C'$ is well formed in relation to $A$ and $\Delta, \Xi$.
       \end{enumerate}
 \end{enumerate}
+\end{lemma}
 
 \begin{proof}
 Direct application of the previous theorem.
 \end{proof}
 
-\subsubsection{Dall transformation theorem}
+\subsubsection{Dall Transformation Theorem}
 
 Now, we want to prove that by applying the $\dall$ judgment, our continuation stack will only have the first frame and that such frame will be fixed.
 
+\begin{theorem}
 If $\dall \Xi_N; \Delta_{N1}; \Xi; C, (\Delta_a; \Delta_b; \cdot; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then 
-$\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$.
+$\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$.
+\end{theorem}
 
 \begin{proof}
    By induction on the size of the continuation stack $C$.
@@ -439,27 +450,31 @@ $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; \Omega;
    \end{itemize}
 \end{proof}
 
-\subsubsection{Successful comprehension match gives derivation}
+\subsubsection{Successful Comprehension Match Gives Derivation}
 
 We can apply the previous theorem to know that after a successful matching we will start the derivation process.
 
+\begin{lemma}
 If $\mc \Delta; \Xi_N; \Delta_{N1}; \Xi; \cdot; B; C, (\Delta_a; \Delta_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then
 $\dc \Xi_N, \Xi; \Delta_{N1}; B; (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'$.
+\end{lemma}
 
 \begin{proof}
-   Invert the assumption and then apply dall transformation theorem.
+   Invert the assumption and then apply $\dall$ transformation theorem.
 \end{proof}
 
-\subsubsection{Comprehension derivation theorem}
+\subsubsection{Comprehension Derivation Theorem}
 
 We now prove that if we need to derive the head of the comprehension, we will finish this process and that
 giving a derivation at the high level with the same results, we can restore the terms we have derived. This second result will be used to prove the soundness of the comprehension mechanism. 
 
+\begin{theorem}
 If $\dc \Xi_N; \Delta_{N1}; \Omega_1, ..., \Omega_n; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then:
 \begin{enumerate}
    \item $\dc \Xi_N; \Delta_{N1}, \Delta_1, ..., \Delta_n; \cdot; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ and
    \item If $\dz \Delta; \Xi_N; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega \rightarrow \Xi'; \Delta'$ then $\dz \Delta; \Xi_N; \Delta_{N1}; \Omega_1, ..., \Omega_n, \Omega \rightarrow \Xi'; \Delta'$
 \end{enumerate}
+\end{theorem}
 
 \begin{proof}
    By induction on the size of $\Omega_1, ..., \Omega_n$.
@@ -486,13 +501,15 @@ If $\dc \Xi_N; \Delta_{N1}; \Omega_1, ..., \Omega_n; C; \comp A \lolli B; \Omega
    \end{itemize}
 \end{proof}
 
-\subsubsection{Comprehension derivation lemma}
+\subsubsection{Comprehension Derivation Lemma}
 
+\begin{lemma}
 If $\dc \Xi_N; \Delta_{N1}; \Omega_x; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ then:
 \begin{enumerate}
    \item $\dc \Xi_N; \Delta_{N1}, \Delta_x; \cdot; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'$ and
    \item If $\dz \Delta; \Xi_N; \Delta_{N1}, \Delta_x; \Omega \rightarrow \Xi'; \Delta'$ then $\dz \Delta; \Xi_N; \Delta_{N1}; \Omega_x, \Omega \rightarrow \Xi'; \Delta'$
 \end{enumerate}
+\end{lemma}
 
 \begin{proof}
    By direct application of the comprehension derivation theorem.
@@ -503,16 +520,18 @@ If $\dc \Xi_N; \Delta_{N1}; \Omega_x; C; \comp A \lolli B; \Omega_N; \Delta_N \r
 This is the main theorem of the system. If we have a matching process with a single continuation frame we can derive $n \geq 0$ comprehensions and have $n$ valid matching processes and $n$ derivations at the high level.
 Since the second argument of the continuation frame will be reduced after each application, we have a valid induction hypotheses.
 
-If $\mc \Delta_a, \Delta'_b; \Xi_N; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ and $\Delta_a, \Delta_b = \Delta, \Xi_1, ..., \Xi_n$ and $\feq{p, \Omega}{A}$ then $\exists n \geq 0$ such that:
+\begin{theorem}
+If $\mc \Delta_a, \Delta'_b; \Xi_N; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ (related to $A$ and $\Delta_N = \Delta_a, \Delta_b$) and $\Delta_a, \Delta_b = \Delta, \Xi_1, ..., \Xi_n$ then $\exists n \geq 0$ such that:
 \begin{enumerate}
    \item $\done \Delta; \Xi_N, \Xi_1, ..., \Xi_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'$
    \item $\mz \Xi_1 \rightarrow A$ ... $\mz \Xi_n \rightarrow A$
    \item $n$ implications from $1 ... i ... n$ such that: $\forall \Omega_x, \Delta_x.$ if $\dz \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_x \rightarrow \Xi'; \Delta'$.
 \end{enumerate}
+\end{theorem}
 
 \begin{proof}
    By induction on the size of $\Delta'_b$.\\
-
+   \\
    $\Delta_b = p_1, \Delta'_b$ \hfill (1) from assumption \\
    $\Delta_a, p_1, \Delta'_b = \Delta, p, \Xi'_1, ..., \Xi_n$ \hfill (2) from assumption \\
    By applying the comprehension soundness theorem on the assumption:\\
@@ -536,7 +555,7 @@ If $\mc \Delta_a, \Delta'_b; \Xi_N; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \D
          if $\forall \Omega_x, \Delta_x. \dz \Delta_x; \Xi_N, p, \Xi'_1; \Delta_{N1}, \Delta_1; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, p, \Xi'_1; \Delta_{N1}; B, \Omega_x \rightarrow \Xi'; \Delta'$ \hfill (8) using the same lemma \\
          $\contc \Delta, \Xi_2, ..., \Xi_n; \Xi_N, p, \Xi'_1; \Delta_{N1}, \Delta_1; (\Delta_a - \Xi'_1; \Delta'_b - \Xi'_1; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill (9) inversion of (7) \\   
       
-         When inverting (9), we have two subcases:
+         When inverting (9), we have two sub-cases:
       
          $\Delta_a - \Xi'_1 = \Delta''_a$ \hfill (10) \\
          $\Delta'_b - \Xi'_1 = \Delta''_b$ \hfill (11) \\
@@ -567,20 +586,20 @@ If $\mc \Delta_a, \Delta'_b; \Xi_N; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \D
          Use the same approach as the last sub-case, but using $p_2$ instead of $p_1$ and using the fact that $\Delta_b$ was already reduced because we had to backtrack.
       \end{enumerate}
    \end{itemize}
-   
-   
 \end{proof}
 
 \subsubsection{Comprehension Lemma}
 
 For this lemma, we start the matching process with an empty continuation stack. If the first application of the comprehension succeeds we get a continuation with a single frame that can be used to prove the other $n$ applications of the comprehension by using the main theorem.
 
+\begin{lemma}
 If $\mc \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Delta_{N1}; \cdot; A; \cdot; \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'$ then we can apply the comprehension $n >= 0$ times:
 \begin{enumerate}
    \item $\done \Delta; \Xi_N, \Xi_1, ..., \Xi_n; \Delta_{N1}, \Delta_1, .., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'$ for $\exists n \geq 0$
    \item $\mz \Xi_1 \rightarrow A$ ... $\mz \Xi_n \rightarrow A$.
    \item $n$ implications from $1 ... i ... n$ such that: $\forall \Omega_x, \Delta_x.$ if $\dz \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_x \rightarrow \Xi'; \Delta'$.
 \end{enumerate}
+\end{lemma}
 
 \begin{proof}
    Applying the comprehension soundness lemma, we get two cases:
@@ -602,20 +621,23 @@ If $\mc \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Delta_{N1}; \cdot; A; \cdot; \comp A 
       $\Delta_a, \Delta_b = \Delta, \Xi_1, ..., \Xi_n$ \hfill (7) from (4) \\
       $(\Delta_a - \Xi_1), (\Delta_b - \Xi_1) = (\Delta_a, \Delta_b) - \Xi_1 = \Delta_, \Xi_2, .., \Xi_n$ and $\Delta'_a = \Delta_a - \Xi_1$ and $\Delta'_b = \Delta_b - \Xi_1$ \hfill (8) from (7) and (6) \\
       $\feq{p, \Omega}{A}$ \hfill (9) from (4) and (6) \\
-      $\dc \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; (\Delta'_a; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (10) using comprehension derivation lemma \\
+      $\dc \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; \cdot; (\Delta'_a; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'$ \hfill (10) using comprehension derivation lemma \\
       if $\forall \Omega_x, \Delta_x. \dz \Delta_x; \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; \Omega_x \rightarrow \Xi'; \Delta'$ then $\dz \Delta_x; \Xi_N, \Xi_1; \Delta_{N1}; B, \Omega_x \rightarrow \Xi'; \Delta'$ \hfill (11) using the same lemma \\ 
       $\contc \Delta, \Xi_2, ..., \Xi_n; \Xi_N, \Xi_1; \Delta_{N1}, \Delta_1; (\Delta'_a; \Delta'_b; \cdot; p; \Omega; \cdot); \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'$ \hfill (12) inversion of (10) \\
-      Apply continuation theorem to the inversion of (12) to get either $0$ applications of the comprehension or the remaining $n-1$.
+      
+      Invert (12) to get either $0$ applications of the comprehension or apply the comprehension theorem to the inversion to get the remaining $n-1$.
    \end{itemize}
 \end{proof}
 
-\subsubsection{Derivation Soundness}
+\subsubsection{Derivation Soundness Theorem}
 
 Finally, we can prove that the derivation of the head of the rule is sound. The only complicated case is the comprehension. Since we know that applying the comprehension will result in $n$ applications, we can use the results of the main lemma to reconstruct the derivation tree at the high level by using the $n$ applications and the induction hypothesis.
 
+\begin{theorem}
 If $\done \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta$ then $\dz \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta'$.
+\end{theorem}
 
-\begin{proof}
+\begin{proof}\label{sec:derivation_theorem}
    By induction on $\Omega$.
    
    \begin{itemize}

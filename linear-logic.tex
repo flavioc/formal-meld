@@ -5,47 +5,47 @@
 
 \[
 \infer[\one R]
-{\sequent{\Gamma}{\cdot}{\one}}
+{\Psi ; \sequent{\Gamma}{\cdot}{\one}}
 {}
 \tab
 \infer[\one L]
-{\sequent{\Gamma}{\Delta, \one}{C}}
-{\sequent{\Gamma}{\Delta}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, \one}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta}{C}}
 \]
 
 \[
 \infer[\with R]
-{\sequent{\Gamma}{\Delta}{A \with B}}
-{\sequent{\Gamma}{\Delta}{A} & \sequent{\Gamma}{\Delta}{B}}
+{\Psi ; \sequent{\Gamma}{\Delta}{A \with B}}
+{\Psi ; \sequent{\Gamma}{\Delta}{A} & \sequent{\Gamma}{\Delta}{B}}
 \tab
 \infer[\with L_1]
-{\sequent{\Gamma}{\Delta, A \with B}{C}}
-{\sequent{\Gamma}{\Delta, A}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, A \with B}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, A}{C}}
 \tab
 \infer[\with L_2]
-{\sequent{\Gamma}{\Delta, B \with B}{C}}
-{\sequent{\Gamma}{\Delta, B}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, B \with B}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, B}{C}}
 \]
 
 \[
 \infer[\otimes R]
-{\sequent{\Gamma}{\Delta, \Delta'}{A \otimes B}}
-{\sequent{\Gamma}{\Delta}{A} & \sequent{\Gamma}{\Delta}{B}}
+{\Psi ; \sequent{\Gamma}{\Delta, \Delta'}{A \otimes B}}
+{\Psi ; \sequent{\Gamma}{\Delta}{A} & \sequent{\Gamma}{\Delta}{B}}
 \tab
 \infer[\otimes L]
-{\sequent{\Gamma}{\Delta, A \otimes B}{C}}
-{\sequent{\Gamma}{\Delta, A, B}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, A \otimes B}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, A, B}{C}}
 \]
 
 \[
 \infer[\lolli R]
-{\sequent{\Gamma}{\Delta}{A \lolli B}}
-{\sequent{\Gamma}{\Delta, A}{B}}
+{\Psi ; \sequent{\Gamma}{\Delta}{A \lolli B}}
+{\Psi ; \sequent{\Gamma}{\Delta, A}{B}}
 \tab
 \infer[\lolli L]
-{\sequent{\Gamma}{\Delta, \Delta', A \lolli B}{C}}
-{\sequent{\Gamma}{\Delta}{A} &
-   \sequent{\Gamma}{\Delta', B}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, \Delta', A \lolli B}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta}{A} &
+   \Psi ; \sequent{\Gamma}{\Delta', B}{C}}
 \]
 
 \[
@@ -71,88 +71,88 @@
 
 \[
 \infer[\bang R]
-{\sequent{\Gamma}{\cdot}{\bang A}}
-{\sequent{\Gamma}{\cdot}{A}}
+{\Psi ; \sequent{\Gamma}{\cdot}{\bang A}}
+{\Psi ; \sequent{\Gamma}{\cdot}{A}}
 \tab
 \infer[\bang L]
-{\sequent{\Gamma}{\Delta, \bang A}{C}}
-{\sequent{\Gamma, A}{\Delta}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, \bang A}{C}}
+{\Psi ; \sequent{\Gamma, A}{\Delta}{C}}
 \tab
 \infer[\m{copy}]
-{\sequent{\Gamma, A}{\Delta}{C}}
-{\sequent{\Gamma, A}{\Delta, A}{C}}
+{\Psi ; \sequent{\Gamma, A}{\Delta}{C}}
+{\Psi ; \sequent{\Gamma, A}{\Delta, A}{C}}
 \]
 
 \[
 \infer[\m{def} \; R]
-{\sequent{\Gamma}{\Delta}{\compr{A'}}}
-{\sequent{\Gamma}{\Delta}{B\theta} &
+{\Psi ; \sequent{\Gamma}{\Delta}{\compr{A'}}}
+{\Psi ; \sequent{\Gamma}{\Delta}{B\theta} &
  A \defeq B & A' \doteq A\theta}
 \tab
 \infer[\m{def} \; L]
-{\sequent{\Gamma}{\Delta, \compr{A'}}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, \compr{A'}}{C}}
 {
-   \sequent{\Gamma}{\Delta, B\theta}{C} & A \defeq B & A' \doteq A\theta
+   \Psi ; \sequent{\Gamma}{\Delta, B\theta}{C} & A \defeq B & A' \doteq A\theta
 }
 \]
 
 \[
 \infer[\m{cut}]
-{\sequent{\Gamma}{\Delta, \Delta'}{C}}
-{\sequent{\Gamma}{\Delta}{A} &
-   \sequent{\Gamma}{\Delta', A}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta, \Delta'}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta}{A} &
+   \Psi ; \sequent{\Gamma}{\Delta', A}{C}}
 \tab
 \infer[\m{cut}\bang]
-{\sequent{\Gamma}{\Delta}{C}}
-{\sequent{\Gamma}{\cdot}{A} &
-   \sequent{\Gamma, A}{\Delta}{C}}
+{\Psi ; \sequent{\Gamma}{\Delta}{C}}
+{\Psi ; \sequent{\Gamma}{\cdot}{A} &
+   \Psi ; \sequent{\Gamma, A}{\Delta}{C}}
 \]
 
 \subsection{Cut Free System}
 
 \[
 \infer[\one R]
-{\seqnocut{\Gamma}{\cdot}{\one}}
+{\Psi ; \seqnocut{\Gamma}{\cdot}{\one}}
 {}
 \tab
 \infer[\one L]
-{\seqnocut{\Gamma}{\Delta, \one}{C}}
-{\seqnocut{\Gamma}{\Delta}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, \one}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta}{C}}
 \]
 
 \[
 \infer[\with R]
-{\seqnocut{\Gamma}{\Delta}{A \with B}}
-{\seqnocut{\Gamma}{\Delta}{A} & \seqnocut{\Gamma}{\Delta}{B}}
+{\Psi ; \seqnocut{\Gamma}{\Delta}{A \with B}}
+{\Psi ; \seqnocut{\Gamma}{\Delta}{A} & \seqnocut{\Gamma}{\Delta}{B}}
 \tab
 \infer[\with L_1]
-{\seqnocut{\Gamma}{\Delta, A \with B}{C}}
-{\seqnocut{\Gamma}{\Delta, A}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, A \with B}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, A}{C}}
 \tab
 \infer[\with L_2]
-{\seqnocut{\Gamma}{\Delta, B \with B}{C}}
-{\seqnocut{\Gamma}{\Delta, B}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, B \with B}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, B}{C}}
 \]
 
 \[
 \infer[\otimes R]
-{\seqnocut{\Gamma}{\Delta, \Delta'}{A \otimes B}}
-{\seqnocut{\Gamma}{\Delta}{A} & \seqnocut{\Gamma}{\Delta}{B}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, \Delta'}{A \otimes B}}
+{\Psi ; \seqnocut{\Gamma}{\Delta}{A} & \seqnocut{\Gamma}{\Delta}{B}}
 \tab
 \infer[\otimes L]
-{\seqnocut{\Gamma}{\Delta, A \otimes B}{C}}
-{\seqnocut{\Gamma}{\Delta, A, B}{C}}
+{\Psi ;\seqnocut{\Gamma}{\Delta, A \otimes B}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, A, B}{C}}
 \]
 
 \[
 \infer[\lolli R]
-{\seqnocut{\Gamma}{\Delta}{A \lolli B}}
-{\seqnocut{\Gamma}{\Delta, A}{B}}
+{\Psi ; \seqnocut{\Gamma}{\Delta}{A \lolli B}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, A}{B}}
 \tab
 \infer[\lolli L]
 {\seqnocut{\Gamma}{\Delta, \Delta', A \lolli B}{C}}
-{\seqnocut{\Gamma}{\Delta}{A} &
-   \seqnocut{\Gamma}{\Delta', B}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta}{A} &
+   \Psi ; \seqnocut{\Gamma}{\Delta', B}{C}}
 \]
 
 \[
@@ -167,9 +167,9 @@
 
 \[
 \infer[\exists R]
-{\Psi \; \seqnocut{\Gamma}{\Delta}{\exists n: \tau. A}}
+{\Psi ; \seqnocut{\Gamma}{\Delta}{\exists n: \tau. A}}
 {\Psi \vdash M : \tau &
-   \Psi \; \seqnocut{\Gamma}{\Delta}{A \{M/n\}}}
+   \Psi ; \seqnocut{\Gamma}{\Delta}{A \{M/n\}}}
 \tab
 \infer[\exists L]
 {\Psi ; \seqnocut{\Gamma}{\Delta, \exists n:\tau. A}{C}}
@@ -178,28 +178,28 @@
 
 \[
 \infer[\bang R]
-{\seqnocut{\Gamma}{\cdot}{\bang A}}
-{\seqnocut{\Gamma}{\cdot}{A}}
+{\Psi ; \seqnocut{\Gamma}{\cdot}{\bang A}}
+{\Psi ; \seqnocut{\Gamma}{\cdot}{A}}
 \tab
 \infer[\bang L]
-{\seqnocut{\Gamma}{\Delta, \bang A}{C}}
-{\seqnocut{\Gamma, A}{\Delta}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, \bang A}{C}}
+{\Psi ; \seqnocut{\Gamma, A}{\Delta}{C}}
 \tab
 \infer[\m{copy}]
-{\seqnocut{\Gamma, A}{\Delta}{C}}
-{\seqnocut{\Gamma, A}{\Delta, A}{C}}
+{\Psi ; \seqnocut{\Gamma, A}{\Delta}{C}}
+{\Psi ; \seqnocut{\Gamma, A}{\Delta, A}{C}}
 \]
 
 \[
 \infer[\m{def} \; R]
-{\seqnocut{\Gamma}{\Delta}{\compr{A'}}}
-{\seqnocut{\Gamma}{\Delta}{B\theta} &
+{\Psi ; \seqnocut{\Gamma}{\Delta}{\compr{A'}}}
+{\Psi ; \seqnocut{\Gamma}{\Delta}{B\theta} &
  A \defeq B & A' \doteq A\theta}
 \tab
 \infer[\m{def} \; L]
-{\seqnocut{\Gamma}{\Delta, \compr{A'}}{C}}
+{\Psi ; \seqnocut{\Gamma}{\Delta, \compr{A'}}{C}}
 {
-   \seqnocut{\Gamma}{\Delta, B\theta}{C} & A \defeq B & A' \doteq A\theta
+   \Psi ; \seqnocut{\Gamma}{\Delta, B\theta}{C} & A \defeq B & A' \doteq A\theta
 }
 \]
 

@@ -11,7 +11,10 @@ doc.pdf: doc.tex high-level.tex high-level-simple.tex \
 		linear-logic.tex ideas.tex \
 		matching-continuations-persistent.tex \
 		high-level-persistent.tex \
-		term-equivalence.tex
+		term-equivalence.tex \
+		high-level-complete.tex \
+		matching-continuations-aggregates.tex \
+		ll-system/match-body.tex
 	pdflatex doc.tex
 	pdflatex doc.tex
 

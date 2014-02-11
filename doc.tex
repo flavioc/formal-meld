@@ -1,5 +1,4 @@
 \documentclass[9pt]{article}
-% \documentclass[11pt,twoside]{article}
 
 \usepackage{graphicx}
 \usepackage{textcomp}
@@ -10,6 +9,9 @@
 \usepackage{turnstile}
 \usepackage{amsthm}
 \usepackage[in]{fullpage}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}[theorem]{Definition}
 
 \input{fp-macros}
 
@@ -296,13 +298,13 @@ do_aggregate(A, CommVar1, ..., CommVarN, Sum) -o total(A, Sum).
 \input{ideas}
 \end{comment}
 
-\section{Low Level Dynamic Semantics}
+%\section{Low Level Dynamic Semantics}
 
-\input{low-level-semantics}
+%\input{low-level-semantics}
 
-\newcommand{\mz}{\m{m}_0 \;}
+\newcommand{\mz}{\m{match} \;}
 \newcommand{\mo}{\m{m}_1 \;}
-\newcommand{\dz}{\m{d}_0 \;}
+\newcommand{\dz}{\m{derive} \;}
 \newcommand{\done}{\m{d}_1 \;}
 \newcommand{\az}{\m{a}_0 \;}
 \newcommand{\ao}{\m{a}_1 \;}
@@ -313,25 +315,19 @@ do_aggregate(A, CommVar1, ..., CommVarN, Sum) -o total(A, Sum).
 \newcommand{\dc}{\m{dc} \;}
 
 \section{Basic Low Level System With Comprehensions}
-
 \input{basic-with-compr}
-
 \input{term-equivalence}
 
 \section{Low Level System With Matching Continuations}
-
 \input{matching-continuations}
 
 \section{Low Level System With Comprehensions}
-
 \input{matching-continuations-compr}
 
 \section{Low Level System With Persistent Facts}
-
 \input{matching-continuations-persistent}
 
 \section{Low Level System With Aggregates}
-
+\input{matching-continuations-aggregates}
 
 \end{document}
-

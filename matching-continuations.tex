@@ -99,41 +99,53 @@ For this system, we include only linear facts but we use a continuation stack to
 
 \subsubsection{Well Formed Frame}
 
-Given a frame $f = (\Delta; \Delta'; \Xi; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ and a body term $A$ and a context $\Delta_{inv}$, we say that $f$ is well formed iff:
+\begin{definition}
+   
+Given a frame $f = (\Delta, p_1; \Delta'; \Xi; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m)$ and a body term $A$ and a context $\Delta_{inv}$, we say that $f$ is well formed iff:
 
 \begin{enumerate}
    \item $\Lambda_1, ..., \Lambda_m$ are atomic terms $p_i$.
    \item $\Xi = \Xi_1, ..., \Xi_m$
    \item $\feq{p, \Omega_1, ..., \Omega_n, \Lambda_1, ..., \Lambda_m}{A}$
    \item $\mz \Xi \rightarrow \Lambda_1 \otimes ... \otimes \Lambda_m$.
-   \item $\Delta, \Delta', \Xi = \Delta_{inv}$.
+   \item $\Delta, \Delta', \Xi, p_1 = \Delta_{inv}$.
 \end{enumerate}
+\end{definition}
 
 \subsubsection{Well Formed Stack}
 
+\begin{definition}
 A continuation stack $C$ is well formed iff every frame is well formed.
+\end{definition}
 
 \subsubsection{Related Match}\label{sec:related_match}
 
+\begin{definition}
+   
 $\mo \Delta; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$ is related to a term $A$ and a context $\Delta_{inv}$ iff:
 
-\begin{itemize}
+\begin{enumerate}
    \item $C$ is well formed in relation to $A$ and $\Delta_{inv}$;
    \item $\Delta, \Xi = \Delta_{inv}$
-   \item Either:
-   \begin{itemize}
+   \item Stack relatedness:
+   \begin{enumerate}
       \item $C = \cdot$
    
-      $\feq{\Omega}{A}$
-   
+      \begin{enumerate}
+         \item $\feq{\Omega}{A}$
+      \end{enumerate}
+      
       \item $C = (\Delta_a; \Delta_b; \Xi''; p; \Omega'; \Lambda_1, ..., \Lambda_m), C'$
-   
-      $\feq{A}{\Omega, p, \Omega', \Lambda_1, ..., \Lambda_n}$ \\
-      $\feq{\Omega'}{\Omega}$ \\ 
-      $p_1 \in \Xi$ and $\mz p_1 \rightarrow p$ \\
-      $\Xi = \Xi'', p_1$ \\
-   \end{itemize}
-\end{itemize}
+      
+      \begin{enumerate}
+         \item $\feq{\Omega'}{\Omega}$
+         \item $p_1 \in \Xi$ and $\mz p_1 \rightarrow p$
+         \item $\Xi = \Xi'', p_1$
+      \end{enumerate}
+   \end{enumerate}
+\end{enumerate}
+
+\end{definition}
 
 \subsection{Theorems}
 
@@ -148,7 +160,9 @@ $\mo \Delta; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$ is related to a ter
    \item $\mo \Delta; \Xi; \Omega; H; C'', (\Delta, \Delta_1; \Delta_2), C; R \rightarrow \Xi'; \Delta' \prec \mo \Delta''; \Xi''; \Omega'; C', (\Delta; \Delta_1, \Delta_2), C; R \rightarrow \Xi'; \Delta'$
 \end{enumerate}
 
-\subsubsection{Match soundness theorem}\label{thm:match_soundness_basic}
+\subsubsection{Match Soundness Theorem}\label{thm:match_soundness_basic}
+
+\begin{theorem}
 
 If a match $\mo \Delta_1, \Delta_2; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$ is related to term $A$ and context $\Delta_1, \Delta_2, \Xi$ then either:\\
 \begin{enumerate}
@@ -156,9 +170,9 @@ If a match $\mo \Delta_1, \Delta_2; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delt
    \item $\mz \Delta_x \rightarrow A$ (where $\Delta_x$ is a subset of $\Delta_1, \Delta_2, \Xi$) and one of the two subcases are true:
       \begin{enumerate}
          \item $\mo \Delta_1; \Xi, \Delta_2; \cdot; H; C'', C; R \rightarrow \Xi'; \Delta'$ (related) and $\Delta_x = \Xi, \Delta_2$
-         \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m) \in C$ where $C = C', f, C''$ and $f$ turns into some $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; p; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m)$ such that:
+         \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_m) \in C$ where $C = C', f, C''$ and $f$ turns into some $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_m)$ such that:
             \begin{itemize}
-               \item $\mo \Delta_c; \Xi_1, ..., \Xi_m, p_2, \Xi_c; \cdot; H; C''', f', C''; R \rightarrow \Xi'; \Delta'$ (related)
+               \item $\mo \Delta_c; \Xi_1, ..., \Xi_m, p_2, \Xi_c; \cdot; H; C''', f', C''; R \rightarrow \Xi'; \Delta'$ (related) where $\Delta_c = (\Delta_1, \Delta_2, \Xi) - (\Xi_1, ..., \Xi_m, p_2, \Xi_c)$
             \end{itemize}
       \end{enumerate}
 \end{enumerate}
@@ -168,12 +182,16 @@ If $\cont C; H; R; \Xi'; \Delta'$ and $C$ is well formed in relation to $A$ and 
    \item $\cont \cdot; H; R; \Xi'; \Delta'$
    \item $\mz \Delta_x \rightarrow A$ (where $\Delta_x$ is a subset of $\Delta_1, \Delta_2, \Xi$) where:
    \begin{enumerate}
-      \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m) \in C$ where $C = C', f, C''$ and $f$ turns into some $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; p; \Omega_1, ..., \Omega_k; \Xi_1, ..., \Xi_m; \Lambda_1, ..., \Lambda_m)$ such that:
+      \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_m) \in C$ where $C = C', f, C''$ and $f$ turns into some $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_m)$ such that:
          \begin{itemize}
             \item $\mo \Delta_c; \Xi_1, ..., \Xi_m, p_2, \Xi_c; \cdot; H; C''', f', C''; R \rightarrow \Xi'; \Delta'$ (related)
          \end{itemize}
    \end{enumerate}
 \end{enumerate}
+
+\end{theorem}
+
+\begin{proof}
 
 Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$, first on the size of $\Delta''$ and then on the size of $C$. Use the stack constraints and the Match Equivalence Theorem to prove $\mz \Delta_x \rightarrow A$.
 
@@ -238,22 +256,29 @@ Proof by mutual induction. In $\mo$ on the size of $\Omega$ and on $\cont$, firs
    Apply induction.
 \end{itemize}
 
+\end{proof}
+
 \subsection{Match Soundness Lemma}
 
-If $\mo \Delta, \Delta''; \cdot; \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'$ then either:\\
+\begin{theorem}
+If $\mo \Delta, \Delta''; \cdot; \Omega; H; \cdot; R \rightarrow \Xi'; \Delta'$ then either:
 \begin{enumerate}
    \item $\cont \cdot; R; \Xi'; \Delta'$ or;
    \item $\mo \Delta; \Delta''; \cdot; H; C'; R \rightarrow \Xi'; \Delta'$ and $\mz \Delta'' \rightarrow \Omega$
 \end{enumerate}
+\end{theorem}
 
 \begin{proof}
 By direct use of the match soundness theorem.
 \end{proof}
 
-\subsection{Derive Soundness Theorem}
+\subsection{Derivation Soundness Theorem}
 
+\begin{theorem}
 If $\done \Delta; \Xi; \Delta_1; \Omega; C \rightarrow \Xi'; \Delta'$ then $\dz \Delta; \Xi; \Delta_1; \Omega \rightarrow \Xi'; \Delta'$.
+\end{theorem}
 
+\begin{proof}
 By simple induction on $\Omega$.
 
 \begin{itemize}
@@ -274,3 +299,4 @@ By simple induction on $\Omega$.
    Use axioms.
    
 \end{itemize}
+\end{proof}

@@ -56,14 +56,14 @@
 
 \[
 \infer[\dz agg]
-{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggregate{Op}{X}{A}{B}, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
-{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggdef{Op}{V}{(x. A(x))}{(y. B(y))}, \Omega \rightarrow \Xi'; \Delta'; \Gamma' & \aggregatestart{Op}{V}}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggregate{Op}{X}{A}{B_1}{B_2}, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggdef{Op}{V}{(x. A(x) \lolli B_1(x))}{(y. B_2(y))}, \Omega \rightarrow \Xi'; \Delta'; \Gamma' & \aggregatestart{Op}{V}}
 \]
 
 \[
 \infer[\dz unfold \; agg]
-{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggdef{Op}{V'}{(x. A(x))}{(y. B(y))}, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
-{\begin{split}\dz \Gamma ; \Delta ; \Gamma_1 ; \Delta_1 ; B(V) \with (\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x))}{(y. B(y))}), \Omega \rightarrow \Xi'; \Delta'; \Gamma' & \\ \aggregateop{Op}{V'}{X'}{E}& \end{split}
+{\dz \Gamma ; \Delta ; \Xi ; \Gamma_1 ; \Delta_1 ; \aggdef{Op}{V'}{(x. A(x) \lolli B_1(x))}{(y. B_2(y))}, \Omega \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\dz \Gamma ; \Delta ; \Gamma_1 ; \Delta_1 ; B(V) \with (\forall X'. A(X') \lolli \aggdef{Op}{E}{(x. A(x) \lolli B_1(x))}{(y. B(y))}), \Omega \rightarrow \Xi'; \Delta'; \Gamma' & \\ \aggregateop{Op}{V'}{X'}{E}& \end{split}
 }
 \]
 
@@ -100,7 +100,7 @@
 \[
 \infer[\az rule]
 {\az \Gamma ; \Delta, \Delta'' ; A \lolli B \rightarrow \Xi' ; \Delta' ; \Gamma'}
-{\mz \Gamma ; \Delta ; A \rightarrow \Delta & \dz \Gamma ; \Delta''; \Delta; \cdot ; \cdot ; B \rightarrow \Xi' ; \Delta' ; \Gamma'}
+{\mz \Gamma ; \Delta \rightarrow A & \dz \Gamma ; \Delta''; \Delta; \cdot ; \cdot ; B \rightarrow \Xi' ; \Delta' ; \Gamma'}
 \]
 
 \[

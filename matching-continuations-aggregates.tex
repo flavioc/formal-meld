@@ -4,7 +4,8 @@
 
 \newcommand{\ma}[0]{\m{ma} \;}
 \newcommand{\da}[0]{\m{da} \;}
-\newcommand{\conta}[0]{\m{conta} \;}
+\newcommand{\conta}[0]{\m{cont}_a \;}
+\newcommand{\dalla}[0]{\m{dall}_a \;}
 
 We complement the previous system with aggregate derivation. For this, we add the judgements $\ma$, $\da$ and $\conta$ that will match, derive and apply continuations when applying an aggregate.
 
@@ -22,6 +23,12 @@ We add a new rule for aggregates.
 
 \input{ll-system/derivation}
 
+\[
+\infer[\done agg]
+{\dz \Gamma; \Delta ; \Xi; \Gamma_1; \Delta_1; \aggregate{Op}{X}{A}{B_1}{B_2}, \Omega \rightarrow \Xi';\Delta';\Gamma'}
+{\ma \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \cdot; A ; B_1 ; \cdot; \cdot; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega; \Delta; \cdot \rightarrow \Xi';\Delta';\Gamma'}
+\]
+
 \subsubsection{Match Comprehension}
 
 \input{ll-system/match-comprehension}
@@ -32,63 +39,31 @@ We add a new rule for aggregates.
 
 \subsubsection{Stack Transformation}
 
-Like the previous system, we need to transform continuation stack to be able to used again. First, we remove everything except the first frame in the $C$ stack. Next, we transform the $\Delta$ argument in the first frame of $C$ and in every frame of $P$ to remove recently consumed facts.
-
-The $\strans \Xi; P; P'$ judgments transforms the $P$ stack and has the following meaning:
-\begin{enumerate}
-   \item[$\Xi$]: Consumed linear resources during the last application of the comprehension.
-   \item[$P$]: The $P$ stack.
-   \item[$P'$]: The transformed $P$ stack.
-\end{enumerate}
-
 \input{ll-system/strans}
 
-\[
-\infer[\dall end \; linear]
-{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; (\Delta_x; \Delta''; \cdot; p; \Omega; \cdot; \Upsilon); P;  \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\begin{split}\strans &\Xi; P; P' \\ \dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; (\Delta_x - \Xi; \Delta'' - \Xi; \cdot; p; \Omega; \cdot; \Upsilon) ; P' ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) &\rightarrow \Xi'; \Delta'; \Gamma'\end{split}}
-\]
-
-
-\[
-\infer[\dall end \; empty]
-{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; P;  \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\begin{split}\strans &\Xi; P; P' \\ \dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; \cdot ; P' ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) &\rightarrow \Xi'; \Delta'; \Gamma'\end{split}}
-\]
-
-\[
-\infer[\dall more]
-{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \_, X, C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; X, C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
+\input{ll-system/comprehension-stack}
 
 \subsubsection{Comprehension Derivation}
 
 The $\dc$ is identical to the previous system, however it has been extended with $\Gamma$, $\Gamma_1$, $C$, $P$ and $\Gamma'$.
 
-\[
-\infer[\dc p]
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1, p; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
+\input{ll-system/comprehension-derivation}
 
-\[
-\infer[\dc \bang p]
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; \bang p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\dc \Gamma; \Xi; \Gamma_1, p; \Delta_1; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
+\subsubsection{Match Aggregate}
 
-\[
-\infer[\dc \otimes]
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; A \otimes B, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta';\Gamma'}
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; A, B, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta';\Gamma'}
-\]
+\input{ll-system/match-aggregate}
 
-\[
-\infer[\dc end]
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; \cdot; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\contc \Gamma; \Delta_N; \Xi; \Gamma_1; \Delta_1; C; P; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
+\subsubsection{Match Aggregate Continuation}
+
+\input{ll-system/aggregate-cont}
+
+\subsubsection{Stack Transform for Aggregates}
+
+\input{ll-system/aggregate-stack}
+
+\subsubsection{Aggregate Derivation}
+
+\input{ll-system/aggregate-derivation}
 
 \subsubsection{Application}
 

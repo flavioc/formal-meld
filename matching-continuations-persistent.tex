@@ -64,7 +64,6 @@ Like the $\mo$ judgment, we can see a duplication of inference rules due to the 
 
 When backtracking to a previous frame, we need to be carefully when using the stacks $C$ and $P$.
 
-
 \input{ll-system/comprehension-cont}
 
 \subsubsection{Stack Transformation}
@@ -80,52 +79,13 @@ The $\strans \Xi; P; P'$ judgments transforms the $P$ stack and has the followin
 
 \input{ll-system/strans}
 
-\[
-\infer[\dall end \; linear]
-{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; (\Delta_x; \Delta''; \cdot; p; \Omega; \cdot; \Upsilon); P;  \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\begin{split}\strans &\Xi; P; P' \\ \dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; (\Delta_x - \Xi; \Delta'' - \Xi; \cdot; p; \Omega; \cdot; \Upsilon) ; P' ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) &\rightarrow \Xi'; \Delta'; \Gamma'\end{split}}
-\]
-
-
-\[
-\infer[\dall end \; empty]
-{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; P;  \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\begin{split}\strans &\Xi; P; P' \\ \dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; \cdot ; P' ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) &\rightarrow \Xi'; \Delta'; \Gamma'\end{split}}
-\]
-
-\[
-\infer[\dall more]
-{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \_, X, C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; X, C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
+\input{ll-system/comprehension-stack}
 
 \subsubsection{Comprehension Derivation}
 
 The $\dc$ is identical to the previous system, however it has been extended with $\Gamma$, $\Gamma_1$, $C$, $P$ and $\Gamma'$.
 
-\[
-\infer[\dc p]
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1, p; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
-
-\[
-\infer[\dc \bang p]
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; \bang p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\dc \Gamma; \Xi; \Gamma_1, p; \Delta_1; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
-
-\[
-\infer[\dc \otimes]
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; A \otimes B, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta';\Gamma'}
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; A, B, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta';\Gamma'}
-\]
-
-\[
-\infer[\dc end]
-{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; \cdot; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
-{\contc \Gamma; \Delta_N; \Xi; \Gamma_1; \Delta_1; C; P; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
-\]
+\input{ll-system/comprehension-derivation}
 
 \subsubsection{Application}
 
@@ -174,7 +134,7 @@ Given a triplet $A; \Gamma; \Delta_{inv}$ where $A$ is a term, $\Gamma$ is a mul
       \item $\Delta, \Delta', \Xi, p_1 = \Delta_{inv}$;
       \item $\mz \Gamma; \cdot \rightarrow \Upsilon_1 \otimes ... \otimes \Upsilon_k$.
    \end{enumerate}
-   \item Persistent frame $f = [\Gamma'; \Delta; \Xi_1, ..., \Xi_m; \bang p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m]$
+   \item Persistent frame $f = [\Gamma'; \Delta; \Xi_1, ..., \Xi_m; \bang p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k]$
       \begin{enumerate}
          \item $\Lambda_1, ..., \Lambda_m$ are linear atomic terms $p_i$;
          \item $\Upsilon_1, ..., \Upsilon_k$ are persistent atomic terms $\bang p_i$.

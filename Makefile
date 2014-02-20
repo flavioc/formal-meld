@@ -14,7 +14,12 @@ doc.pdf: doc.tex high-level.tex high-level-simple.tex \
 		term-equivalence.tex \
 		high-level-complete.tex \
 		matching-continuations-aggregates.tex \
-		ll-system/match-body.tex
+		ll-system/match-body.tex \
+		ll-system/match-aggregate.tex \
+		ll-system/aggregate-cont.tex \
+		ll-system/comprehension-stack.tex \
+		ll-system/comprehension-derivation.tex \
+		ll-system/aggregate-stack.tex
 	pdflatex doc.tex
 	pdflatex doc.tex
 

@@ -1,0 +1,42 @@
+
+\[
+\infer[\conta end]
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \cdot; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\lambda x. B_2 x)Acc, \Omega \rightarrow \Xi'; \Delta'; \Gamma' & Acc = Compute(T, Op)}
+\]
+
+\[
+\infer[\conta nextC \; p]
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\Delta; p_1, \Delta''; \Xi; p; \Omega; \Lambda; \Upsilon), C; P; AG; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\ma \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; \Lambda; \Upsilon), C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\conta nextC \; \bang p]
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; [p_1, \Gamma'; \Delta; \Xi; \bang p; \Omega; \Lambda; \Upsilon], C; P; AG; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\ma \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; [\Gamma'; \Delta; \Xi; \bang p; \Omega; \Lambda; \Upsilon], C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\conta nextC \; empty \; p]
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\Delta; \cdot; \Xi; p; \Omega; \Lambda; \Upsilon), C; P; AG; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; C; P; AG; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\conta nextC \; empty \; \bang p]
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; [\cdot; \Delta; \Xi; \bang p; \Omega; \Lambda; \Upsilon], C; P; AG; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; C; P; AG; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\conta nextP \; \bang p]
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; [p_1, \Gamma'; \Delta_N; \cdot; \bang p; \Omega; \cdot; \Upsilon], P; AG; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\ma \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \Omega; \cdot; [\Gamma'; \Delta_N; \cdot; \bang p; \Omega; \cdot; \Upsilon], P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\conta nextP \; empty \; \bang p]
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; [\cdot; \Delta_N; \cdot; \bang p; \Omega; \cdot; \Upsilon], P; AG; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; P; AG; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]

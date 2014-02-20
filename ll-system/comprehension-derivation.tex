@@ -1,0 +1,24 @@
+
+\[
+\infer[\dc p]
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1, p; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\dc \bang p]
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; \bang p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dc \Gamma; \Xi; \Gamma_1, p; \Delta_1; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\dc \otimes]
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; A \otimes B, \Omega; C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta';\Gamma'}
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; A, B, \Omega; C; P; AB; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta';\Gamma'}
+\]
+
+\[
+\infer[\dc end]
+{\dc \Gamma; \Xi; \Gamma_1; \Delta_1; \cdot; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\contc \Gamma; \Delta_N; \Xi; \Gamma_1; \Delta_1; C; P; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]

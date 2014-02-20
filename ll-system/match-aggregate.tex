@@ -1,0 +1,68 @@
+
+The judgment $\ma$is similar to $\mc$but it has the extra $T$ argument that represents the list of aggregated values. We will assume a $\Psi$ context that contains all the bound variables in order to get the bound variable and a variable $X$ for all $\ma$judgments.
+
+\[
+\infer[\ma p \; ok \; first]
+{\ma \Gamma; \Delta, p_1, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; p, \Omega; \cdot; \cdot; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\ma \Gamma; \Delta, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \cdot; p; \Omega; \cdot; \cdot); \cdot; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\ma p \; ok \; other \; q]
+{\ma \Gamma; \Delta, p_1, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; p, \Omega; C_1, C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\ma &\Gamma; \Delta, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; q, \Lambda; \Upsilon), C_1, C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma' \\ C_1 &= (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda; \Upsilon)\end{split}}
+\]
+
+\[
+\infer[\ma p \; ok \; other \; \bang qC]
+{\ma \Gamma; \Delta, p_1, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; p, \Omega; C_1, C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\ma &\Gamma; \Delta, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, p_1; \Omega; (\Delta, p_1; \Delta''; \Xi; p; \Omega; \Lambda; q, \Upsilon), C_1, C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma' \\ C_1 &= [\Gamma_{old}; \Delta_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda; \Upsilon]\end{split}}
+\]
+
+\[
+\infer[\ma p \; ok \; other \; \bang qP]
+{\ma \Gamma; \Delta, p_1, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; p, \Omega; \cdot; P_1, P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\ma &\Gamma; \Delta, \Delta''; \Xi_N; \Gamma_{N1}; \Delta_{N1}; p_1; \Omega; (\Delta, p_1; \Delta''; \cdot; p; \Omega; \cdot; q, \Upsilon); P_1, P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma' \\ P_1 &= [\Gamma_{old}; \Delta_N; \cdot; q; \Omega_{old}; \cdot; \Upsilon]\\ \Delta_N &= \Delta, p_1, \Delta''\end{split}}
+\]
+
+\[
+\infer[\ma p \; fail]
+{\ma \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; p, \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\conta \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; C; P; \comp A \lolli B; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\ma \bang p \; first]
+{\ma \Gamma, \Gamma', p; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \bang p, \Omega; \cdot; \cdot; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\ma \Gamma, \Gamma', p; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \Omega; \cdot; [\Gamma'; \Delta_N; \cdot; \bang p; \cdot; \Omega; \cdot; \cdot]; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+
+\[
+\infer[\ma \bang p \; other \; \bang qP]
+{\ma \Gamma, \Gamma', p; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \bang p, \Omega; \cdot; P_1, P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\ma &\Gamma, \Gamma', p; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \Omega; [\Gamma'; \Delta_N; \cdot; \bang p; \cdot; \Omega; \cdot; q, \Upsilon], P_1, P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma' \\ P_1 &= [\Gamma_{old}; \Delta_N; \cdot; \bang q; \Omega_{old}; \cdot; \Upsilon]\end{split}}
+\]
+
+\[
+\infer[\ma \bang p \; other \; \bang qC]
+{\ma \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \bang p, \Omega; C_1, C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\ma &\Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; [\Gamma'; \Delta; \Xi; \bang p; \cdot; \Omega; \Lambda; q, \Upsilon], C_1, C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma' \\ C_1 &= [\Gamma_{old}; \Delta_{old}; \Xi_{old}; \bang q; \Omega_{old}; \Lambda; \Upsilon]\end{split}}
+\]
+
+\[
+\infer[\ma \bang p \; other \; qC]
+{\ma \Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \bang p, \Omega; C_1, C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\ma &\Gamma, \Gamma', p; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; [\Gamma'; \Delta; \Xi; \bang p; \cdot; \Omega; \Lambda, q; \Upsilon], C_1, C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma' \\ C_1 &= (\Delta_{old}; \Delta'_{old}; \Xi_{old}; q; \Omega_{old}; \Lambda; \Upsilon)\end{split}}
+\]
+
+\[
+\infer[\ma \otimes]
+{\ma \Delta; \Xi_N; \Delta_{N1}; \Xi; X \otimes Y, \Omega; C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'}
+{\ma \Delta; \Xi_N; \Delta_{N1}; \Xi; X, Y, \Omega; C; P; AG; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'}
+\]
+
+\[
+\infer[\ma end]
+{\ma \Psi; \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; C; P; AG; \Omega_N; \Delta_N; T; X \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dalla \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; C; P; AG; \Omega_N; \Delta_N; V :: T \rightarrow \Xi'; \Delta'; \Gamma' & X : V \in \Psi}
+\]

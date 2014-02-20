@@ -1,0 +1,20 @@
+
+\[
+\infer[\dall end \; linear]
+{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; (\Delta_x; \Delta''; \cdot; p; \Omega; \cdot; \Upsilon); P;  \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\strans &\Xi; P; P' \\ \dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; (\Delta_x - \Xi; \Delta'' - \Xi; \cdot; p; \Omega; \cdot; \Upsilon) ; P' ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) &\rightarrow \Xi'; \Delta'; \Gamma'\end{split}}
+\]
+
+
+\[
+\infer[\dall end \; empty]
+{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; P;  \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\begin{split}\strans &\Xi; P; P' \\ \dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; \cdot ; P' ; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) &\rightarrow \Xi'; \Delta'; \Gamma'\end{split}}
+\]
+
+\[
+\infer[\dall more]
+{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \_, X, C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+{\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; X, C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'}
+\]
+

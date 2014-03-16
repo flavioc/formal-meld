@@ -353,7 +353,7 @@ If $\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'$ and $C$ is well formed in rel
    \begin{itemize}
       \item If a match $\mc \Gamma; \Delta_1, \Delta_2; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ is related to term $A$, context $\Delta_N = \Delta_1, \Delta_2, \Xi$ and context $\Gamma$ then either:
       \begin{enumerate}
-         \item $\do \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$;
+         \item $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$;
          \item $\mz \Delta_x \rightarrow A$ (where $\Delta_x \subseteq \Delta_N$) and one of the following sub-cases is true:
          \begin{enumerate}
             \item $\mc \Gamma; \Delta_1; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, \Delta_2; \cdot; C', C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ (related) and $\Delta_x = \Delta_2$, if $C \neq \cdot$
@@ -405,7 +405,7 @@ If $\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'$ and $C$ is well formed in rel
 \begin{lemma}
 If $\mc \Gamma; \Delta, \Xi; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; A; \cdot; \cdot; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ and the match is related to both $A$, $\Delta_N$ and $\Gamma$ then either:
 \begin{enumerate}
-   \item $\do \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$;
+   \item $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$;
    \item $\mc \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; C'; P'; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ and
    \begin{enumerate}
       \item $\mz \Gamma; \Xi \rightarrow A$
@@ -504,17 +504,17 @@ If we have a matching process with at most a continuation frame in $C$ and a con
    If $\mc \Gamma; \Delta_a, \Delta'_b; \Xi_N; \Gamma_{N1}; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot; \Upsilon); P; \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta_a, \Delta_b, p_1 = \Delta_N$ and $\Gamma$) and $\Delta_a, \Delta_b, p_1 = \Delta, \Xi_1, ..., \Xi_n$  then $\exists n \geq 0$ such that:
    
    \begin{enumerate}
-      \item $\do \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
+      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
       \item $\mz \Gamma; \Xi_1 \rightarrow A$ ... $\mz \Gamma; \Xi_n \rightarrow A$
-      \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\do \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_X \rightarrow \Xi'; \Delta'$
+      \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\done \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_X \rightarrow \Xi'; \Delta'$
    \end{enumerate}
    
    If $\mc \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \Omega; \cdot; P; \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta_N$ and $\Gamma$) and $\Delta_N = \Delta, \Xi_1, ..., \Xi_n$ then $\exists n \geq 0$ such that:
    
    \begin{enumerate}
-      \item $\do \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
+      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
       \item $\mz \Gamma; \Xi_1 \rightarrow A$ ... $\mz \Gamma; \Xi_n \rightarrow A$
-      \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\do \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_X \rightarrow \Xi'; \Delta'$
+      \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\done \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_X \rightarrow \Xi'; \Delta'$
    \end{enumerate}
 \end{theorem}
 
@@ -531,7 +531,7 @@ If we have a matching process with at most a continuation frame in $C$ and a con
       \begin{itemize}
          \item Failure:
          
-         $\do \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (3) from theorem (so $n = 0$)\\
+         $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (3) from theorem (so $n = 0$)\\
          
          \item Success:
          
@@ -585,9 +585,9 @@ We prove that by starting with empty continuation stacks, we get $n$ comprehensi
    If $\mc \Gamma; \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; A; \cdot; \cdot; \comp A \lolli B; \Omega_N; \Delta, \Xi_1, ..., \Xi_n \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta, \Xi_1, ..., \Xi_n = \Delta_N$ and $\Gamma$) then $\exists n \geq 0$ such that:
    
    \begin{enumerate}
-      \item $\do \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
+      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
       \item $\mz \Gamma; \Xi_1 \rightarrow A$ ... $\mz \Gamma; \Xi_n \rightarrow A$
-      \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\do \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_X \rightarrow \Xi'; \Delta'$
+      \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\done \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B, \Omega_X \rightarrow \Xi'; \Delta'$
    \end{enumerate}
 \end{lemma}
 
@@ -597,7 +597,7 @@ We prove that by starting with empty continuation stacks, we get $n$ comprehensi
    \begin{enumerate}
       \item Failure:
       
-      $\do \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (1) no comprehension application was possible ($n = 0$)\\
+      $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (1) no comprehension application was possible ($n = 0$)\\
       
       \item Success:
       
@@ -615,11 +615,10 @@ We prove that by starting with empty continuation stacks, we get $n$ comprehensi
 \subsubsection{Derivation Soundness Theorem}
 
 \begin{theorem}
-   If $\do \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \Omega \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta; \Gamma_1; \Delta_1; \Omega \rightarrow \Xi'; \Delta'; \Gamma'$.
+   If $\done \Gamma; \Delta; \Xi; \Gamma_1; \Delta_1; \Omega \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta; \Gamma_1; \Delta_1; \Omega \rightarrow \Xi'; \Delta'; \Gamma'$.
 \end{theorem}
 
 \begin{proof}
    Use the same approach used in \ref{sec:derivation_theorem}, but using the theorems presented in this section.
 \end{proof}
 
-\subsubsection{Comprehension Soundness Theorem}

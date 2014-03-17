@@ -194,10 +194,10 @@ Presented in the previous section.
 \subsubsection{Aggregate Match Soundness Lemma}
 
 \begin{lemma}
-If $\ma \Gamma; \Delta, \Xi; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; A; \cdot; \cdot; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ and the match is related to both $A$, $\Delta_N$ and $\Gamma$ then either:
+If $\ma \Gamma; \Delta, \Xi; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; A; \cdot; \cdot; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; \cdot \rightarrow \Xi'; \Delta'; \Gamma'$ and the match is related to both $A$, $\Delta_N$ and $\Gamma$ then either:
 \begin{enumerate}
-   \item $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\lambda x. B_2 x)Acc, \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$, where $Acc = Compute(T, Op)$;
-   \item $\ma \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ and
+   \item $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\lambda x. B_2 x)Acc, \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$, where $Acc = Compute(\cdot, Op)$;
+   \item $\ma \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; \cdot \rightarrow \Xi'; \Delta'; \Gamma'$ and
    \begin{enumerate}
       \item $\mz \Gamma; \Xi \rightarrow A$
       \item $C'$ and $P'$ are well formed in relation to $A; \Gamma; \Delta, \Xi$.
@@ -263,7 +263,7 @@ We prove that if we try to derive the head of the aggregate, we will finish this
    Induction on $\Omega_1, ..., \Omega_n$.
 \end{proof}
 
-\subsubsection{Comprehension Derivation Lemma}
+\subsubsection{Aggregate Derivation Lemma}
 
 Now using the previous theorem we prove that we can do the same for the head of the aggregate.
 
@@ -288,19 +288,19 @@ If we have a matching process with at most a continuation frame in $C$ and a con
    If $\ma \Gamma; \Delta_a, \Delta'_b; \Xi_N; \Gamma_{N1}; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot; \Upsilon); P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_1, ..., \Xi_n; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta_a, \Delta_b, p_1 = \Delta_N$ and $\Gamma$) and $\Delta_a, \Delta_b, p_1 = \Delta, \Xi_1, ..., \Xi_n$  then $\exists n \geq 0$ such that:
    
    \begin{enumerate}
-      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
+      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; (\lambda x. B_2 x)Acc, \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$, where $Acc = Compute(V_n :: ... :: V_1 :: T, Op)$
       \item $\mz \Gamma; \Xi_1 \rightarrow A$ ... $\mz \Gamma; \Xi_n \rightarrow A$
       \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\done \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B_1, \Omega_X \rightarrow \Xi'; \Delta'$
-      \item $n$ values $V_i$ for each implication ($V_1 :: ... :: V_n$)
+      \item $n$ values $V_i$ for each implication ($T' = V_n :: ... :: V_1$)
    \end{enumerate}
    
    If $\ma \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \Omega; \cdot; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_1, ..., \Xi_n; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta_N$ and $\Gamma$) and $\Delta_N = \Delta, \Xi_1, ..., \Xi_n$ then $\exists n \geq 0$ such that:
    
    \begin{enumerate}
-      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
+      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; (\lambda x. B_2 x)Acc, \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$, where $Acc = Compute(V_n :: ... :: V_1 :: T, Op)$
       \item $\mz \Gamma; \Xi_1 \rightarrow A$ ... $\mz \Gamma; \Xi_n \rightarrow A$
       \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\done \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B_1, \Omega_X \rightarrow \Xi'; \Delta'$
-      \item $n$ values $V_i$ for each implication ($V_1 :: ... :: V_n$)
+      \item $n$ values $V_i$ for each implication ($T' = V_n :: ... :: V_1$)
    \end{enumerate}
 \end{theorem}
 
@@ -312,12 +312,12 @@ If we have a matching process with at most a continuation frame in $C$ and a con
       
       $\Delta_b = p_1, \Delta'_b$ \hfill (1) from assumption \\
       $\Delta_a, p_1, \Delta'_b = \Delta, p_1, \Xi'_1, ..., \Xi_n = \Delta_N$ ($\Xi_1 = p_1, \Xi_1$) \hfill (2) from assumption \\
-      By applying the comprehension soundness theorem to the assumption, we get:
+      By applying the aggregate match soundness theorem to the assumption, we get:
       
       \begin{itemize}
          \item Failure:
          
-         $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (3) from theorem (so $n = 0$)\\
+         $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\lambda x. B_2 x)Acc, \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$, where $Acc = Compute(T, Op)$; \hfill (3) from theorem (so $n = 0$)\\
          
          \item Success:
          
@@ -371,20 +371,20 @@ We prove that by starting with empty continuation stacks, we get $n$ aggregate v
    If $\ma \Gamma; \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; A; \cdot; \cdot; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_1, ..., \Xi_n; \cdot \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta, \Xi_1, ..., \Xi_n = \Delta_N$ and $\Gamma$) then $\exists n \geq 0$ such that:
    
    \begin{enumerate}
-      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
+      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; (\lambda x. B_2 x)Acc, \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$, where $Acc = Compute(V_n :: ... :: V_1 :: T, Op)$
       \item $\mz \Gamma; \Xi_1 \rightarrow A$ ... $\mz \Gamma; \Xi_n \rightarrow A$
       \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\done \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then \\ $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B_1, \Omega_X \rightarrow \Xi'; \Delta'$
-      \item $n$ values $V_i$ for each implication ($V_1 :: ... :: V_n$)
+      \item $n$ values $V_i$ for each implication ($V_n :: ... :: V_1$)
    \end{enumerate}
 \end{lemma}
 
 \begin{proof}
-   If we apply the aggregate soundness lemma, we get two cases:
+   If we apply the aggregate match soundness lemma, we get two cases:
    
    \begin{enumerate}
       \item Failure:
       
-      $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (1) no comprehension application was possible ($n = 0$)\\
+      $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\lambda x. B_2 x)Acc, \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$, where $Acc = Compute(\cdot, Op)$ \hfill (1) no aggregate application was possible ($n = 0$)\\
       
       \item Success:
       

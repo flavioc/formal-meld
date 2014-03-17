@@ -19,7 +19,8 @@ doc.pdf: doc.tex high-level.tex high-level-simple.tex \
 		ll-system/aggregate-cont.tex \
 		ll-system/comprehension-stack.tex \
 		ll-system/comprehension-derivation.tex \
-		ll-system/aggregate-stack.tex
+		ll-system/aggregate-stack.tex \
+		ll-system/persistent-definitions.tex
 	pdflatex doc.tex
 	pdflatex doc.tex
 

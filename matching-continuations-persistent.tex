@@ -105,128 +105,11 @@ Finally, we add $\Gamma$ and $\Gamma'$ to the main inference rules to complete t
 
 \subsection{Definitions}
 
-
-\subsubsection{Persistent Frame}
-
-\begin{definition}
-A persistent frame $f$ has the form $[\Gamma'; \Delta; \Xi_1, ..., \Xi_m; \bang p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m]$.
-\end{definition}
-
-\subsubsection{Linear Frame}
-
-\begin{definition}
-A linear frame $f$ has the form $(\Delta; \Delta'; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m, \Upsilon_1, ..., \Upsilon_k)$.
-\end{definition}
-
-\subsubsection{Well Formed Frame}
-
-\begin{definition}
-
-Given a triplet $A; \Gamma; \Delta_{inv}$ where $A$ is a term, $\Gamma$ is a multi-set of persistent resources and $\Delta_{inv}$ a multi-set of linear resources we say that a frame $f$ is well-formed iff:
-
-\begin{enumerate}
-   \item Linear frame $f = (\Delta, p_1; \Delta'; \Xi_1, ..., \Xi_m; p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m, \Upsilon_1, ..., \Upsilon_k)$
-   \begin{enumerate}
-      \item $\Lambda_1, ..., \Lambda_m$ are linear atomic terms $p_i$;
-      \item $\Upsilon_1, ..., \Upsilon_k$ are persistent atomic terms $\bang p_i$.
-      \item $\feq{p, \Omega_1, ..., \Omega_n, \Lambda_1, ..., \Lambda_m, \Upsilon_1, ..., \Upsilon_k}{A}$;
-      \item $\mz \Xi \rightarrow \Lambda_1 \otimes ... \otimes \Lambda_m$;
-      \item $\Delta, \Delta', \Xi, p_1 = \Delta_{inv}$;
-      \item $\mz \Gamma; \cdot \rightarrow \Upsilon_1 \otimes ... \otimes \Upsilon_k$.
-   \end{enumerate}
-   \item Persistent frame $f = [\Gamma'; \Delta; \Xi_1, ..., \Xi_m; \bang p; \Omega_1, ..., \Omega_n; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k]$
-      \begin{enumerate}
-         \item $\Lambda_1, ..., \Lambda_m$ are linear atomic terms $p_i$;
-         \item $\Upsilon_1, ..., \Upsilon_k$ are persistent atomic terms $\bang p_i$.
-         \item $\feq{\bang p, \Omega_1, ..., \Omega_n, \Lambda_1, ..., \Lambda_m, \Upsilon_1, ..., \Upsilon_k}{A}$;
-         \item $\mz \Xi \rightarrow \Lambda_1 \otimes ... \otimes \Lambda_m$;
-         \item $\Delta, \Xi = \Delta_{inv}$;
-         \item $\mz \Gamma; \cdot \rightarrow \bang p \otimes \Upsilon_1 \otimes ... \otimes \Upsilon_k$;
-         \item $\Gamma' \subset \Gamma$.
-      \end{enumerate}
-\end{enumerate}
-\end{definition}
-
-\subsubsection{Well Formed Stack}
-
-\begin{definition}
-A continuation stack $C$ is well formed iff every frame is well formed.
-\end{definition}
-
-\subsubsection{Well Related Match}
-
-\begin{definition}
-
-$\mo \Gamma; \Delta; \Xi; \Omega; H; C; R \rightarrow \Xi'; \Delta'$ is related to a term $A$, a context $\Delta_{inv}$  and a context $\Gamma$ iff:
-
-\begin{enumerate}
-   \item $C$ is well formed in relation to $A; \Gamma; \Delta_{inv}$;
-   \item $\Delta, \Xi = \Delta_{inv}$
-   \item Stack relatedness:
-   \begin{enumerate}
-      \item $C = \cdot$
-   
-      $\feq{\Omega}{A}$
-   
-      \item $C = (\Delta_a; \Delta_b; \Xi''; p; \Omega'; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k), C'$
-   
-      \begin{enumerate}
-         \item $\feq{\Omega'}{\Omega}$
-         \item $p_1 \in \Xi$ and $\mz p_1 \rightarrow p$
-         \item $\Xi = \Xi'', p_1$
-      \end{enumerate}
-      \item $C = [\Gamma'; \Delta_a; \Xi''; \bang p; \Omega'; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k], C'$
-      \begin{enumerate}
-         \item $\feq{\Omega}{\Omega'}$
-         \item $\Xi = \Xi''$
-      \end{enumerate}
-   \end{enumerate}
-\end{enumerate}
-
-\end{definition}
-
-\begin{definition}
-$\mc \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ is related to a term $A$, a context $\Delta_{inv}$ and a context $\Gamma$ iff:
-
-\begin{enumerate}
-   \item $P$ is only composed of persistent frames.
-   \item $C$ is composed of either linear or persistent frames, but the first frame is linear.
-   \item $C$ and $P$ are well formed in relation to $A; \Gamma; \Delta_{inv}$;
-   \item $\Delta, \Xi = \Delta_{inv}$
-   \item Stack relatedness:
-   \begin{enumerate}
-      \item $C = \cdot$ and $P = \cdot$
-      
-      $\feq{\Omega}{A}$
-      
-      \item $C = \cdot$ and $P = [\Gamma'; \Delta_a; \Xi''; \bang p; \Omega'; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k], P'$
-      
-      \begin{enumerate}
-         \item $\feq{\Omega}{\Omega'}$
-         \item $\Xi = \Xi''$
-      \end{enumerate}
-      
-      \item $C = (\Delta_a; \Delta_b; \Xi''; p; \Omega'; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k), C'$
-   
-      \begin{enumerate}
-         \item $\feq{\Omega'}{\Omega}$
-         \item $p_1 \in \Xi$ and $\mz p_1 \rightarrow p$
-         \item $\Xi = \Xi'', p_1$
-      \end{enumerate}
-      \item $C = [\Gamma'; \Delta_a; \Xi''; \bang p; \Omega'; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k], C'$
-      \begin{enumerate}
-         \item $\feq{\Omega}{\Omega'}$
-         \item $\Xi = \Xi''$
-      \end{enumerate}
-   \end{enumerate}
-      
-\end{enumerate}
-
-\end{definition}
+\input{ll-system/persistent-definitions}
 
 \subsection{Theorems}
 
-\subsubsection{Body Match Soundness Theorem}
+\subsubsection{Body Match Soundness Theorem}\label{body_match_theorem_persistent}
 
 \begin{theorem}
 
@@ -328,7 +211,7 @@ If $\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'$ and $C$ is well formed in rel
    \end{enumerate}
 \end{proof}
 
-\subsubsection{Body Match Soundness Lemma}
+\subsubsection{Body Match Soundness Lemma}\label{body_match_lemma_persistent}
 
 \begin{lemma}
    Given a match $\mo \Gamma; \Delta_1, \Delta_2; \cdot; A; B; \cdot; R \rightarrow \Xi'; \Delta'; \Gamma'$ that is related to $A$, $\Delta_1, \Delta_2$ and $\Gamma$, we get either:
@@ -375,7 +258,7 @@ If $\cont C; H; R; \Gamma; \Xi'; \Delta'; \Gamma'$ and $C$ is well formed in rel
          \end{enumerate}
       \end{enumerate}
       
-   \item If $\contc \Gamma; \Delta_{N}; \Xi_{N}; \Gamma_{N1}; \Delta_{N1}; C; P; \comp A \lolli B \rightarrow \Xi'; \Delta'; \Gamma'$ and $C$ and $P$ is well formed in relation to $A; \Gamma; \Delta_N$ then either:
+   \item If $\contc \Gamma; \Delta_{N}; \Xi_{N}; \Gamma_{N1}; \Delta_{N1}; C; P; \comp A \lolli B; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$ and $C$ and $P$ is well formed in relation to $A; \Gamma; \Delta_N$ then either:
    
    \begin{enumerate}
       \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; p; \Xi_1, ..., \Xi_n; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m) \in C$ where $C = C', f, C''$ that turns into $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; p; \Xi_1, ..., \Xi_n; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m)$ such that:
@@ -428,10 +311,11 @@ If $\mc \Gamma; \Delta, \Xi; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; A; \cdot; \
    Induction on the size of $P$.
 \end{proof}
 
-\subsubsection{Dall Transformation Theorem}
+\subsubsection{Comprehension Transformation Theorem}
 
 \begin{theorem}
-   If $\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; B; C' ; P'; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'; \Gamma'$, where:
+   If $\dall \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ then \\
+      $\dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; B; C' ; P'; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'; \Gamma'$, where:
    
    \begin{enumerate}
       \item If $C = \cdot$ then $C' = \cdot$;
@@ -449,7 +333,8 @@ If $\mc \Gamma; \Delta, \Xi; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; A; \cdot; \
 We can apply the previous theorem to know that after a successful matching we will start the derivation process:
 
 \begin{lemma}
-   If $\mc \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; B; C; P; \comp A \lolli B;\Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; B; C'; P'; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'; \Gamma'$ where:
+   If $\mc \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; B; C; P; \comp A \lolli B;\Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ then \\
+      $\dc \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; B; C'; P'; \comp A \lolli B; \Omega_N; (\Delta_N - \Xi) \rightarrow \Xi'; \Delta'; \Gamma'$ where:
    
    \begin{enumerate}
       \item If $C = \cdot$ then $C' = \cdot$;
@@ -459,7 +344,7 @@ We can apply the previous theorem to know that after a successful matching we wi
 \end{lemma}
 
 \begin{proof}
-   Invert the assumption and then apply $\dall$ transformation theorem.
+   Invert the assumption and then apply the comprehension transformation theorem.
 \end{proof}
 
 \subsubsection{Comprehension Derivation Theorem}
@@ -470,7 +355,7 @@ We prove that if we try to derive the head of the comprehension, we will finish 
    If $\dc \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_1, ..., \Omega_n; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ then:
    
    \begin{enumerate}
-      \item $\dc \Gamma; \Xi_N; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Omega \rightarrow \Xi'; \Delta'; \Gamma'$;
+      \item $\dc \Gamma; \Xi_N; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \cdot; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$;
       \item If $\dz \Gamma; \Delta; \Xi_N; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_1, ..., \Omega_n, \Omega \rightarrow \Xi'; \Delta'; \Gamma'$
    \end{enumerate}
 \end{theorem}
@@ -487,7 +372,7 @@ Now using the previous theorem we prove that we can do the same for the head of 
    If $\dc \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; B; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ then:
    
    \begin{enumerate}
-      \item $\dc \Gamma; \Xi_N; \Delta_{N1}, \Delta_B; \cdot; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$;
+      \item $\dc \Gamma; \Xi_N; \Gamma_{N1}, \Gamma_B; \Delta_{N1}, \Delta_B; \cdot; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$;
       \item If $\dz \Gamma; \Delta; \Xi_N; \Gamma_{N1}, \Gamma_B; \Delta_{N1}, \Delta_B; \Omega \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; B, \Omega \rightarrow \Xi'; \Delta'; \Gamma'$.
    \end{enumerate}
 \end{theorem}
@@ -601,7 +486,7 @@ We prove that by starting with empty continuation stacks, we get $n$ comprehensi
       
       \item Success:
       
-      $\mc \Gamma; \Xi_2, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi_1; \cdot; C; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ (related) \hfill (1) result from theorem \\
+      $\mc \Gamma; \Xi_2, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi_1; \cdot; C; P; \comp A \lolli B; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ (related) \hfill (1) result from theorem \\
       $\mz \Gamma; \Xi_1 \rightarrow A$ \hfill (2) from theorem \\
       $\dc \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}; \Delta_{N1}; B; C'; P'; \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (3) applying successful comprehension match gives derivation \\
       $\dc \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; \cdot; C'; P'; \comp A \lolli B; \Omega_N; \Delta, \Xi_2, ..., \Xi_n \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (4) using comprehension derivation lemma \\

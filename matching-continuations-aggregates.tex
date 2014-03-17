@@ -37,7 +37,7 @@ We add a new rule for aggregates.
 
 \input{ll-system/comprehension-cont}
 
-\subsubsection{Stack Transformation}
+\subsubsection{Stack Transformation for Comprehensions}
 
 \input{ll-system/strans}
 
@@ -57,7 +57,7 @@ The $\dc$ is identical to the previous system, however it has been extended with
 
 \input{ll-system/aggregate-cont}
 
-\subsubsection{Stack Transform for Aggregates}
+\subsubsection{Stack Transformation for Aggregates}
 
 \input{ll-system/aggregate-stack}
 
@@ -80,3 +80,322 @@ Finally, we add $\Gamma$ and $\Gamma'$ to the main inference rules to complete t
 {\doo \Gamma; \Delta; R, \Phi \rightarrow \Xi'; \Delta';\Gamma'}
 {\ao \Gamma; \Delta; R; (\Phi, \Delta) \rightarrow \Xi';\Delta';\Gamma'}
 \]
+
+\subsection{Definitions}
+
+\input{ll-system/persistent-definitions}
+
+\begin{definition}
+$\ma \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N \rightarrow \Xi'; \Delta'; \Gamma'$ is related to a term $A$, a context $\Delta_{inv}$ and a context $\Gamma$ iff:
+
+\begin{enumerate}
+   \item $P$ is only composed of persistent frames.
+   \item $C$ is composed of either linear or persistent frames, but the first frame is linear.
+   \item $C$ and $P$ are well formed in relation to $A; \Gamma; \Delta_{inv}$;
+   \item $\Delta, \Xi = \Delta_{inv}$
+   \item Stack relatedness:
+   \begin{enumerate}
+      \item $C = \cdot$ and $P = \cdot$
+      
+      $\feq{\Omega}{A}$
+      
+      \item $C = \cdot$ and $P = [\Gamma'; \Delta_a; \Xi''; \bang p; \Omega'; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k], P'$
+      
+      \begin{enumerate}
+         \item $\feq{\Omega}{\Omega'}$
+         \item $\Xi = \Xi''$
+      \end{enumerate}
+      
+      \item $C = (\Delta_a; \Delta_b; \Xi''; p; \Omega'; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k), C'$
+   
+      \begin{enumerate}
+         \item $\feq{\Omega'}{\Omega}$
+         \item $p_1 \in \Xi$ and $\mz p_1 \rightarrow p$
+         \item $\Xi = \Xi'', p_1$
+      \end{enumerate}
+      \item $C = [\Gamma'; \Delta_a; \Xi''; \bang p; \Omega'; \Lambda_1, ..., \Lambda_m; \Upsilon_1, ..., \Upsilon_k], C'$
+      \begin{enumerate}
+         \item $\feq{\Omega}{\Omega'}$
+         \item $\Xi = \Xi''$
+      \end{enumerate}
+   \end{enumerate}
+      
+\end{enumerate}
+
+\end{definition}
+
+\subsection{Theorems}
+
+\subsubsection{Body Match Soundness Theorem}
+
+Same as the theorem presented in Section~\ref{body_match_theorem_persistent}.
+
+\subsubsection{Body Match Soundness Lemma}
+
+Same as the theorem presented in Section~\ref{body_match_lemma_persistent}.
+
+\subsubsection{Comprehension Theorems}
+
+Presented in the previous section.
+
+\subsubsection{Aggregate Match Soundness Theorem}
+
+\begin{theorem}
+   \begin{itemize}
+      \item If a match $\ma \Gamma; \Delta_1, \Delta_2; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \Omega; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ is related to term $A$, context $\Delta_N = \Delta_1, \Delta_2, \Xi$ and context $\Gamma$ then either:
+      \begin{enumerate}
+         \item $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\lambda x. B_2 x)Acc, \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$, where $Acc = Compute(T, Op)$;
+         \item $\mz \Delta_x \rightarrow A$ (where $\Delta_x \subseteq \Delta_N$) and one of the following sub-cases is true:
+         \begin{enumerate}
+            \item $\ma \Gamma; \Delta_1; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, \Delta_2; \cdot; C', C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related) and $\Delta_x = \Delta_2$, if $C \neq \cdot$
+            \item $\ma \Gamma; \Delta_1; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi, \Delta_2; \cdot; C'; P', P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related) and $\Delta_x = \Delta_2$, if $C = \cdot$.
+            \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; p; \Xi_1, ..., \Xi_n; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m) \in C$ where $C = C', f, C''$ that turns into $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; p; \Xi_1, ..., \Xi_n; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m)$ such that:
+               \begin{enumerate}
+                  \item $\ma \Gamma; \Delta_c; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi_1, ..., \Xi_n, \Xi_c; \cdot; C''', f', C''; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related)
+               \end{enumerate}
+               
+            \item $\exists f = [\Gamma_1, p_2, \Gamma_2; \Delta_{c_1}, \Delta_{c_2}; \Xi_c; \bang p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m] \in C$ where $C = C', f, C''$ that turns into $f' = [\Gamma_2; \Delta_{c_1}, \Delta_{c_2}; \Xi_c; \bang p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m]$ such that:
+               \begin{enumerate}
+                  \item $\ma \Gamma; \Delta_{c_1}; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Delta_{c_2}, \Xi_c; \cdot; C''', f', C''; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related)
+               \end{enumerate}
+               
+            \item $\exists f = [\Gamma_1, p_2, \Gamma_2; \Delta_{c_1}, \Delta_{c_2}; \Xi_c; \bang p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m] \in P$ where $P = P', f, P''$ that turns into $f' = [\Gamma_2; \Delta_{c_1}, \Delta_{c_2}; \Xi_c; \bang p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m]$ such that:
+                  \begin{enumerate}
+                     \item $\ma \Gamma; \Delta_{c_1}; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Delta_{c_2}, \Xi_c; \cdot; C'; P''', f', P''; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related)
+                  \end{enumerate}
+         \end{enumerate}
+      \end{enumerate}
+      
+   \item If $\conta \Gamma; \Delta_{N}; \Xi_{N}; \Gamma_{N1}; \Delta_{N1}; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ and $C$ and $P$ is well formed in relation to $A; \Gamma; \Delta_N$ then either:
+   
+   \begin{enumerate}
+      \item $\exists f = (\Delta_a; \Delta_{b_1}, p_2, \Delta_{b_2}; p; \Xi_1, ..., \Xi_n; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m) \in C$ where $C = C', f, C''$ that turns into $f' = (\Delta_a, \Delta_{b_1}, p_2; \Delta_{b_2}; p; \Xi_1, ..., \Xi_n; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m)$ such that:
+         \begin{enumerate}
+            \item $\ma \Gamma; \Delta_c; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi_1, ..., \Xi_n, \Xi_c; \cdot; C''', f', C''; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related)
+         \end{enumerate}
+         
+      \item $\exists f = [\Gamma_1, p_2, \Gamma_2; \Delta_{c_1}, \Delta_{c_2}; \Xi_c; \bang p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m] \in C$ where $C = C', f, C''$ that turns into $f' = [\Gamma_2; \Delta_{c_1}, \Delta_{c_2}; \Xi_c; \bang p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m]$ such that:
+         \begin{enumerate}
+            \item $\ma \Gamma; \Delta_{c_1}; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Delta_{c_2}, \Xi_c; \cdot; C''', f', C''; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related)
+         \end{enumerate}
+         
+      \item $\exists f = [\Gamma_1, p_2, \Gamma_2; \Delta_{c_1}, \Delta_{c_2}; \Xi_c; \bang p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m] \in P$ where $P = P', f, P''$ that turns into $f' = [\Gamma_2; \Delta_{c_1}, \Delta_{c_2}; \Xi_c; \bang p; \Omega_1, ..., \Omega_k; \Lambda_1, ..., \Lambda_n; \Upsilon_1, ..., \Upsilon_m]$ such that:
+            \begin{enumerate}
+               \item $\ma \Gamma; \Delta_{c_1}; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Delta_{c_2}, \Xi_c; \cdot; C'; P''', f', P''; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related)
+            \end{enumerate}
+   \end{enumerate}
+   \end{itemize}
+\end{theorem}
+
+\begin{proof}
+   Mutual induction on $\mo$ and $\contc$. $\mo$ on the size of $\Omega$ and $\contc$ first on the size of $\Delta'$ or $\Gamma'$ and then on the size of $C$ and $P$ merged. We use the same approach as in Section~\ref{sec:comprehension_match_soundness}.
+\end{proof}
+
+\subsubsection{Aggregate Match Soundness Lemma}
+
+\begin{lemma}
+If $\ma \Gamma; \Delta, \Xi; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; A; \cdot; \cdot; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ and the match is related to both $A$, $\Delta_N$ and $\Gamma$ then either:
+\begin{enumerate}
+   \item $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; (\lambda x. B_2 x)Acc, \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$, where $Acc = Compute(T, Op)$;
+   \item $\ma \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ and
+   \begin{enumerate}
+      \item $\mz \Gamma; \Xi \rightarrow A$
+      \item $C'$ and $P'$ are well formed in relation to $A; \Gamma; \Delta, \Xi$.
+   \end{enumerate}
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+   Direct application of the previous theorem.
+\end{proof}
+
+\subsubsection{Aggregate Transformation Theorem}
+
+\begin{theorem}
+   If $\dalla \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ then \\
+      $\da \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; B_1; C' ; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; (\Delta_N - \Xi); T \rightarrow \Xi'; \Delta'; \Gamma'$, where:
+   
+   \begin{enumerate}
+      \item If $C = \cdot$ then $C' = \cdot$;
+      \item If $C = C_1, (\Delta_a; \Delta_b; \cdot; p; \Omega; \cdot; \Upsilon)$ then $C' = (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; p; \Omega; \cdot; \Upsilon)$;
+      \item $P'$ is the transformation of stack $P$, where $\forall f = [\Gamma'; \Delta_N; \cdot; \bang p; \Omega; \cdot; \Upsilon] \in P$ will turn into $f' = [\Gamma'; \Delta_N - \Xi; \cdot; \bang p; \Omega; \cdot; \Upsilon]$.
+   \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+   Use induction on the size of the stack $C$ to get the result of $C'$ then apply the strans theorem to get $P'$.
+\end{proof}
+
+\subsubsection{Successful Aggregate Match Gives Derivation}
+
+We can apply the previous theorem to know that after a successful matching we will start the derivation process:
+
+\begin{lemma}
+   If $\ma \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi; \cdot; B; C; P; \aggregate{Op}{X}{A}{B_1}{B_2};\Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ then \\
+      $\da \Gamma; \Xi_N, \Xi; \Gamma_{N1}; \Delta_{N1}; B_1; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; (\Delta_N - \Xi); V :: T \rightarrow \Xi'; \Delta'; \Gamma'$ where:
+   
+   \begin{enumerate}
+      \item If $C = \cdot$ then $C' = \cdot$;
+      \item If $C = C_1, (\Delta_a; \Delta_b; \cdot; p; \Omega; \cdot; \Upsilon)$ then $C' = (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; p; \Omega; \cdot; \Upsilon)$ then $C' = (\Delta_a - \Xi; \Delta_b - \Xi; \cdot; p; \Omega; \cdot; \Upsilon)$;
+      \item $P'$ is the transformation of stack $P$, where $\forall f = [\Gamma'; \Delta_N; \cdot; \bang p; \Omega; \cdot; \Upsilon] \in P$ will turn into $f' = [\Gamma'; \Delta_N - \Xi; \cdot; \bang p; \Omega; \cdot; \Upsilon]$.
+      \item $V$ is the new aggregate value.
+   \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+   Invert the assumption and then apply the aggregate transformation theorem.
+\end{proof}
+
+\subsubsection{Aggregate Derivation Theorem}
+
+We prove that if we try to derive the head of the aggregate, we will finish this process and that giving a derivation at the high level with the same results we can restore the terms we have derived. We will use this result to prove the soundness of the aggregate mechanism.
+
+\begin{theorem}
+   If $\da \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_1, ..., \Omega_n; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ then:
+   
+   \begin{enumerate}
+      \item $\da \Gamma; \Xi_N; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \cdot; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$;
+      \item If $\dz \Gamma; \Delta; \Xi_N; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_1, ..., \Omega_n, \Omega \rightarrow \Xi'; \Delta'; \Gamma'$
+   \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+   Induction on $\Omega_1, ..., \Omega_n$.
+\end{proof}
+
+\subsubsection{Comprehension Derivation Lemma}
+
+Now using the previous theorem we prove that we can do the same for the head of the aggregate.
+
+\begin{theorem}
+   If $\da \Gamma; \Xi_N; \Gamma_{N1}; \Delta_{N1}; B_1; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ then:
+   
+   \begin{enumerate}
+      \item $\da \Gamma; \Xi_N; \Gamma_{N1}, \Gamma_B; \Delta_{N1}, \Delta_B; \cdot; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$;
+      \item If $\dz \Gamma; \Delta; \Xi_N; \Gamma_{N1}, \Gamma_B; \Delta_{N1}, \Delta_B; \Omega \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta; \Xi_N; \Gamma_{N1}; \Delta_{N1}; B_1, \Omega \rightarrow \Xi'; \Delta'; \Gamma'$.
+   \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+   Use the theorem above.
+\end{proof}
+
+\subsubsection{Aggregate Theorem}
+
+If we have a matching process with at most a continuation frame in $C$ and a continuation stack $P$, where $C, P$ are not empty, we can derive $n \neq 0$ aggregate values and have $n$ valid matching processes and $n$ derivations at the high level. Since $C, P$ will be reduced in size, either by frame use or the arguments in the frames get reduced each time a comprehension is applied, we have a valid induction hypothesis.
+
+\begin{theorem}
+   If $\ma \Gamma; \Delta_a, \Delta'_b; \Xi_N; \Gamma_{N1}; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot; \Upsilon); P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_1, ..., \Xi_n; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta_a, \Delta_b, p_1 = \Delta_N$ and $\Gamma$) and $\Delta_a, \Delta_b, p_1 = \Delta, \Xi_1, ..., \Xi_n$  then $\exists n \geq 0$ such that:
+   
+   \begin{enumerate}
+      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
+      \item $\mz \Gamma; \Xi_1 \rightarrow A$ ... $\mz \Gamma; \Xi_n \rightarrow A$
+      \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\done \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B_1, \Omega_X \rightarrow \Xi'; \Delta'$
+      \item $n$ values $V_i$ for each implication ($V_1 :: ... :: V_n$)
+   \end{enumerate}
+   
+   If $\ma \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; \Omega; \cdot; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_1, ..., \Xi_n; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta_N$ and $\Gamma$) and $\Delta_N = \Delta, \Xi_1, ..., \Xi_n$ then $\exists n \geq 0$ such that:
+   
+   \begin{enumerate}
+      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
+      \item $\mz \Gamma; \Xi_1 \rightarrow A$ ... $\mz \Gamma; \Xi_n \rightarrow A$
+      \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\done \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B_1, \Omega_X \rightarrow \Xi'; \Delta'$
+      \item $n$ values $V_i$ for each implication ($V_1 :: ... :: V_n$)
+   \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+   By mutual induction, first on either the size of $\Delta'_b$ (first argument) or $\Gamma'$ (second argument) and then on the size of $C, P$.
+   
+   \begin{enumerate}
+      \item first implication:
+      
+      $\Delta_b = p_1, \Delta'_b$ \hfill (1) from assumption \\
+      $\Delta_a, p_1, \Delta'_b = \Delta, p_1, \Xi'_1, ..., \Xi_n = \Delta_N$ ($\Xi_1 = p_1, \Xi_1$) \hfill (2) from assumption \\
+      By applying the comprehension soundness theorem to the assumption, we get:
+      
+      \begin{itemize}
+         \item Failure:
+         
+         $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (3) from theorem (so $n = 0$)\\
+         
+         \item Success:
+         
+         $\mz \Gamma; \Xi_1 \rightarrow A$ \hfill (3) from theorem \\
+         
+         \begin{enumerate}
+            \item Without backtracking:
+            
+            $\ma \Gamma; \Delta, \Xi_2, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; p_1, \Xi'_1; \cdot; C', (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot; \Upsilon); P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (4) from theorem \\
+            $\da \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}; \Delta_{N1}; B_1; (\Delta_a; \Delta'_b - (\Xi_1); \cdot; p; \Omega; \cdot; \Upsilon); P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_, \Xi_2, ..., \Xi_n; V_1 :: T \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (5) using successful aggregate matches gives derivation lemma to (4) \\
+              $\da \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; \cdot; (\Delta_a; \Delta'_b - (\Xi_1); \cdot; p; \Omega; \cdot; \Upsilon); P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_2, ..., \Xi_n; V_1 :: T \rightarrow \Xi'; \Delta'$ \hfill (6) applying aggregate derivation lemma on (5) \\
+              if $\forall \Omega_x, \Delta_x. \dz \Gamma; \Delta_x; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then \\
+              $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1; \Gamma_{N1}; \Delta_{N1}; B_1, \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (7) from the same lemma \\
+              $\conta \Gamma; \Delta, \Xi_2, ..., \Xi_n; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; (\Delta_a; \Delta'_b - (\Xi_1); \cdot; p; \Omega; \cdot; \Upsilon); P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; V_1 :: T \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (8) inversion of (7) \\
+              
+              By inverting (8) we either fail ($n = 1$) or we get a new match. For the latter case, we apply induction to get the remaining $n - 1$ aggregates.
+            
+            \item With backtracking:
+            
+            \begin{enumerate}
+               \item Linear frame
+               
+               $f = (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot; \Upsilon)$ \hfill (4) from theorem \\
+               turns into $f' = (\Delta_a, p_1, \Delta'''_b, p_2; \Delta''_b; \cdot; p; \Omega; \cdot; \Upsilon)$ \hfill (5) from theorem \\
+               $\ma \Gamma; \Delta, \Xi_2, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; p_2, \Xi'_1; \cdot; C', f'; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (6) from theorem \\
+               
+               Use the same approach as the case without backtracking.
+               
+               \item Persistent frame
+               
+               $f = [\Gamma''_1, p_2, \Gamma''_2; \Delta_N; \cdot; \bang p; \Omega; \cdot; \Upsilon]$ \hfill (4) from theorem \\
+               turns into $f' = [\Gamma''_2; \Delta_N; \cdot; \bang p; \Omega; \cdot; \Upsilon]$ \hfill (5) from theorem \\
+               $\ma \Gamma; \Delta, \Xi_2, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi_1; \cdot; C'; P', f', P''; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; T \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (6) from theorem \\
+               
+               Use the same approach as the case without backtracking.
+            \end{enumerate}
+         \end{enumerate}
+      \end{itemize}
+      
+      \item second implication:
+      
+      Use the same approach as the one used in the first implication.
+   \end{enumerate}
+\end{proof}
+
+\subsubsection{Aggregate Lemma}
+
+We prove that by starting with empty continuation stacks, we get $n$ aggregate values.
+
+\begin{lemma}
+   If $\ma \Gamma; \Delta, \Xi_1, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \cdot; A; \cdot; \cdot; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_1, ..., \Xi_n; \cdot \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta, \Xi_1, ..., \Xi_n = \Delta_N$ and $\Gamma$) then $\exists n \geq 0$ such that:
+   
+   \begin{enumerate}
+      \item $\done \Gamma; \Delta_N; \Xi_N, \Xi_1, ..., \Xi_n; \Gamma_{N1}, \Gamma_1, ..., \Gamma_n; \Delta_{N1}, \Delta_1, ..., \Delta_n; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$
+      \item $\mz \Gamma; \Xi_1 \rightarrow A$ ... $\mz \Gamma; \Xi_n \rightarrow A$
+      \item $n$ implications from $1...i...n$ such that: $\forall \Omega_x, \Delta_x.$ if $\done \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Gamma_{N1}, \Gamma_1, ..., \Gamma_i; \Delta_{N1}, \Delta_1, ..., \Delta_i; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then \\ $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1, ..., \Xi_i; \Delta_{N1}, \Delta_1, ..., \Delta_{i-1}; B_1, \Omega_X \rightarrow \Xi'; \Delta'$
+      \item $n$ values $V_i$ for each implication ($V_1 :: ... :: V_n$)
+   \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+   If we apply the aggregate soundness lemma, we get two cases:
+   
+   \begin{enumerate}
+      \item Failure:
+      
+      $\done \Gamma; \Delta_N; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Omega_N \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (1) no comprehension application was possible ($n = 0$)\\
+      
+      \item Success:
+      
+      $\ma \Gamma; \Xi_2, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi_1; \cdot; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; \cdot \rightarrow \Xi'; \Delta'; \Gamma'$ (related) \hfill (1) result from theorem \\
+      $\mz \Gamma; \Xi_1 \rightarrow A$ \hfill (2) from theorem \\
+      $\da \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}; \Delta_{N1}; B; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_2, ..., \Xi_n; V_1 \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (3) applying successful comprehension match gives derivation \\
+      $\da \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; \cdot; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_2, ..., \Xi_n; V_1 \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (4) using comprehension derivation lemma \\
+      if $\forall \Omega_x, \Delta_x. \dz \Gamma; \Delta_x; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1; \Gamma_{N1}; \Delta_{N1}; B_1, \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (5) from the same lemma \\
+      $\conta \Gamma; \Delta, \Xi_2, ..., \Xi_n; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; V_1 \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (6) inversion of (5) \\
+      
+      Invert (6) to get either $0$ applications of the aggregate or apply the aggregate theorem to the inversion to get the remaining $n-1$. 
+   \end{enumerate}
+\end{proof}
+

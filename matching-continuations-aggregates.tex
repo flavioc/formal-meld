@@ -282,7 +282,7 @@ Now using the previous theorem we prove that we can do the same for the head of 
 
 \subsubsection{Aggregate Theorem}
 
-If we have a matching process with at most a continuation frame in $C$ and a continuation stack $P$, where $C, P$ are not empty, we can derive $n \neq 0$ aggregate values and have $n$ valid matching processes and $n$ derivations at the high level. Since $C, P$ will be reduced in size, either by frame use or the arguments in the frames get reduced each time a comprehension is applied, we have a valid induction hypothesis.
+If we have a matching process with at most a continuation frame in $C$ and a continuation stack $P$, where $C, P$ are not empty, we can derive $n \neq 0$ aggregate values and have $n$ valid matching processes and $n$ derivations at the high level. Since $C, P$ will be reduced in size, either by frame use or the arguments in the frames get reduced each time an aggregate is applied, we have a valid induction hypothesis.
 
 \begin{theorem}
    If $\ma \Gamma; \Delta_a, \Delta'_b; \Xi_N; \Gamma_{N1}; \Delta_{N1}; p_1; \Omega; (\Delta_a, p_1; \Delta'_b; \cdot; p; \Omega; \cdot; \Upsilon); P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_1, ..., \Xi_n; T \rightarrow \Xi'; \Delta'; \Gamma'$ (related to $A$, $\Delta_a, \Delta_b, p_1 = \Delta_N$ and $\Gamma$) and $\Delta_a, \Delta_b, p_1 = \Delta, \Xi_1, ..., \Xi_n$  then $\exists n \geq 0$ such that:
@@ -390,8 +390,8 @@ We prove that by starting with empty continuation stacks, we get $n$ aggregate v
       
       $\ma \Gamma; \Xi_2, ..., \Xi_n; \Xi_N; \Gamma_{N1}; \Delta_{N1}; \Xi_1; \cdot; C; P; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta_N; \cdot \rightarrow \Xi'; \Delta'; \Gamma'$ (related) \hfill (1) result from theorem \\
       $\mz \Gamma; \Xi_1 \rightarrow A$ \hfill (2) from theorem \\
-      $\da \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}; \Delta_{N1}; B; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_2, ..., \Xi_n; V_1 \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (3) applying successful comprehension match gives derivation \\
-      $\da \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; \cdot; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_2, ..., \Xi_n; V_1 \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (4) using comprehension derivation lemma \\
+      $\da \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}; \Delta_{N1}; B; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_2, ..., \Xi_n; V_1 \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (3) applying successful aggregate match gives derivation \\
+      $\da \Gamma; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; \cdot; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; \Delta, \Xi_2, ..., \Xi_n; V_1 \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (4) using aggregate derivation lemma \\
       if $\forall \Omega_x, \Delta_x. \dz \Gamma; \Delta_x; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ then $\dz \Gamma; \Delta_x; \Xi_N, \Xi_1; \Gamma_{N1}; \Delta_{N1}; B_1, \Omega_x \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (5) from the same lemma \\
       $\conta \Gamma; \Delta, \Xi_2, ..., \Xi_n; \Xi_N, \Xi_1; \Gamma_{N1}, \Gamma_1; \Delta_{N1}, \Delta_1; C'; P'; \aggregate{Op}{X}{A}{B_1}{B_2}; \Omega_N; V_1 \rightarrow \Xi'; \Delta'; \Gamma'$ \hfill (6) inversion of (5) \\
       
